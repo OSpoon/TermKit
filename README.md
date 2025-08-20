@@ -1,9 +1,11 @@
-# DepCmd
+<h1 align="center">DepCmd</h1>
+<p align="center">
+<a href="https://marketplace.visualstudio.com/items?itemName=ospoon.dep-cmd" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/v/ospoon.dep-cmd.svg?color=blue&amp;label=VS%20Code%20Marketplace&logo=visual-studio-code" alt="Visual Studio Marketplace Version" /></a>
+<a href="https://marketplace.visualstudio.com/items?itemName=ospoon.dep-cmd" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/d/ospoon.dep-cmd.svg?color=4bdbe3" alt="Visual Studio Marketplace Downloads" /></a>
+<a href="https://marketplace.visualstudio.com/items?itemName=ospoon.dep-cmd" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/i/ospoon.dep-cmd.svg?color=63ba83" alt="Visual Studio Marketplace Installs" /></a>
+<br/>
 
 一个专为开发者设计的 VS Code 扩展，旨在简化开发阶段各种终端命令的使用，减少记忆负担，提高开发效率。
-
-<a href="https://marketplace.visualstudio.com/items?itemName=OSpoon.dep-cmd" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/v/OSpoon.DepCmd.svg?color=eee&amp;label=VS%20Code%20Marketplace&logo=visual-studio-code" alt="Visual Studio Marketplace Version" /></a>
-<a href="https://kermanx.github.io/reactive-vscode/" target="__blank"><img src="https://img.shields.io/badge/made_with-reactive--vscode-%23007ACC?style=flat&labelColor=%23229863"  alt="Made with reactive-vscode" /></a>
 
 ## ✨ 特性
 
