@@ -1,7 +1,6 @@
 <p align="center">
 <a href="https://github.com/OSpoon/DepCmd">
 <img src="./res/icon.png" alt="logo" width='126'/>
-<p align="center" style="font-size: 36px;">DepCmd</p>
 </a>
 </p>
 
@@ -11,7 +10,7 @@
 <a href="https://marketplace.visualstudio.com/items?itemName=ospoon.dep-cmd" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/i/ospoon.dep-cmd.svg?color=63ba83" alt="Visual Studio Marketplace Installs" /></a>
 <br/>
 
-一个专为开发者设计的 VS Code 扩展，旨在简化开发阶段各种终端命令的使用，减少记忆负担，提高开发效率。
+DepCmd 是一个专为开发者设计的 VS Code 扩展，旨在简化开发阶段各种终端命令的使用，减少记忆负担，提高开发效率。
 
 ## ✨ 特性
 
