@@ -1,9 +1,9 @@
-import type { DepCmdTreeItem } from './treeProvider'
+import type { DepCmdTreeItem } from './provider'
 import { defineExtension } from 'reactive-vscode'
 import * as vscode from 'vscode'
-import { CommandManager } from './commandManager'
 import { getDefaultCommands } from './commands'
-import { DepCmdProvider } from './treeProvider'
+import { CommandManager } from './manager'
+import { DepCmdProvider } from './provider'
 
 const { activate, deactivate } = defineExtension((context: vscode.ExtensionContext) => {
   // Initialize command manager

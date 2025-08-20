@@ -1,4 +1,4 @@
-import type { UserCommand } from '../commandManager'
+import type { UserCommand } from '../manager'
 import type { CommandItem } from './types'
 import { CONDA_COMMANDS } from './conda'
 import { DOCKER_COMMANDS } from './docker'

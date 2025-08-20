@@ -1,4 +1,4 @@
-import type { CommandManager } from './commandManager'
+import type { CommandManager } from './manager'
 import * as vscode from 'vscode'
 import { getCategoryConfig } from './commands/index'
 
