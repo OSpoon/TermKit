@@ -1,7 +1,6 @@
 import type { DepCmdTreeItem } from './provider'
 import { defineExtension } from 'reactive-vscode'
 import * as vscode from 'vscode'
-import { getDefaultCommands } from './commands'
 import { CommandManager } from './manager'
 import { DepCmdProvider } from './provider'
 
@@ -23,11 +22,10 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
     try {
       await commandManager.loadCommands()
 
-      // If no commands exist in any category, initialize with defaults
-      const allCommands = commandManager.getAllCommands()
+      // If no commands exist in any category, they will be automatically initialized from database
+      const allCommands = await commandManager.getAllCommands()
       if (allCommands.length === 0) {
-        console.warn('No existing commands found, initializing with defaults...')
-        await commandManager.initializeWithDefaults(getDefaultCommands())
+        console.warn('No existing commands found, database should have been initialized with defaults...')
       }
 
       // Always refresh the tree view after initialization
@@ -42,12 +40,12 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
   // Call initialization immediately
   initializeCommands()
 
-  // Register refresh command - reloads data from JSON file
+  // Register refresh command - reloads data from database
   const refreshCommand = vscode.commands.registerCommand('depCmd.refreshView', async () => {
     try {
-      await commandManager.reloadFromFile()
+      await commandManager.reloadFromDatabase()
       depCmdProvider.refresh()
-      vscode.window.showInformationMessage('Command memories reloaded from file!')
+      vscode.window.showInformationMessage('Command memories reloaded from database!')
     }
     catch (error) {
       vscode.window.showErrorMessage(`Failed to reload command memories: ${error}`)
@@ -63,7 +61,7 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
 
   // Register search commands
   const searchCommand = vscode.commands.registerCommand('depCmd.searchCommands', async () => {
-    const allCommands = commandManager.getAllCommands()
+    const allCommands = await commandManager.getAllCommands()
     const items = allCommands.map(cmd => ({
       label: cmd.label,
       description: cmd.command,
@@ -110,32 +108,28 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
     }
   })
 
-  // Register edit command memories - opens JSON file for direct editing
+  // Register edit command memories - opens database file for direct editing
   const editCommand = vscode.commands.registerCommand('depCmd.openCommandsFile', async () => {
     try {
-      const filePath = commandManager.getCommandsFilePath()
+      const filePath = commandManager.getDatabasePath()
 
       // Show information about the file location
       const result = await vscode.window.showInformationMessage(
-        `Opening command memories file for editing. After making changes, click the refresh button to reload.`,
+        `Opening command database file for viewing. This is a SQLite database file.`,
         { modal: false },
-        'Open File',
         'Show File Path',
         'Cancel',
       )
 
-      if (result === 'Open File') {
-        await commandManager.openCommandsFile()
-      }
-      else if (result === 'Show File Path') {
-        vscode.window.showInformationMessage(`Command memories file location: ${filePath}`)
+      if (result === 'Show File Path') {
+        vscode.window.showInformationMessage(`Command database file location: ${filePath}`)
         // Also copy to clipboard
         await vscode.env.clipboard.writeText(filePath)
         vscode.window.showInformationMessage('File path copied to clipboard')
       }
     }
     catch (error) {
-      vscode.window.showErrorMessage(`Failed to open command memories file: ${error}`)
+      vscode.window.showErrorMessage(`Failed to open command database file: ${error}`)
     }
   })
 

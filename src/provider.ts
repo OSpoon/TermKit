@@ -1,6 +1,25 @@
 import type { CommandManager } from './manager'
 import * as vscode from 'vscode'
-import { getCategoryConfig } from './commands/index'
+
+// 定义类别配置
+interface CategoryConfig {
+  displayName: string
+  icon: string
+}
+
+const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
+  git: { displayName: 'Git', icon: 'git-branch' },
+  npm: { displayName: 'NPM', icon: 'package' },
+  yarn: { displayName: 'Yarn', icon: 'package' },
+  docker: { displayName: 'Docker', icon: 'server-process' },
+  pip: { displayName: 'Python/Pip', icon: 'snake' },
+  conda: { displayName: 'Conda', icon: 'library' },
+  rust: { displayName: 'Rust', icon: 'gear' },
+}
+
+function getCategoryConfig(category: string): CategoryConfig {
+  return CATEGORY_CONFIGS[category] || { displayName: category.charAt(0).toUpperCase() + category.slice(1), icon: 'gear' }
+}
 
 export class DepCmdTreeItem extends vscode.TreeItem {
   public readonly commandText?: string
@@ -49,12 +68,12 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
 
   refresh(skipReload: boolean = false): void {
     if (skipReload) {
-      // Just refresh the tree view without reloading from file
+      // Just refresh the tree view without reloading from database
       this._onDidChangeTreeData.fire()
     }
     else {
-      // Reload commands from file and refresh tree
-      this.commandManager.reloadFromFile().then(() => {
+      // Reload commands from database and refresh tree
+      this.commandManager.reloadFromDatabase().then(() => {
         this._onDidChangeTreeData.fire()
       }).catch((error) => {
         console.error('Failed to reload commands:', error)
@@ -76,11 +95,11 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
     if (!element) {
       // Root level - show categories dynamically
       const categories: DepCmdTreeItem[] = []
-      const availableCategories = this.commandManager.getAvailableCategories()
+      const availableCategories = await this.commandManager.getAvailableCategories()
 
-      availableCategories.forEach((category) => {
+      for (const category of availableCategories) {
         if (defaultCategory === 'all' || defaultCategory === category) {
-          const commands = this.commandManager.getCommandsByCategory(category)
+          const commands = await this.commandManager.getCommandsByCategory(category)
           if (commands.length > 0) {
             const categoryConfig = getCategoryConfig(category)
             categories.push(new DepCmdTreeItem(
@@ -91,7 +110,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
             ))
           }
         }
-      })
+      }
 
       return categories
     }
@@ -102,7 +121,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       const categoryDisplayName = labelMatch ? labelMatch[1] : element.category || 'custom'
       const category = element.category || categoryDisplayName.toLowerCase()
 
-      let commands = this.commandManager.getCommandsByCategory(category)
+      let commands = await this.commandManager.getCommandsByCategory(category)
 
       if (sortCommands) {
         commands = [...commands].sort((a, b) => a.label.localeCompare(b.label))

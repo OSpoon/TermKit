@@ -1,36 +1,15 @@
-import * as fs from 'node:fs'
-import * as path from 'node:path'
-import { promisify } from 'node:util'
-import * as vscode from 'vscode'
+import type * as vscode from 'vscode'
+import type { UserCommand } from './database'
+import { DatabaseManager } from './database'
 
-const readFile = promisify(fs.readFile)
-const writeFile = promisify(fs.writeFile)
-const mkdir = promisify(fs.mkdir)
-
-export interface UserCommand {
-  label: string
-  command: string
-  description?: string
-  category: string // Make this flexible
-  icon?: string // VS Code ThemeIcon name for individual commands
-}
-
-export interface CommandsData {
-  version: string
-  commands: Record<string, UserCommand[]> // Dynamic structure
-}
+export type { UserCommand } from './database'
 
 export class CommandManager {
   private static _instance: CommandManager
-  private _commandsData: CommandsData
-  private _commandsFilePath: string
+  private _database: DatabaseManager
 
   private constructor(context: vscode.ExtensionContext) {
-    this._commandsFilePath = path.join(context.globalStorageUri.fsPath, 'commands.json')
-    this._commandsData = {
-      version: '1.0.0',
-      commands: {}, // Start with empty dynamic structure
-    }
+    this._database = DatabaseManager.getInstance(context)
   }
 
   public static getInstance(context?: vscode.ExtensionContext): CommandManager {
@@ -40,95 +19,146 @@ export class CommandManager {
     return CommandManager._instance
   }
 
-  public async loadCommands(): Promise<CommandsData> {
+  public async loadCommands(): Promise<void> {
     try {
-      // Ensure directory exists
-      const dir = path.dirname(this._commandsFilePath)
-      await mkdir(dir, { recursive: true })
-
-      // Try to read existing commands
-      const data = await readFile(this._commandsFilePath, 'utf8')
-      this._commandsData = JSON.parse(data)
-      console.warn('Loaded user commands from:', this._commandsFilePath)
+      await this._database.initialize()
+      console.warn('Commands loaded from database')
     }
     catch (error) {
-      // File doesn't exist, keep default empty structure
-      console.warn(`No existing commands file found, using default empty structure: ${error}`)
-      // _commandsData is already initialized with empty structure in constructor
+      console.error('Failed to load commands from database:', error)
+      throw error
     }
-    return this._commandsData
   }
 
+  public async getAllCommands(): Promise<UserCommand[]> {
+    try {
+      return this._database.getAllCommands()
+    }
+    catch (error) {
+      console.error('Failed to get all commands:', error)
+      return []
+    }
+  }
+
+  public async getCommandsByCategory(category: string): Promise<UserCommand[]> {
+    try {
+      return this._database.getCommandsByCategory(category)
+    }
+    catch (error) {
+      console.error('Failed to get commands by category:', error)
+      return []
+    }
+  }
+
+  public async getAvailableCategories(): Promise<string[]> {
+    try {
+      return this._database.getAvailableCategories()
+    }
+    catch (error) {
+      console.error('Failed to get available categories:', error)
+      return []
+    }
+  }
+
+  public async addCommand(command: Omit<UserCommand, 'id' | 'created_at' | 'updated_at'>): Promise<void> {
+    try {
+      this._database.addCommand(command)
+      console.warn('Command added successfully')
+    }
+    catch (error) {
+      console.error('Failed to add command:', error)
+      throw error
+    }
+  }
+
+  public async updateCommand(id: number, command: Partial<UserCommand>): Promise<void> {
+    try {
+      this._database.updateCommand(id, command)
+      console.warn('Command updated successfully')
+    }
+    catch (error) {
+      console.error('Failed to update command:', error)
+      throw error
+    }
+  }
+
+  public async deleteCommand(id: number): Promise<void> {
+    try {
+      this._database.deleteCommand(id)
+      console.warn('Command deleted successfully')
+    }
+    catch (error) {
+      console.error('Failed to delete command:', error)
+      throw error
+    }
+  }
+
+  public async searchCommands(query: string): Promise<UserCommand[]> {
+    try {
+      return this._database.searchCommands(query)
+    }
+    catch (error) {
+      console.error('Failed to search commands:', error)
+      return []
+    }
+  }
+
+  public getDatabasePath(): string {
+    return this._database.getDatabasePath()
+  }
+
+  public async openDatabase(): Promise<void> {
+    try {
+      await this._database.openDatabase()
+    }
+    catch (error) {
+      console.error('Failed to open database:', error)
+      throw error
+    }
+  }
+
+  public async reloadFromDatabase(): Promise<void> {
+    try {
+      this._database.reload()
+      console.warn('Commands reloaded from database')
+    }
+    catch (error) {
+      console.error('Failed to reload from database:', error)
+      throw error
+    }
+  }
+
+  // 保留兼容性方法
   public async saveCommands(): Promise<void> {
-    try {
-      const dir = path.dirname(this._commandsFilePath)
-      await mkdir(dir, { recursive: true })
-      await writeFile(this._commandsFilePath, JSON.stringify(this._commandsData, null, 2), 'utf8')
-      console.warn('Saved commands to:', this._commandsFilePath)
-    }
-    catch (error) {
-      console.error('Failed to save commands:', error)
-      throw new Error(`Failed to save commands: ${error}`)
-    }
+    // SQLite自动保存，不需要手动保存
+    console.warn('Commands are automatically saved to database')
   }
 
-  public getCommands(): CommandsData {
-    return this._commandsData
+  public getCommands(): { commands: Record<string, UserCommand[]> } {
+    // 这个方法保留用于兼容性，但实际上应该使用异步方法
+    console.warn('getCommands() is deprecated, use getAllCommands() instead')
+    return { commands: {} }
   }
 
-  public getAllCommands(): UserCommand[] {
-    const allCommands: UserCommand[] = []
-    Object.values(this._commandsData.commands).forEach((commands) => {
-      allCommands.push(...commands)
-    })
-    return allCommands
+  public async initializeWithDefaults(_defaultCommands: UserCommand[]): Promise<void> {
+    // 数据库初始化时会自动添加默认命令，这里不需要再添加
+    console.warn('Default commands are automatically initialized from database')
   }
 
-  public getCommandsByCategory(category: string): UserCommand[] {
-    return this._commandsData.commands[category] || []
-  }
-
-  public getAvailableCategories(): string[] {
-    return Object.keys(this._commandsData.commands).filter(key =>
-      this._commandsData.commands[key].length > 0,
-    ).sort()
-  }
-
-  public async initializeWithDefaults(defaultCommands: UserCommand[]): Promise<void> {
-    // Group default commands by category dynamically
-    const groupedCommands: Record<string, UserCommand[]> = {}
-
-    defaultCommands.forEach((cmd) => {
-      if (!groupedCommands[cmd.category]) {
-        groupedCommands[cmd.category] = []
-      }
-      groupedCommands[cmd.category].push(cmd)
-    })
-
-    this._commandsData = {
-      version: '1.0.0',
-      commands: groupedCommands,
-    }
-
-    await this.saveCommands()
-  }
-
+  // 保留兼容性方法
   public getCommandsFilePath(): string {
-    return this._commandsFilePath
+    return this.getDatabasePath()
   }
 
   public async openCommandsFile(): Promise<void> {
-    try {
-      const uri = vscode.Uri.file(this._commandsFilePath)
-      await vscode.window.showTextDocument(uri)
-    }
-    catch (error) {
-      vscode.window.showErrorMessage(`Failed to open commands file: ${error}`)
-    }
+    await this.openDatabase()
   }
 
   public async reloadFromFile(): Promise<void> {
-    await this.loadCommands()
-    console.warn('Commands reloaded from file')
+    await this.reloadFromDatabase()
+  }
+
+  public async cleanup(): Promise<void> {
+    this._database.cleanup()
   }
 }

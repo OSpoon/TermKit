@@ -124,6 +124,7 @@
     "dev": "nr build --watch --sourcemap",
     "prepare": "nr update",
     "update": "vscode-ext-gen --output src/generated/meta.ts",
+    "postinstall": "npx @electron/rebuild --force --version=37.0.0",
     "lint": "eslint .",
     "vscode:prepublish": "nr build",
     "publish": "vsce publish --no-dependencies",
@@ -132,13 +133,19 @@
     "typecheck": "tsc --noEmit",
     "release": "bumpp && nr publish"
   },
+  "dependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^12.2.0"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^4.19.0",
     "@antfu/ni": "^23.3.1",
+    "@electron/rebuild": "^4.0.1",
     "@types/node": "^22.17.2",
     "@types/vscode": "^1.103.0",
     "@vscode/vsce": "^3.6.0",
     "bumpp": "^10.2.3",
+    "electron": "^37.3.1",
     "eslint": "^9.33.0",
     "esno": "^4.8.0",
     "pnpm": "^10.15.0",
