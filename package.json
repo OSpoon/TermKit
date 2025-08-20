@@ -2,7 +2,7 @@
   "publisher": "OSpoon",
   "name": "dep-cmd",
   "displayName": "DepCmd",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "packageManager": "pnpm@10.4.1",
   "description": "一个专为开发者设计的 VS Code 扩展，旨在简化开发阶段各种终端命令的使用，减少记忆负担，提高开发效率。",
