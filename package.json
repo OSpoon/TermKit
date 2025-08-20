@@ -1,24 +1,24 @@
 {
-  "publisher": "antfu",
-  "name": "ext-name",
-  "displayName": "ext-name",
+  "publisher": "OSpoon",
+  "name": "dep-cmd",
+  "displayName": "DepCmd",
   "version": "0.0.0",
   "private": true,
   "packageManager": "pnpm@10.4.1",
   "description": "",
-  "author": "Anthony Fu <anthonyfu117@hotmail.com>",
+  "author": "OSpoon <zxin088@gmail.com>",
   "license": "MIT",
-  "funding": "https://github.com/sponsors/antfu",
-  "homepage": "https://github.com/antfu/ext-name#readme",
+  "funding": "https://github.com/sponsors/OSpoon",
+  "homepage": "https://github.com/OSpoon/DepCmd#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/antfu/ext-name"
+    "url": "https://github.com/OSpoon/DepCmd"
   },
   "bugs": {
-    "url": "https://github.com/antfu/ext-name/issues"
+    "url": "https://github.com/OSpoon/DepCmd/issues"
   },
   "sponsor": {
-    "url": "https://github.com/sponsors/antfu"
+    "url": "https://github.com/sponsors/OSpoon"
   },
   "categories": [
     "Other"
@@ -33,15 +33,90 @@
   "engines": {
     "vscode": "^1.97.0"
   },
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
   "activationEvents": [
     "onStartupFinished"
   ],
   "contributes": {
-    "commands": [],
-    "configuration": {
-      "type": "object",
-      "title": "ext-name",
-      "properties": {}
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "depCmd",
+          "title": "Development Commands",
+          "icon": "res/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "depCmd": [
+        {
+          "id": "depCmdView",
+          "name": "Commands",
+          "icon": "res/icon.png"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "depCmd.sendToTerminal",
+        "title": "Send to Terminal",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "depCmd.refreshView",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "depCmd.searchCommands",
+        "title": "Search Commands",
+        "icon": "$(search)"
+      },
+      {
+        "command": "depCmd.copyCommand",
+        "title": "Copy Command",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "depCmd.openCommandsFile",
+        "title": "Edit Command Memories",
+        "icon": "$(edit)",
+        "category": "Development Commands"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "depCmd.openCommandsFile",
+          "when": "view == depCmdView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "depCmd.searchCommands",
+          "when": "view == depCmdView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "depCmd.refreshView",
+          "when": "view == depCmdView",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "depCmd.sendToTerminal",
+          "when": "view == depCmdView && viewItem == command",
+          "group": "inline"
+        },
+        {
+          "command": "depCmd.copyCommand",
+          "when": "view == depCmdView && viewItem == command",
+          "group": "inline"
+        }
+      ]
     }
   },
   "scripts": {
