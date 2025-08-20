@@ -1,4 +1,10 @@
-<h1 align="center">DepCmd</h1>
+<p align="center">
+<a href="https://github.com/OSpoon/DepCmd">
+<img src="./res/icon.png" alt="logo" width='126'/>
+<p align="center" style="font-size: 36px;">DepCmd</p>
+</a>
+</p>
+
 <p align="center">
 <a href="https://marketplace.visualstudio.com/items?itemName=ospoon.dep-cmd" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/v/ospoon.dep-cmd.svg?color=blue&amp;label=VS%20Code%20Marketplace&logo=visual-studio-code" alt="Visual Studio Marketplace Version" /></a>
 <a href="https://marketplace.visualstudio.com/items?itemName=ospoon.dep-cmd" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/d/ospoon.dep-cmd.svg?color=4bdbe3" alt="Visual Studio Marketplace Downloads" /></a>
