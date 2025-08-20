@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://github.com/OSpoon/DepCmd">
-<img src="./res/icon.png" alt="logo" width='126'/>
+<img src="https://github.com/OSpoon/DepCmd/blob/main/res/icon.png?raw=true" alt="logo" width='126'/>
 </a>
 </p>
 
