@@ -100,6 +100,18 @@
         "title": "Edit Command Memories",
         "icon": "$(database)",
         "category": "Development Commands"
+      },
+      {
+        "command": "depCmd.editCategory",
+        "title": "Rename Category",
+        "icon": "$(edit)",
+        "category": "Development Commands"
+      },
+      {
+        "command": "depCmd.deleteCategory",
+        "title": "Delete Category",
+        "icon": "$(trash)",
+        "category": "Development Commands"
       }
     ],
     "menus": {
@@ -144,6 +156,16 @@
         {
           "command": "depCmd.deleteCommand",
           "when": "view == depCmdView && viewItem == command",
+          "group": "inline"
+        },
+        {
+          "command": "depCmd.editCategory",
+          "when": "view == depCmdView && viewItem == category",
+          "group": "inline"
+        },
+        {
+          "command": "depCmd.deleteCategory",
+          "when": "view == depCmdView && viewItem == category",
           "group": "inline"
         }
       ]

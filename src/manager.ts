@@ -161,4 +161,37 @@ export class CommandManager {
   public async cleanup(): Promise<void> {
     this._database.cleanup()
   }
+
+  // 分类管理方法
+  public async updateCategory(oldCategory: string, newCategory: string): Promise<void> {
+    try {
+      this._database.updateCategory(oldCategory, newCategory)
+      console.warn('Category updated successfully')
+    }
+    catch (error) {
+      console.error('Failed to update category:', error)
+      throw error
+    }
+  }
+
+  public async deleteCategory(category: string): Promise<void> {
+    try {
+      this._database.deleteCategory(category)
+      console.warn('Category deleted successfully')
+    }
+    catch (error) {
+      console.error('Failed to delete category:', error)
+      throw error
+    }
+  }
+
+  public async getCategoryCommandCount(category: string): Promise<number> {
+    try {
+      return this._database.getCategoryCommandCount(category)
+    }
+    catch (error) {
+      console.error('Failed to get category command count:', error)
+      return 0
+    }
+  }
 }

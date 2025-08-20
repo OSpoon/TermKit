@@ -325,6 +325,85 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
     }
   })
 
+  // Register edit category command
+  const editCategoryCommand = vscode.commands.registerCommand('depCmd.editCategory', async (item: DepCmdTreeItem) => {
+    try {
+      const categoryName = depCmdProvider.getCategoryByTreeItem(item)
+      if (!categoryName) {
+        vscode.window.showErrorMessage('Cannot edit category: category name not found')
+        return
+      }
+
+      // Get current category count
+      const commandCount = await commandManager.getCategoryCommandCount(categoryName)
+
+      const newCategoryName = await vscode.window.showInputBox({
+        prompt: `Rename category "${categoryName}" (contains ${commandCount} commands)`,
+        value: categoryName,
+        validateInput: (value) => {
+          if (!value.trim()) {
+            return 'Category name cannot be empty'
+          }
+          if (value.toLowerCase() === categoryName.toLowerCase()) {
+            return null // Same name is OK
+          }
+          // Check if new name already exists
+          return null // For now, allow duplicates
+        },
+      })
+
+      if (newCategoryName === undefined) {
+        return // User cancelled
+      }
+
+      if (newCategoryName.toLowerCase() === categoryName.toLowerCase()) {
+        vscode.window.showInformationMessage('Category name unchanged')
+        return
+      }
+
+      // Update category
+      await commandManager.updateCategory(categoryName, newCategoryName.toLowerCase())
+
+      // Refresh the view
+      depCmdProvider.refresh()
+      vscode.window.showInformationMessage(`Category renamed from "${categoryName}" to "${newCategoryName.toLowerCase()}"`)
+    }
+    catch (error) {
+      vscode.window.showErrorMessage(`Failed to edit category: ${error}`)
+    }
+  })
+
+  // Register delete category command
+  const deleteCategoryCommand = vscode.commands.registerCommand('depCmd.deleteCategory', async (item: DepCmdTreeItem) => {
+    try {
+      const categoryName = depCmdProvider.getCategoryByTreeItem(item)
+      if (!categoryName) {
+        vscode.window.showErrorMessage('Cannot delete category: category name not found')
+        return
+      }
+
+      // Get current category count
+      const commandCount = await commandManager.getCategoryCommandCount(categoryName)
+
+      // Confirm deletion
+      const result = await vscode.window.showWarningMessage(
+        `Are you sure you want to delete the category "${categoryName}"? This will delete ${commandCount} command(s).`,
+        { modal: true },
+        'Delete',
+        'Cancel',
+      )
+
+      if (result === 'Delete') {
+        await commandManager.deleteCategory(categoryName)
+        depCmdProvider.refresh()
+        vscode.window.showInformationMessage(`Category "${categoryName}" and ${commandCount} command(s) deleted successfully!`)
+      }
+    }
+    catch (error) {
+      vscode.window.showErrorMessage(`Failed to delete category: ${error}`)
+    }
+  })
+
   // Helper function to send command to terminal
   function sendCommandToTerminal(command: string) {
     try {
@@ -389,6 +468,8 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
     editIndividualCommand,
     deleteCommand,
     addCommand,
+    editCategoryCommand,
+    deleteCategoryCommand,
   )
 })
 

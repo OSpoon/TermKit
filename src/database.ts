@@ -240,4 +240,46 @@ export class DatabaseManager {
   public cleanup(): void {
     this.disconnect()
   }
+
+  // 分类管理方法
+  public updateCategory(oldCategory: string, newCategory: string): void {
+    if (!this._db) {
+      throw new Error('Database not connected')
+    }
+
+    const stmt = this._db.prepare('UPDATE commands SET category = ?, updated_at = CURRENT_TIMESTAMP WHERE category = ?')
+    const result = stmt.run(newCategory, oldCategory)
+
+    if (result.changes === 0) {
+      throw new Error('Category not found or no commands updated')
+    }
+  }
+
+  public deleteCategory(category: string): void {
+    if (!this._db) {
+      throw new Error('Database not connected')
+    }
+
+    // 首先检查分类是否存在
+    const checkStmt = this._db.prepare('SELECT COUNT(*) as count FROM commands WHERE category = ?')
+    const result = checkStmt.get(category) as { count: number }
+
+    if (result.count === 0) {
+      throw new Error('Category not found')
+    }
+
+    // 删除该分类下的所有命令
+    const deleteStmt = this._db.prepare('DELETE FROM commands WHERE category = ?')
+    deleteStmt.run(category)
+  }
+
+  public getCategoryCommandCount(category: string): number {
+    if (!this._db) {
+      throw new Error('Database not connected')
+    }
+
+    const stmt = this._db.prepare('SELECT COUNT(*) as count FROM commands WHERE category = ?')
+    const result = stmt.get(category) as { count: number }
+    return result.count
+  }
 }

@@ -24,6 +24,7 @@ function getCategoryConfig(category: string): CategoryConfig {
 export class DepCmdTreeItem extends vscode.TreeItem {
   public readonly commandText?: string
   public readonly commandId?: number
+  public readonly categoryName?: string
 
   constructor(
     public readonly label: string,
@@ -47,6 +48,7 @@ export class DepCmdTreeItem extends vscode.TreeItem {
     }
     else {
       this.contextValue = 'category'
+      this.categoryName = category
       // Use category configuration for icons
       if (category) {
         const categoryConfig = getCategoryConfig(category)
@@ -106,7 +108,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
           if (commands.length > 0) {
             const categoryConfig = getCategoryConfig(category)
             categories.push(new DepCmdTreeItem(
-              `${categoryConfig.displayName} Commands (${commands.length})`,
+              `${categoryConfig.displayName} (${commands.length})`,
               vscode.TreeItemCollapsibleState.Expanded,
               undefined,
               category,
@@ -120,7 +122,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
     else {
       // Category level - show commands
       // Extract category from the label dynamically
-      const labelMatch = element.label.match(/^(.+?) Commands \(\d+\)$/)
+      const labelMatch = element.label.match(/^(.+?) \(\d+\)$/)
       const categoryDisplayName = labelMatch ? labelMatch[1] : element.category || 'custom'
       const category = element.category || categoryDisplayName.toLowerCase()
 
@@ -150,5 +152,9 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       id: item.commandId,
       command: item.commandText,
     }
+  }
+
+  getCategoryByTreeItem(item: DepCmdTreeItem): string | undefined {
+    return item.categoryName
   }
 }
