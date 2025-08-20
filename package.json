@@ -28,6 +28,10 @@
   "files": [
     "LICENSE.md",
     "dist/*",
+    "node_modules/better-sqlite3/**/*",
+    "node_modules/bindings/**/*",
+    "node_modules/file-uri-to-path/**/*",
+    "node_modules/prebuild-install/**/*",
     "res/*"
   ],
   "engines": {
@@ -179,8 +183,8 @@
     "postinstall": "./scripts/rebuild-sqlite.sh",
     "lint": "eslint .",
     "vscode:prepublish": "nr build",
-    "publish": "vsce publish --no-dependencies",
-    "pack": "vsce package --no-dependencies",
+    "publish": "vsce publish",
+    "pack": "vsce package",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "release": "bumpp && nr publish"
