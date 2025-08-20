@@ -23,6 +23,7 @@ function getCategoryConfig(category: string): CategoryConfig {
 
 export class DepCmdTreeItem extends vscode.TreeItem {
   public readonly commandText?: string
+  public readonly commandId?: number
 
   constructor(
     public readonly label: string,
@@ -30,10 +31,12 @@ export class DepCmdTreeItem extends vscode.TreeItem {
     commandText?: string,
     public readonly category?: string,
     public readonly commandIcon?: string,
+    commandId?: number,
   ) {
     super(label, collapsibleState)
 
     this.commandText = commandText
+    this.commandId = commandId
 
     if (commandText) {
       this.tooltip = `${commandText}\n\nClick to send to terminal`
@@ -133,11 +136,19 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
         cmd.command,
         cmd.category,
         cmd.icon,
+        cmd.id,
       ))
     }
   }
 
   getCommandByTreeItem(item: DepCmdTreeItem): string | undefined {
     return item.commandText
+  }
+
+  getCommandObjectByTreeItem(item: DepCmdTreeItem): { id?: number, command?: string } {
+    return {
+      id: item.commandId,
+      command: item.commandText,
+    }
   }
 }

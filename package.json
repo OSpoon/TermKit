@@ -81,9 +81,24 @@
         "icon": "$(copy)"
       },
       {
+        "command": "depCmd.editCommand",
+        "title": "Edit Command",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "depCmd.deleteCommand",
+        "title": "Delete Command",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "depCmd.addCommand",
+        "title": "Add New Command",
+        "icon": "$(add)"
+      },
+      {
         "command": "depCmd.openCommandsFile",
         "title": "Edit Command Memories",
-        "icon": "$(edit)",
+        "icon": "$(database)",
         "category": "Development Commands"
       }
     ],
@@ -103,6 +118,11 @@
           "command": "depCmd.refreshView",
           "when": "view == depCmdView",
           "group": "navigation@3"
+        },
+        {
+          "command": "depCmd.addCommand",
+          "when": "view == depCmdView",
+          "group": "navigation@4"
         }
       ],
       "view/item/context": [
@@ -113,6 +133,16 @@
         },
         {
           "command": "depCmd.copyCommand",
+          "when": "view == depCmdView && viewItem == command",
+          "group": "inline"
+        },
+        {
+          "command": "depCmd.editCommand",
+          "when": "view == depCmdView && viewItem == command",
+          "group": "inline"
+        },
+        {
+          "command": "depCmd.deleteCommand",
           "when": "view == depCmdView && viewItem == command",
           "group": "inline"
         }

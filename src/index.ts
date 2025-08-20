@@ -133,6 +133,198 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
     }
   })
 
+  // Register edit individual command
+  const editIndividualCommand = vscode.commands.registerCommand('depCmd.editCommand', async (item: DepCmdTreeItem) => {
+    try {
+      const commandObj = depCmdProvider.getCommandObjectByTreeItem(item)
+      if (!commandObj.id) {
+        vscode.window.showErrorMessage('Cannot edit command: missing command ID')
+        return
+      }
+
+      // Get all commands to find the current one
+      const allCommands = await commandManager.getAllCommands()
+      const currentCommand = allCommands.find(cmd => cmd.id === commandObj.id)
+
+      if (!currentCommand) {
+        vscode.window.showErrorMessage('Command not found')
+        return
+      }
+
+      // Show input boxes for editing
+      const newLabel = await vscode.window.showInputBox({
+        prompt: 'Enter command label',
+        value: currentCommand.label,
+        validateInput: (value) => {
+          if (!value.trim()) {
+            return 'Label cannot be empty'
+          }
+          return null
+        },
+      })
+
+      if (newLabel === undefined)
+        return // User cancelled
+
+      const newCommand = await vscode.window.showInputBox({
+        prompt: 'Enter command',
+        value: currentCommand.command,
+        validateInput: (value) => {
+          if (!value.trim()) {
+            return 'Command cannot be empty'
+          }
+          return null
+        },
+      })
+
+      if (newCommand === undefined)
+        return // User cancelled
+
+      const newDescription = await vscode.window.showInputBox({
+        prompt: 'Enter command description (optional)',
+        value: currentCommand.description || '',
+      })
+
+      if (newDescription === undefined)
+        return // User cancelled
+
+      // Update the command
+      await commandManager.updateCommand(commandObj.id, {
+        label: newLabel,
+        command: newCommand,
+        description: newDescription || undefined,
+      })
+
+      // Refresh the view
+      depCmdProvider.refresh()
+      vscode.window.showInformationMessage('Command updated successfully!')
+    }
+    catch (error) {
+      vscode.window.showErrorMessage(`Failed to edit command: ${error}`)
+    }
+  })
+
+  // Register delete command
+  const deleteCommand = vscode.commands.registerCommand('depCmd.deleteCommand', async (item: DepCmdTreeItem) => {
+    try {
+      const commandObj = depCmdProvider.getCommandObjectByTreeItem(item)
+      if (!commandObj.id) {
+        vscode.window.showErrorMessage('Cannot delete command: missing command ID')
+        return
+      }
+
+      // Confirm deletion
+      const result = await vscode.window.showWarningMessage(
+        `Are you sure you want to delete the command "${item.label}"?`,
+        { modal: true },
+        'Delete',
+        'Cancel',
+      )
+
+      if (result === 'Delete') {
+        await commandManager.deleteCommand(commandObj.id)
+        depCmdProvider.refresh()
+        vscode.window.showInformationMessage('Command deleted successfully!')
+      }
+    }
+    catch (error) {
+      vscode.window.showErrorMessage(`Failed to delete command: ${error}`)
+    }
+  })
+
+  // Register add command
+  const addCommand = vscode.commands.registerCommand('depCmd.addCommand', async () => {
+    try {
+      // Get available categories
+      const categories = await commandManager.getAvailableCategories()
+
+      // Get command details from user
+      const label = await vscode.window.showInputBox({
+        prompt: 'Enter command label',
+        validateInput: (value) => {
+          if (!value.trim()) {
+            return 'Label cannot be empty'
+          }
+          return null
+        },
+      })
+
+      if (label === undefined)
+        return // User cancelled
+
+      const command = await vscode.window.showInputBox({
+        prompt: 'Enter command',
+        validateInput: (value) => {
+          if (!value.trim()) {
+            return 'Command cannot be empty'
+          }
+          return null
+        },
+      })
+
+      if (command === undefined)
+        return // User cancelled
+
+      const description = await vscode.window.showInputBox({
+        prompt: 'Enter command description (optional)',
+      })
+
+      if (description === undefined)
+        return // User cancelled
+
+      // Select category
+      const categoryOptions = [
+        ...categories,
+        '$(add) Create new category...',
+      ]
+
+      const selectedCategory = await vscode.window.showQuickPick(categoryOptions, {
+        placeHolder: 'Select a category for this command',
+      })
+
+      if (!selectedCategory)
+        return // User cancelled
+
+      let finalCategory: string
+      if (selectedCategory === '$(add) Create new category...') {
+        const newCategory = await vscode.window.showInputBox({
+          prompt: 'Enter new category name',
+          validateInput: (value) => {
+            if (!value.trim()) {
+              return 'Category name cannot be empty'
+            }
+            if (categories.includes(value.toLowerCase())) {
+              return 'Category already exists'
+            }
+            return null
+          },
+        })
+
+        if (!newCategory)
+          return // User cancelled
+        finalCategory = newCategory.toLowerCase()
+      }
+      else {
+        finalCategory = selectedCategory
+      }
+
+      // Add the command
+      await commandManager.addCommand({
+        label,
+        command,
+        description: description || undefined,
+        category: finalCategory,
+      })
+
+      // Refresh the view
+      depCmdProvider.refresh()
+      vscode.window.showInformationMessage('Command added successfully!')
+    }
+    catch (error) {
+      vscode.window.showErrorMessage(`Failed to add command: ${error}`)
+    }
+  })
+
   // Helper function to send command to terminal
   function sendCommandToTerminal(command: string) {
     try {
@@ -194,6 +386,9 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
     sendToTerminalCommand,
     copyCommand,
     editCommand,
+    editIndividualCommand,
+    deleteCommand,
+    addCommand,
   )
 })
 
