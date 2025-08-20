@@ -20,6 +20,28 @@
 2. 点击图标打开命令面板，浏览各类开发命令
 3. 点击命令旁的终端图标即可将命令发送到终端
 
+## Configurations
+
+<!-- configs -->
+
+**No data**
+
+<!-- configs -->
+
+## Commands
+
+<!-- commands -->
+
+| Command                   | Title                                       |
+| ------------------------- | ------------------------------------------- |
+| `depCmd.sendToTerminal`   | Send to Terminal                            |
+| `depCmd.refreshView`      | Refresh                                     |
+| `depCmd.searchCommands`   | Search Commands                             |
+| `depCmd.copyCommand`      | Copy Command                                |
+| `depCmd.openCommandsFile` | Development Commands: Edit Command Memories |
+
+<!-- commands -->
+
 ## License
 
 [MIT](./LICENSE.md) License © 2025 [OSpoon](https://github.com/OSpoon)
