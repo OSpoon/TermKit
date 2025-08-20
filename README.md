@@ -2,7 +2,7 @@
 
 一个专为开发者设计的 VS Code 扩展，旨在简化开发阶段各种终端命令的使用，减少记忆负担，提高开发效率。
 
-<a href="https://marketplace.visualstudio.com/items?itemName=OSpoon.DepCmd" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/v/OSpoon.DepCmd.svg?color=eee&amp;label=VS%20Code%20Marketplace&logo=visual-studio-code" alt="Visual Studio Marketplace Version" /></a>
+<a href="https://marketplace.visualstudio.com/items?itemName=OSpoon.dep-cmd" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/v/OSpoon.DepCmd.svg?color=eee&amp;label=VS%20Code%20Marketplace&logo=visual-studio-code" alt="Visual Studio Marketplace Version" /></a>
 <a href="https://kermanx.github.io/reactive-vscode/" target="__blank"><img src="https://img.shields.io/badge/made_with-reactive--vscode-%23007ACC?style=flat&labelColor=%23229863"  alt="Made with reactive-vscode" /></a>
 
 ## ✨ 特性
@@ -19,28 +19,6 @@
 1. 安装扩展后，在 VS Code 左侧活动栏会看到 "DepCmd" 图标
 2. 点击图标打开命令面板，浏览各类开发命令
 3. 点击命令旁的终端图标即可将命令发送到终端
-
-## Configurations
-
-<!-- configs -->
-
-**No data**
-
-<!-- configs -->
-
-## Commands
-
-<!-- commands -->
-
-| Command                   | Title                                       |
-| ------------------------- | ------------------------------------------- |
-| `depCmd.sendToTerminal`   | Send to Terminal                            |
-| `depCmd.refreshView`      | Refresh                                     |
-| `depCmd.searchCommands`   | Search Commands                             |
-| `depCmd.copyCommand`      | Copy Command                                |
-| `depCmd.openCommandsFile` | Development Commands: Edit Command Memories |
-
-<!-- commands -->
 
 ## License
 
