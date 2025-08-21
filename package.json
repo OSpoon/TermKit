@@ -31,7 +31,7 @@
     "res/*"
   ],
   "engines": {
-    "vscode": "^1.103.0"
+    "vscode": "^1.74.0"
   },
   "galleryBanner": {
     "color": "#1e1e1e",
@@ -178,8 +178,8 @@
     "update": "vscode-ext-gen --output src/generated/meta.ts",
     "lint": "eslint .",
     "vscode:prepublish": "nr build",
-    "publish": "vsce publish",
-    "pack": "vsce package",
+    "publish": "vsce publish --no-dependencies",
+    "pack": "vsce package --no-dependencies",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "release": "bumpp && nr publish"
@@ -189,7 +189,7 @@
     "@antfu/eslint-config": "^4.19.0",
     "@antfu/ni": "^23.3.1",
     "@types/node": "^22.17.2",
-    "@types/vscode": "^1.103.0",
+    "@types/vscode": "^1.74.0",
     "@vscode/vsce": "^3.6.0",
     "bumpp": "^10.2.3",
     "eslint": "^9.33.0",
