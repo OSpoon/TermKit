@@ -425,7 +425,9 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
       if (clearTerminalLine) {
         terminal.sendText('\x03', false) // Send Ctrl+U (ASCII 21)
         // Send the command immediately since Ctrl+U doesn't need delay
-        terminal.sendText(command, autoExecute)
+        setTimeout(() => {
+          terminal.sendText(command, autoExecute)
+        }, 50)
       }
       else {
         // Send command directly without clearing
