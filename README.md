@@ -12,7 +12,8 @@
 
 DepCmd 是一个专为开发者设计的 VS Code 扩展，旨在简化开发阶段各种终端命令的使用，减少记忆负担，提高开发效率。
 
-<iframe width="1440" height="762" src="https://www.youtube-nocookie.com/embed/UUwIBRQUbT0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+https://github.com/user-attachments/assets/052b6c06-16bb-4bfe-bca1-0e857f5fc1a1
+
 
 ## ✨ 特性
 
