@@ -1,4 +1,5 @@
 import type { DepCmdTreeItem } from './provider'
+import { platform } from 'node:os'
 import { defineExtension } from 'reactive-vscode'
 import * as vscode from 'vscode'
 import { CommandManager } from './manager'
@@ -423,13 +424,24 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
       terminal.show()
 
       if (clearTerminalLine) {
-        // Send Ctrl+U to clear the current line (this only clears if there's text)
-        // Ctrl+U clears from cursor to beginning of line, which is better than Ctrl+C
-        // because it doesn't interrupt running processes and only clears text input
-        terminal.sendText('\x15', false) // Send Ctrl+U (ASCII 21)
+        // Different approaches for different platforms/terminals
+        const isWindows = platform() === 'win32'
 
-        // Send the command immediately since Ctrl+U doesn't need delay
-        terminal.sendText(command, autoExecute)
+        if (isWindows) {
+          // On Windows, use Ctrl+C to cancel current input, then send command
+          // This is more reliable than Ctrl+U which might show as text
+          terminal.sendText('\x03', false) // Send Ctrl+C (ASCII 3)
+          // Small delay to ensure the cancellation is processed
+          setTimeout(() => {
+            terminal.sendText(command, autoExecute)
+          }, 50)
+        }
+        else {
+          // On Unix-like systems (macOS, Linux), Ctrl+U works reliably
+          terminal.sendText('\x15', false) // Send Ctrl+U (ASCII 21)
+          // Send the command immediately since Ctrl+U doesn't need delay
+          terminal.sendText(command, autoExecute)
+        }
       }
       else {
         // Send command directly without clearing
