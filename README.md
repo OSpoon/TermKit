@@ -17,14 +17,6 @@ DepCmd 是一个专为开发者设计的 VS Code 扩展，旨在简化开发阶�
 - 🖥️ **命令管理**: 分类管理各种开发工具的常用命令，支持增删改查操作
 - 🔍 **快速搜索**: 支持快速搜索和筛选命令，无需记忆复杂的命令参数
 - 🖱️ **一键执行**: 点击即可将命令发送到终端执行，提高开发效率
-- ⚡ **一键复制**: 快速复制命令到剪贴板
-
-## 🔧 技术栈
-
-- **框架**: [reactive-vscode](https://kermanx.github.io/reactive-vscode/) - 响应式 VS Code 扩展开发框架
-- **数据库**: SQLite + better-sqlite3 - 本地数据存储
-- **语言**: TypeScript - 类型安全的开发体验
-- **构建工具**: tsdown - 快速的 TypeScript 构建工具
 
 ## License
 

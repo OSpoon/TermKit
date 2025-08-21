@@ -28,10 +28,6 @@
   "files": [
     "LICENSE.md",
     "dist/*",
-    "node_modules/better-sqlite3/**/*",
-    "node_modules/bindings/**/*",
-    "node_modules/file-uri-to-path/**/*",
-    "node_modules/prebuild-install/**/*",
     "res/*"
   ],
   "engines": {
@@ -180,7 +176,6 @@
     "dev": "nr build --watch --sourcemap",
     "prepare": "nr update",
     "update": "vscode-ext-gen --output src/generated/meta.ts",
-    "postinstall": "./scripts/rebuild-sqlite.sh",
     "lint": "eslint .",
     "vscode:prepublish": "nr build",
     "publish": "vsce publish",
@@ -189,19 +184,14 @@
     "typecheck": "tsc --noEmit",
     "release": "bumpp && nr publish"
   },
-  "dependencies": {
-    "better-sqlite3": "^12.2.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@antfu/eslint-config": "^4.19.0",
     "@antfu/ni": "^23.3.1",
-    "@electron/rebuild": "^4.0.1",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.17.2",
     "@types/vscode": "^1.103.0",
     "@vscode/vsce": "^3.6.0",
     "bumpp": "^10.2.3",
-    "electron": "^37.3.1",
     "eslint": "^9.33.0",
     "esno": "^4.8.0",
     "pnpm": "^10.15.0",

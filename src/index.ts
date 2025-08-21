@@ -115,7 +115,7 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
 
       // Show information about the file location
       const result = await vscode.window.showInformationMessage(
-        `Opening command database file for viewing. This is a SQLite database file.`,
+        `Opening command data file for viewing. This is a JSON data file.`,
         { modal: false },
         'Show File Path',
         'Cancel',

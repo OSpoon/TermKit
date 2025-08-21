@@ -130,7 +130,7 @@ export class CommandManager {
 
   // 保留兼容性方法
   public async saveCommands(): Promise<void> {
-    // SQLite自动保存，不需要手动保存
+    // JSON文件自动保存，不需要手动保存
     console.warn('Commands are automatically saved to database')
   }
 
