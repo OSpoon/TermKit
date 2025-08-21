@@ -423,11 +423,7 @@ const { activate, deactivate } = defineExtension((context: vscode.ExtensionConte
       terminal.show()
 
       if (clearTerminalLine) {
-        // Send Ctrl+U to clear the current line (this only clears if there's text)
-        // Ctrl+U clears from cursor to beginning of line, which is better than Ctrl+C
-        // because it doesn't interrupt running processes and only clears text input
-        terminal.sendText('\x15', false) // Send Ctrl+U (ASCII 21)
-
+        terminal.sendText('\x03', false) // Send Ctrl+U (ASCII 21)
         // Send the command immediately since Ctrl+U doesn't need delay
         terminal.sendText(command, autoExecute)
       }
