@@ -33,6 +33,7 @@ export class DepCmdTreeItem extends vscode.TreeItem {
     public readonly category?: string,
     public readonly commandIcon?: string,
     commandId?: number,
+    commandDescription?: string,
   ) {
     super(label, collapsibleState)
 
@@ -40,8 +41,9 @@ export class DepCmdTreeItem extends vscode.TreeItem {
     this.commandId = commandId
 
     if (commandText) {
-      this.tooltip = `${commandText}\n\nClick to send to terminal`
-      this.description = commandText
+      // Use the actual description if available, otherwise fall back to command text
+      this.description = commandText || commandDescription
+      this.tooltip = `${commandText}${commandDescription ? `\n${commandDescription}` : ''}\n\nClick to send to terminal`
       this.contextValue = 'command'
       // Use command-specific icon if available, otherwise use terminal icon
       this.iconPath = new vscode.ThemeIcon(commandIcon || 'terminal')
@@ -139,6 +141,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
         cmd.category,
         cmd.icon,
         cmd.id,
+        cmd.description,
       ))
     }
   }
