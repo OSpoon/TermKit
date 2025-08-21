@@ -51,7 +51,8 @@ export class DatabaseManager {
       if (!fileExists) {
         console.warn('Commands file is empty, initializing with default data...')
         await this.initializeWithDefaults()
-      } else {
+      }
+      else {
         await this.loadFromFile()
       }
 
@@ -67,7 +68,8 @@ export class DatabaseManager {
     try {
       await access(this._dataPath, fs.constants.F_OK)
       return true
-    } catch {
+    }
+    catch {
       return false
     }
   }
@@ -77,14 +79,15 @@ export class DatabaseManager {
       const content = await readFile(this._dataPath, 'utf8')
       const data: CommandsData = JSON.parse(content)
       this._commands = data.commands || []
-      
+
       // 计算下一个可用的ID
-      this._nextId = this._commands.length > 0 
-        ? Math.max(...this._commands.map(cmd => cmd.id || 0)) + 1 
+      this._nextId = this._commands.length > 0
+        ? Math.max(...this._commands.map(cmd => cmd.id || 0)) + 1
         : 1
-        
+
       console.warn('Commands loaded from file:', this._commands.length)
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Failed to load commands from file:', error)
       await this.initializeWithDefaults()
     }
@@ -94,7 +97,8 @@ export class DatabaseManager {
     try {
       const data: CommandsData = { commands: this._commands }
       await writeFile(this._dataPath, JSON.stringify(data, null, 2), 'utf8')
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Failed to save commands to file:', error)
       throw error
     }
@@ -111,12 +115,12 @@ export class DatabaseManager {
       const defaultDataPath = path.join(extensionPath, 'res', 'default-commands.json')
       const content = await readFile(defaultDataPath, 'utf8')
       const defaultData: CommandsData = JSON.parse(content)
-      
+
       this._commands = defaultData.commands || []
-      this._nextId = this._commands.length > 0 
-        ? Math.max(...this._commands.map(cmd => cmd.id || 0)) + 1 
+      this._nextId = this._commands.length > 0
+        ? Math.max(...this._commands.map(cmd => cmd.id || 0)) + 1
         : 1
-        
+
       await this.saveToFile()
       console.warn('Commands initialized with default data:', this._commands.length)
     }
@@ -153,11 +157,11 @@ export class DatabaseManager {
       ...command,
       id: this._nextId++,
       created_at: now,
-      updated_at: now
+      updated_at: now,
     }
-    
+
     this._commands.push(newCommand)
-    this.saveToFile().catch(error => {
+    this.saveToFile().catch((error) => {
       console.error('Failed to save after adding command:', error)
     })
   }
@@ -173,10 +177,10 @@ export class DatabaseManager {
       ...this._commands[index],
       ...command,
       id, // 保持原ID不变
-      updated_at: now
+      updated_at: now,
     }
 
-    this.saveToFile().catch(error => {
+    this.saveToFile().catch((error) => {
       console.error('Failed to save after updating command:', error)
     })
   }
@@ -188,18 +192,18 @@ export class DatabaseManager {
     }
 
     this._commands.splice(index, 1)
-    this.saveToFile().catch(error => {
+    this.saveToFile().catch((error) => {
       console.error('Failed to save after deleting command:', error)
     })
   }
 
   public searchCommands(query: string): UserCommand[] {
     const searchPattern = query.toLowerCase()
-    return this._commands.filter(cmd => 
-      cmd.label.toLowerCase().includes(searchPattern) ||
-      cmd.command.toLowerCase().includes(searchPattern) ||
-      cmd.description?.toLowerCase().includes(searchPattern) ||
-      cmd.category.toLowerCase().includes(searchPattern)
+    return this._commands.filter(cmd =>
+      cmd.label.toLowerCase().includes(searchPattern)
+      || cmd.command.toLowerCase().includes(searchPattern)
+      || cmd.description?.toLowerCase().includes(searchPattern)
+      || cmd.category.toLowerCase().includes(searchPattern),
     ).sort((a, b) => {
       if (a.category !== b.category) {
         return a.category.localeCompare(b.category)
@@ -223,7 +227,7 @@ export class DatabaseManager {
   }
 
   public reload(): void {
-    this.loadFromFile().catch(error => {
+    this.loadFromFile().catch((error) => {
       console.error('Failed to reload from file:', error)
     })
     console.warn('Commands reloaded from file')
@@ -237,32 +241,32 @@ export class DatabaseManager {
   // 分类管理方法
   public updateCategory(oldCategory: string, newCategory: string): void {
     const updatedCommands = this._commands.filter(cmd => cmd.category === oldCategory)
-    
+
     if (updatedCommands.length === 0) {
       throw new Error('Category not found or no commands updated')
     }
 
     const now = new Date().toISOString()
-    updatedCommands.forEach(cmd => {
+    updatedCommands.forEach((cmd) => {
       cmd.category = newCategory
       cmd.updated_at = now
     })
 
-    this.saveToFile().catch(error => {
+    this.saveToFile().catch((error) => {
       console.error('Failed to save after updating category:', error)
     })
   }
 
   public deleteCategory(category: string): void {
     const commandsToDelete = this._commands.filter(cmd => cmd.category === category)
-    
+
     if (commandsToDelete.length === 0) {
       throw new Error('Category not found')
     }
 
     this._commands = this._commands.filter(cmd => cmd.category !== category)
-    
-    this.saveToFile().catch(error => {
+
+    this.saveToFile().catch((error) => {
       console.error('Failed to save after deleting category:', error)
     })
   }
