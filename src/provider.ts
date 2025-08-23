@@ -1,24 +1,17 @@
 import type { CommandManager } from './manager'
 import * as vscode from 'vscode'
 
-// 定义类别配置
-interface CategoryConfig {
-  displayName: string
-  icon: string
-}
+function getCategoryConfig(commandManager: CommandManager, category: string): { displayName: string, icon: string } {
+  const categoryInfo = commandManager.getCategoryDisplayInfo(category)
+  if (categoryInfo) {
+    return categoryInfo
+  }
 
-const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
-  git: { displayName: 'Git', icon: 'git-branch' },
-  npm: { displayName: 'NPM', icon: 'package' },
-  yarn: { displayName: 'Yarn', icon: 'package' },
-  docker: { displayName: 'Docker', icon: 'server-process' },
-  pip: { displayName: 'Python/Pip', icon: 'snake' },
-  conda: { displayName: 'Conda', icon: 'library' },
-  rust: { displayName: 'Rust', icon: 'gear' },
-}
-
-function getCategoryConfig(category: string): CategoryConfig {
-  return CATEGORY_CONFIGS[category] || { displayName: category.charAt(0).toUpperCase() + category.slice(1), icon: 'gear' }
+  // 后备方案
+  return {
+    displayName: category.charAt(0).toUpperCase() + category.slice(1),
+    icon: 'gear',
+  }
 }
 
 export class DepCmdTreeItem extends vscode.TreeItem {
@@ -34,6 +27,7 @@ export class DepCmdTreeItem extends vscode.TreeItem {
     public readonly commandIcon?: string,
     commandId?: number,
     commandDescription?: string,
+    categoryIcon?: string,
   ) {
     super(label, collapsibleState)
 
@@ -51,15 +45,8 @@ export class DepCmdTreeItem extends vscode.TreeItem {
     else {
       this.contextValue = 'category'
       this.categoryName = category
-      // Use category configuration for icons
-      if (category) {
-        const categoryConfig = getCategoryConfig(category)
-        this.iconPath = new vscode.ThemeIcon(categoryConfig.icon)
-      }
-      else {
-        // Fallback to default icon
-        this.iconPath = new vscode.ThemeIcon('gear')
-      }
+      // Use provided category icon or fallback
+      this.iconPath = new vscode.ThemeIcon(categoryIcon || 'gear')
     }
   }
 }
@@ -98,22 +85,42 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
     const config = vscode.workspace.getConfiguration('depCmd')
     const defaultCategory = config.get<string>('defaultCategory', 'all')
     const sortCommands = config.get<boolean>('sortCommands', false)
+    const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
 
     if (!element) {
       // Root level - show categories dynamically
       const categories: DepCmdTreeItem[] = []
-      const availableCategories = await this.commandManager.getAvailableCategories()
+
+      // 根据配置决定是否使用项目检测过滤
+      let availableCategories: string[]
+      if (enableProjectDetection) {
+        availableCategories = await this.commandManager.getFilteredCategories()
+      }
+      else {
+        availableCategories = await this.commandManager.getAvailableCategories()
+      }
 
       for (const category of availableCategories) {
         if (defaultCategory === 'all' || defaultCategory === category) {
-          const commands = await this.commandManager.getCommandsByCategory(category)
+          let commands: any[]
+          if (enableProjectDetection) {
+            commands = await this.commandManager.getFilteredCommandsByCategory(category)
+          }
+          else {
+            commands = await this.commandManager.getCommandsByCategory(category)
+          }
+
           if (commands.length > 0) {
-            const categoryConfig = getCategoryConfig(category)
+            const categoryConfig = getCategoryConfig(this.commandManager, category)
             categories.push(new DepCmdTreeItem(
               `${categoryConfig.displayName} (${commands.length})`,
               vscode.TreeItemCollapsibleState.Expanded,
               undefined,
               category,
+              undefined,
+              undefined,
+              undefined,
+              categoryConfig.icon,
             ))
           }
         }
@@ -128,7 +135,13 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       const categoryDisplayName = labelMatch ? labelMatch[1] : element.category || 'custom'
       const category = element.category || categoryDisplayName.toLowerCase()
 
-      let commands = await this.commandManager.getCommandsByCategory(category)
+      let commands: any[]
+      if (enableProjectDetection) {
+        commands = await this.commandManager.getFilteredCommandsByCategory(category)
+      }
+      else {
+        commands = await this.commandManager.getCommandsByCategory(category)
+      }
 
       if (sortCommands) {
         commands = [...commands].sort((a, b) => a.label.localeCompare(b.label))

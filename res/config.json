@@ -1,0 +1,341 @@
+{
+  "version": "1.0.0",
+  "projectTypes": [
+    {
+      "id": "node",
+      "displayName": "Node.js",
+      "aliases": ["nodejs", "javascript", "js", "typescript", "ts"],
+      "priority": 90,
+      "detectionRules": [
+        {
+          "name": "package_json",
+          "type": "file_exists",
+          "target": "package.json",
+          "weight": 100,
+          "required": true
+        },
+        {
+          "name": "node_modules",
+          "type": "directory_exists",
+          "target": "node_modules",
+          "weight": 50
+        },
+        {
+          "name": "tsconfig",
+          "type": "file_exists",
+          "target": "tsconfig.json",
+          "weight": 30
+        }
+      ],
+      "packageManagers": [
+        {
+          "id": "npm",
+          "displayName": "NPM",
+          "detectionRules": [
+            {
+              "name": "package_lock",
+              "type": "file_exists",
+              "target": "package-lock.json",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "id": "yarn",
+          "displayName": "Yarn",
+          "detectionRules": [
+            {
+              "name": "yarn_lock",
+              "type": "file_exists",
+              "target": "yarn.lock",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "id": "pnpm",
+          "displayName": "PNPM",
+          "detectionRules": [
+            {
+              "name": "pnpm_lock",
+              "type": "file_exists",
+              "target": "pnpm-lock.yaml",
+              "weight": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "python",
+      "displayName": "Python",
+      "aliases": ["py", "python3"],
+      "priority": 85,
+      "detectionRules": [
+        {
+          "name": "requirements",
+          "type": "file_exists",
+          "target": "requirements.txt",
+          "weight": 80
+        },
+        {
+          "name": "setup_py",
+          "type": "file_exists",
+          "target": "setup.py",
+          "weight": 90
+        },
+        {
+          "name": "pyproject",
+          "type": "file_exists",
+          "target": "pyproject.toml",
+          "weight": 95
+        }
+      ],
+      "packageManagers": [
+        {
+          "id": "pip",
+          "displayName": "Pip",
+          "detectionRules": [
+            {
+              "name": "requirements",
+              "type": "file_exists",
+              "target": "requirements.txt",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "id": "conda",
+          "displayName": "Conda",
+          "detectionRules": [
+            {
+              "name": "environment_yml",
+              "type": "file_exists",
+              "target": "environment.yml",
+              "weight": 100
+            }
+          ]
+        },
+        {
+          "id": "poetry",
+          "displayName": "Poetry",
+          "detectionRules": [
+            {
+              "name": "poetry_lock",
+              "type": "file_exists",
+              "target": "poetry.lock",
+              "weight": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rust",
+      "displayName": "Rust",
+      "aliases": ["rs", "cargo"],
+      "priority": 95,
+      "detectionRules": [
+        {
+          "name": "cargo_toml",
+          "type": "file_exists",
+          "target": "Cargo.toml",
+          "weight": 100,
+          "required": true
+        },
+        {
+          "name": "cargo_lock",
+          "type": "file_exists",
+          "target": "Cargo.lock",
+          "weight": 50
+        }
+      ]
+    },
+    {
+      "id": "go",
+      "displayName": "Go",
+      "aliases": ["golang"],
+      "priority": 90,
+      "detectionRules": [
+        {
+          "name": "go_mod",
+          "type": "file_exists",
+          "target": "go.mod",
+          "weight": 100,
+          "required": true
+        },
+        {
+          "name": "go_sum",
+          "type": "file_exists",
+          "target": "go.sum",
+          "weight": 50
+        }
+      ]
+    },
+    {
+      "id": "java",
+      "displayName": "Java",
+      "aliases": ["jvm", "kotlin", "scala"],
+      "priority": 80,
+      "detectionRules": [
+        {
+          "name": "maven_pom",
+          "type": "file_exists",
+          "target": "pom.xml",
+          "weight": 90
+        },
+        {
+          "name": "gradle_build",
+          "type": "file_exists",
+          "target": "build.gradle",
+          "weight": 90
+        },
+        {
+          "name": "gradle_kts",
+          "type": "file_exists",
+          "target": "build.gradle.kts",
+          "weight": 90
+        }
+      ]
+    },
+    {
+      "id": "docker",
+      "displayName": "Docker",
+      "aliases": ["container"],
+      "priority": 70,
+      "detectionRules": [
+        {
+          "name": "dockerfile",
+          "type": "file_exists",
+          "target": "Dockerfile",
+          "weight": 100
+        },
+        {
+          "name": "docker_compose",
+          "type": "file_exists",
+          "target": "docker-compose.yml",
+          "weight": 90
+        }
+      ]
+    },
+    {
+      "id": "git",
+      "displayName": "Git",
+      "aliases": ["vcs"],
+      "priority": 60,
+      "detectionRules": [
+        {
+          "name": "git_dir",
+          "type": "directory_exists",
+          "target": ".git",
+          "weight": 100
+        }
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "id": "git",
+      "displayName": "Git",
+      "icon": "git-branch",
+      "supportedProjectTypes": "*",
+      "conditions": {
+        "requiresGit": true
+      }
+    },
+    {
+      "id": "npm",
+      "displayName": "NPM",
+      "icon": "package",
+      "supportedProjectTypes": ["node"],
+      "conditions": {
+        "requiredPackageManager": "npm"
+      }
+    },
+    {
+      "id": "yarn",
+      "displayName": "Yarn",
+      "icon": "package",
+      "supportedProjectTypes": ["node"],
+      "conditions": {
+        "requiredPackageManager": "yarn"
+      }
+    },
+    {
+      "id": "pnpm",
+      "displayName": "PNPM",
+      "icon": "package",
+      "supportedProjectTypes": ["node"],
+      "conditions": {
+        "requiredPackageManager": "pnpm"
+      }
+    },
+    {
+      "id": "pip",
+      "displayName": "Python/Pip",
+      "icon": "snake",
+      "supportedProjectTypes": ["python"],
+      "conditions": {
+        "requiredPackageManager": "pip"
+      }
+    },
+    {
+      "id": "conda",
+      "displayName": "Conda",
+      "icon": "library",
+      "supportedProjectTypes": ["python"],
+      "conditions": {
+        "requiredPackageManager": "conda"
+      }
+    },
+    {
+      "id": "poetry",
+      "displayName": "Poetry",
+      "icon": "book",
+      "supportedProjectTypes": ["python"],
+      "conditions": {
+        "requiredPackageManager": "poetry"
+      }
+    },
+    {
+      "id": "cargo",
+      "displayName": "Cargo",
+      "icon": "gear",
+      "supportedProjectTypes": ["rust"]
+    },
+    {
+      "id": "go",
+      "displayName": "Go",
+      "icon": "go",
+      "supportedProjectTypes": ["go"]
+    },
+    {
+      "id": "maven",
+      "displayName": "Maven",
+      "icon": "settings-gear",
+      "supportedProjectTypes": ["java"]
+    },
+    {
+      "id": "gradle",
+      "displayName": "Gradle",
+      "icon": "settings-gear",
+      "supportedProjectTypes": ["java"]
+    },
+    {
+      "id": "docker",
+      "displayName": "Docker",
+      "icon": "server-process",
+      "supportedProjectTypes": "*",
+      "conditions": {
+        "requiresDocker": true
+      }
+    },
+    {
+      "id": "custom",
+      "displayName": "Custom",
+      "icon": "gear",
+      "supportedProjectTypes": "*"
+    }
+  ],
+  "commands": []
+}

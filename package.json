@@ -59,6 +59,63 @@
         }
       ]
     },
+    "configuration": {
+      "title": "DepCmd",
+      "properties": {
+        "depCmd.enableProjectDetection": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic project detection to filter commands based on project type"
+        },
+        "depCmd.defaultCategory": {
+          "type": "string",
+          "default": "all",
+          "description": "Default category to display (all or specific category name)"
+        },
+        "depCmd.sortCommands": {
+          "type": "boolean",
+          "default": false,
+          "description": "Sort commands alphabetically within each category"
+        },
+        "depCmd.customProjectConfigs": {
+          "type": "array",
+          "default": [],
+          "description": "Custom project type detection configurations",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "Project type identifier"
+              },
+              "displayName": {
+                "type": "string",
+                "description": "Human-readable project type name"
+              },
+              "priority": {
+                "type": "number",
+                "description": "Detection priority (higher numbers have higher priority)"
+              },
+              "detectionRules": {
+                "type": "array",
+                "description": "Rules for detecting this project type"
+              }
+            }
+          }
+        },
+        "depCmd.detectionStrategy": {
+          "type": "string",
+          "enum": ["aggressive", "conservative", "balanced"],
+          "default": "balanced",
+          "description": "Project detection strategy: aggressive (more detection, possible false positives), conservative (strict detection), balanced (recommended)"
+        },
+        "depCmd.minDetectionScore": {
+          "type": "number",
+          "default": 50,
+          "description": "Minimum score required for project type detection (0-100)"
+        }
+      }
+    },
     "commands": [
       {
         "command": "depCmd.sendToTerminal",
@@ -112,6 +169,18 @@
         "title": "Delete Category",
         "icon": "$(trash)",
         "category": "Development Commands"
+      },
+      {
+        "command": "depCmd.showProjectInfo",
+        "title": "Show Project Information",
+        "icon": "$(info)",
+        "category": "Development Commands"
+      },
+      {
+        "command": "depCmd.toggleProjectDetection",
+        "title": "Toggle Project Detection",
+        "icon": "$(eye)",
+        "category": "Development Commands"
       }
     ],
     "menus": {
@@ -135,6 +204,11 @@
           "command": "depCmd.addCommand",
           "when": "view == depCmdView",
           "group": "navigation@4"
+        },
+        {
+          "command": "depCmd.showProjectInfo",
+          "when": "view == depCmdView",
+          "group": "navigation@5"
         }
       ],
       "view/item/context": [

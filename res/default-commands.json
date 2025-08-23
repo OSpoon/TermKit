@@ -59,6 +59,146 @@
       "icon": "list-flat",
       "created_at": "2025-01-01T00:00:00.000Z",
       "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "label": "Status",
+      "command": "git status",
+      "description": "Show Git status",
+      "category": "git",
+      "icon": "git-branch",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "label": "Add All",
+      "command": "git add .",
+      "description": "Add all changes",
+      "category": "git",
+      "icon": "add",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "label": "Install",
+      "command": "yarn install",
+      "description": "Install dependencies with Yarn",
+      "category": "yarn",
+      "icon": "package",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "label": "Dev Server",
+      "command": "yarn dev",
+      "description": "Start development server with Yarn",
+      "category": "yarn",
+      "icon": "play",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 11,
+      "label": "Install",
+      "command": "pnpm install",
+      "description": "Install dependencies with pnpm",
+      "category": "pnpm",
+      "icon": "package",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 12,
+      "label": "Dev Server",
+      "command": "pnpm dev",
+      "description": "Start development server with pnpm",
+      "category": "pnpm",
+      "icon": "play",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 13,
+      "label": "Install Requirements",
+      "command": "pip install -r requirements.txt",
+      "description": "Install Python dependencies",
+      "category": "pip",
+      "icon": "package",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 14,
+      "label": "List Packages",
+      "command": "pip list",
+      "description": "List installed Python packages",
+      "category": "pip",
+      "icon": "list-unordered",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 15,
+      "label": "Build",
+      "command": "cargo build",
+      "description": "Build Rust project",
+      "category": "cargo",
+      "icon": "tools",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 16,
+      "label": "Run",
+      "command": "cargo run",
+      "description": "Run Rust project",
+      "category": "cargo",
+      "icon": "play",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 17,
+      "label": "Test",
+      "command": "cargo test",
+      "description": "Run Rust tests",
+      "category": "cargo",
+      "icon": "beaker",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 18,
+      "label": "Build",
+      "command": "go build",
+      "description": "Build Go project",
+      "category": "go",
+      "icon": "tools",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 19,
+      "label": "Run",
+      "command": "go run .",
+      "description": "Run Go project",
+      "category": "go",
+      "icon": "play",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 20,
+      "label": "Test",
+      "command": "go test",
+      "description": "Run Go tests",
+      "category": "go",
+      "icon": "beaker",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
     }
   ]
 }

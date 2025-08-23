@@ -1,15 +1,27 @@
 import type * as vscode from 'vscode'
 import type { UserCommand } from './database'
+import type { UniversalProjectDetectionResult } from './detector'
+import { UniversalConfigManager } from './configuration'
 import { DatabaseManager } from './database'
+import { UniversalProjectDetector } from './detector'
+import { UniversalCommandFilter } from './filter'
 
 export type { UserCommand } from './database'
+export type ProjectDetectionResult = UniversalProjectDetectionResult
 
 export class CommandManager {
   private static _instance: CommandManager
   private _database: DatabaseManager
+  private _configManager: UniversalConfigManager
+  private _detector: UniversalProjectDetector
+  private _filter: UniversalCommandFilter
+  private _currentProject: UniversalProjectDetectionResult | null = null
 
   private constructor(context: vscode.ExtensionContext) {
     this._database = DatabaseManager.getInstance(context)
+    this._configManager = UniversalConfigManager.getInstance(context)
+    this._detector = UniversalProjectDetector.getInstance(this._configManager)
+    this._filter = UniversalCommandFilter.getInstance(this._configManager)
   }
 
   public static getInstance(context?: vscode.ExtensionContext): CommandManager {
@@ -21,13 +33,145 @@ export class CommandManager {
 
   public async loadCommands(): Promise<void> {
     try {
+      // 加载配置
+      await this._configManager.loadConfig()
+
+      // 初始化数据库
       await this._database.initialize()
+
+      // 检测当前项目
+      await this.detectCurrentProject()
+
       console.warn('Commands loaded from database')
     }
     catch (error) {
       console.error('Failed to load commands from database:', error)
       throw error
     }
+  }
+
+  /**
+   * 检测当前项目类型
+   */
+  public async detectCurrentProject(forceRefresh: boolean = false): Promise<UniversalProjectDetectionResult> {
+    this._currentProject = await this._detector.detectProject(forceRefresh)
+    return this._currentProject
+  }
+
+  /**
+   * 获取当前项目检测结果
+   */
+  public getCurrentProject(): UniversalProjectDetectionResult | null {
+    return this._currentProject
+  }
+
+  /**
+   * 获取过滤后的命令（根据项目类型）
+   */
+  public async getFilteredCommands(): Promise<UserCommand[]> {
+    const allCommands = await this.getAllCommands()
+    if (!this._currentProject) {
+      await this.detectCurrentProject()
+    }
+
+    if (this._currentProject) {
+      return this._filter.filterCommands(allCommands, this._currentProject)
+    }
+
+    return allCommands
+  }
+
+  /**
+   * 获取过滤后的命令分类
+   */
+  public async getFilteredCategories(): Promise<string[]> {
+    const allCategories = await this.getAvailableCategories()
+    console.warn(`All available categories: ${allCategories.join(', ')}`)
+
+    if (!this._currentProject) {
+      console.warn('No current project, detecting...')
+      await this.detectCurrentProject()
+    }
+
+    if (this._currentProject) {
+      console.warn(`Current project types: ${this._currentProject.detectedProjectTypes.map(pt => pt.displayName).join(', ')}`)
+      const filteredCategories = this._filter.filterCategories(allCategories, this._currentProject)
+      console.warn(`Filtered categories: ${filteredCategories.join(', ')}`)
+      return filteredCategories
+    }
+
+    console.warn('No project detected, returning all categories')
+    return allCategories
+  }
+
+  /**
+   * 根据项目类型获取过滤后的分类命令
+   */
+  public async getFilteredCommandsByCategory(category: string): Promise<UserCommand[]> {
+    const commands = await this.getCommandsByCategory(category)
+    if (!this._currentProject) {
+      await this.detectCurrentProject()
+    }
+
+    if (this._currentProject) {
+      return this._filter.filterCommands(commands, this._currentProject)
+    }
+
+    return commands
+  }
+
+  /**
+   * 获取建议的命令分类
+   */
+  public async getSuggestedCategories(): Promise<string[]> {
+    if (!this._currentProject) {
+      await this.detectCurrentProject()
+    }
+
+    if (this._currentProject) {
+      return this._filter.getSuggestedCategories(this._currentProject)
+    }
+
+    return []
+  }
+
+  /**
+   * 获取项目类型统计信息
+   */
+  public async getProjectStats(): Promise<{
+    totalCategories: number
+    supportedCategories: number
+    unsupportedCategories: string[]
+    projectTypes: string[]
+    packageManager?: string
+    pythonManager?: string
+    hasGit: boolean
+    hasDocker: boolean
+  } | null> {
+    if (!this._currentProject) {
+      await this.detectCurrentProject()
+    }
+
+    if (this._currentProject) {
+      const stats = this._filter.getProjectTypeStats(this._currentProject)
+      return {
+        ...stats,
+        projectTypes: this._currentProject.detectedProjectTypes.map(pt => pt.displayName),
+        packageManager: this._currentProject.packageManager,
+        pythonManager: this._currentProject.pythonManager,
+        hasGit: this._currentProject.hasGit,
+        hasDocker: this._currentProject.hasDocker,
+      }
+    }
+
+    return null
+  }
+
+  /**
+   * 获取类别的显示信息
+   */
+  public getCategoryDisplayInfo(categoryId: string): { displayName: string, icon: string } | null {
+    return this._filter.getCategoryDisplayInfo(categoryId)
   }
 
   public async getAllCommands(): Promise<UserCommand[]> {
@@ -120,7 +264,9 @@ export class CommandManager {
   public async reloadFromDatabase(): Promise<void> {
     try {
       this._database.reload()
-      console.warn('Commands reloaded from database')
+      // 重新检测项目以确保过滤器工作正常
+      await this.detectCurrentProject()
+      console.warn('Commands reloaded from database and project re-detected')
     }
     catch (error) {
       console.error('Failed to reload from database:', error)

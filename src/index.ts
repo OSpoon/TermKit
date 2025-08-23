@@ -35,6 +35,15 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
 
       // Always refresh the tree view after initialization
       depCmdProvider.refresh(true) // Skip reload since we just loaded/initialized
+
+      // Log the current project detection status for debugging
+      const currentProject = commandManager.getCurrentProject()
+      if (currentProject) {
+        console.warn('Project detected on startup:', currentProject.detectedProjectTypes.map(pt => pt.displayName).join(', '))
+      }
+      else {
+        console.warn('No project detected on startup')
+      }
     }
     catch (error) {
       console.error('Failed to initialize commands:', error)
@@ -42,8 +51,10 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
     }
   }
 
-  // Call initialization immediately
-  initializeCommands()
+  // Call initialization immediately, but give a small delay for workspace to be ready
+  setTimeout(() => {
+    initializeCommands()
+  }, 100)
 
   // Initialize commands
   useCommands(commandManager, depCmdProvider)
