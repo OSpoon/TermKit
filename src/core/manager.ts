@@ -5,9 +5,6 @@ import { CommandFilter } from '@src/data/filter'
 import { ConfigManager } from './configuration'
 import { ProjectDetector } from './detector'
 
-export type { UserCommand } from '@src/types'
-export type { ProjectDetectionResult } from '@src/types'
-
 export class CommandManager {
   private static _instance: CommandManager
   private _database: DatabaseManager
@@ -271,36 +268,6 @@ export class CommandManager {
       console.error('Failed to reload from database:', error)
       throw error
     }
-  }
-
-  // 保留兼容性方法
-  public async saveCommands(): Promise<void> {
-    // JSON文件自动保存，不需要手动保存
-    console.warn('Commands are automatically saved to database')
-  }
-
-  public getCommands(): { commands: Record<string, UserCommand[]> } {
-    // 这个方法保留用于兼容性，但实际上应该使用异步方法
-    console.warn('getCommands() is deprecated, use getAllCommands() instead')
-    return { commands: {} }
-  }
-
-  public async initializeWithDefaults(_defaultCommands: UserCommand[]): Promise<void> {
-    // 数据库初始化时会自动添加默认命令，这里不需要再添加
-    console.warn('Default commands are automatically initialized from database')
-  }
-
-  // 保留兼容性方法
-  public getCommandsFilePath(): string {
-    return this.getDatabasePath()
-  }
-
-  public async openCommandsFile(): Promise<void> {
-    await this.openDatabase()
-  }
-
-  public async reloadFromFile(): Promise<void> {
-    await this.reloadFromDatabase()
   }
 
   public async cleanup(): Promise<void> {
