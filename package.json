@@ -105,7 +105,11 @@
         },
         "depCmd.detectionStrategy": {
           "type": "string",
-          "enum": ["aggressive", "conservative", "balanced"],
+          "enum": [
+            "aggressive",
+            "conservative",
+            "balanced"
+          ],
           "default": "balanced",
           "description": "Project detection strategy: aggressive (more detection, possible false positives), conservative (strict detection), balanced (recommended)"
         },
@@ -255,15 +259,18 @@
     "publish": "vsce publish --no-dependencies",
     "pack": "vsce package --no-dependencies",
     "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
     "release": "bumpp"
   },
-  "dependencies": {},
   "devDependencies": {
     "@antfu/eslint-config": "^4.19.0",
     "@antfu/ni": "^23.3.1",
     "@types/node": "^22.17.2",
     "@types/vscode": "^1.74.0",
+    "@vitest/coverage-v8": "^3.2.4",
     "@vscode/vsce": "^3.6.0",
     "bumpp": "^10.2.3",
     "eslint": "^9.33.0",
