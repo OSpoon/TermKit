@@ -1,6 +1,6 @@
 import type { ExtensionContext } from 'vscode'
 import { defineExtension } from 'reactive-vscode'
-import { commands, window } from 'vscode'
+import { commands, window, workspace } from 'vscode'
 import { version } from '../package.json'
 import { useCommands } from './commands'
 import { CommandManager } from './manager'
@@ -33,17 +33,29 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
         console.warn('No existing commands found, database should have been initialized with defaults...')
       }
 
-      // Always refresh the tree view after initialization
-      depCmdProvider.refresh(true) // Skip reload since we just loaded/initialized
+      // 立即检测项目类型以确保过滤功能正常工作
+      const config = workspace.getConfiguration('depCmd')
+      const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
 
-      // Log the current project detection status for debugging
-      const currentProject = commandManager.getCurrentProject()
-      if (currentProject) {
-        console.warn('Project detected on startup:', currentProject.detectedProjectTypes.map(pt => pt.displayName).join(', '))
+      if (enableProjectDetection) {
+        console.warn('Project detection enabled, detecting current project...')
+        await commandManager.detectCurrentProject(true)
+
+        // Log the current project detection status for debugging
+        const currentProject = commandManager.getCurrentProject()
+        if (currentProject) {
+          console.warn('Project detected on startup:', currentProject.detectedProjectTypes.map(pt => pt.displayName).join(', '))
+        }
+        else {
+          console.warn('No project detected on startup')
+        }
       }
       else {
-        console.warn('No project detected on startup')
+        console.warn('Project detection disabled')
       }
+
+      // Always refresh the tree view after initialization
+      depCmdProvider.refresh(true) // Skip reload since we just loaded/initialized
     }
     catch (error) {
       console.error('Failed to initialize commands:', error)
@@ -51,10 +63,10 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
     }
   }
 
-  // Call initialization immediately, but give a small delay for workspace to be ready
+  // Call initialization immediately, but give a minimal delay for workspace to be ready
   setTimeout(() => {
     initializeCommands()
-  }, 100)
+  }, 50)
 
   // Initialize commands
   useCommands(commandManager, depCmdProvider)
