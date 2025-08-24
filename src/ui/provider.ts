@@ -1,4 +1,4 @@
-import type { CommandManager } from './manager'
+import type { CommandManager } from '../core/manager'
 import * as vscode from 'vscode'
 
 function getCategoryConfig(commandManager: CommandManager, category: string): { displayName: string, icon: string } {

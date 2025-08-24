@@ -3,7 +3,7 @@ import type {
   CommandDefinition,
   ConfigSchema,
   ProjectTypeDefinition,
-} from './types'
+} from '../types'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as process from 'node:process'
@@ -63,11 +63,11 @@ export class ConfigManager {
 
       if (this._extensionContext) {
         // 使用扩展上下文获取正确的资源路径
-        defaultConfigPath = path.join(this._extensionContext.extensionPath, 'res', 'config.json')
+        defaultConfigPath = path.join(this._extensionContext.extensionPath, 'config', 'config.json')
       }
       else {
         // 备用路径
-        defaultConfigPath = path.join(__dirname, '../res/config.json')
+        defaultConfigPath = path.join(__dirname, '../../config/config.json')
       }
 
       console.warn(`Loading default config from: ${defaultConfigPath}`)
@@ -78,7 +78,7 @@ export class ConfigManager {
       }
       catch {
         // 如果第一个路径不存在，尝试其他可能的路径
-        const alternativePath = path.join(process.cwd(), 'res/config.json')
+        const alternativePath = path.join(process.cwd(), 'config/config.json')
         console.warn(`First path failed, trying: ${alternativePath}`)
         await access(alternativePath)
         // 如果alternative路径存在，更新路径

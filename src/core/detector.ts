@@ -1,11 +1,11 @@
-import type { ConfigManager } from './configuration'
 import type {
   DetectionResult,
   DetectionRule,
   PackageManagerDefinition,
   ProjectDetectionResult,
   ProjectTypeDefinition,
-} from './types'
+} from '../types'
+import type { ConfigManager } from './configuration'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { promisify } from 'node:util'

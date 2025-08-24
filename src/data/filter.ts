@@ -1,10 +1,10 @@
-import type { ConfigManager } from './configuration'
+import type { ConfigManager } from '../core/configuration'
 import type {
   CategoryDefinition,
   CommandDefinition,
   ProjectDetectionResult,
   UserCommand,
-} from './types'
+} from '../types'
 
 /**
  * 通用命令过滤器

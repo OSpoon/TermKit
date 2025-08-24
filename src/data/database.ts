@@ -1,4 +1,4 @@
-import type { CommandsData, UserCommand } from './types'
+import type { CommandsData, UserCommand } from '../types'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { promisify } from 'node:util'
@@ -98,7 +98,7 @@ export class DatabaseManager {
         throw new Error('Could not find extension path')
       }
 
-      const defaultDataPath = path.join(extensionPath, 'res', 'default-commands.json')
+      const defaultDataPath = path.join(extensionPath, 'config', 'default-commands.json')
       const content = await readFile(defaultDataPath, 'utf8')
       const defaultData: CommandsData = JSON.parse(content)
 

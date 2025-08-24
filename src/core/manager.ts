@@ -1,12 +1,12 @@
 import type * as vscode from 'vscode'
-import type { ProjectDetectionResult, UserCommand } from './types'
+import type { ProjectDetectionResult, UserCommand } from '../types'
+import { DatabaseManager } from '../data/database'
+import { CommandFilter } from '../data/filter'
 import { ConfigManager } from './configuration'
-import { DatabaseManager } from './database'
 import { ProjectDetector } from './detector'
-import { CommandFilter } from './filter'
 
-export type { UserCommand } from './types'
-export type { ProjectDetectionResult } from './types'
+export type { UserCommand } from '../types'
+export type { ProjectDetectionResult } from '../types'
 
 export class CommandManager {
   private static _instance: CommandManager

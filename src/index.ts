@@ -2,9 +2,8 @@ import type { ExtensionContext } from 'vscode'
 import { defineExtension } from 'reactive-vscode'
 import { commands, window, workspace } from 'vscode'
 import { version } from '../package.json'
-import { useCommands } from './commands'
-import { CommandManager } from './manager'
-import { DepCmdProvider } from './provider'
+import { CommandManager } from './core'
+import { DepCmdProvider, useCommands } from './ui'
 import { logger } from './utils'
 
 const { activate, deactivate } = defineExtension(async (context: ExtensionContext) => {
