@@ -4,10 +4,13 @@ import type {
   ConfigSchema,
   ProjectTypeDefinition,
 } from '@src/types'
+
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as process from 'node:process'
 import { promisify } from 'node:util'
+
+import { logger } from '@src/utils'
 import * as vscode from 'vscode'
 
 const readFile = promisify(fs.readFile)
@@ -70,7 +73,7 @@ export class ConfigManager {
         defaultConfigPath = path.join(__dirname, '../../config/config.json')
       }
 
-      console.warn(`Loading default config from: ${defaultConfigPath}`)
+      logger.info(`Loading default config from: ${defaultConfigPath}`)
 
       // 检查文件是否存在
       try {
@@ -79,21 +82,21 @@ export class ConfigManager {
       catch {
         // 如果第一个路径不存在，尝试其他可能的路径
         const alternativePath = path.join(process.cwd(), 'config/config.json')
-        console.warn(`First path failed, trying: ${alternativePath}`)
+        logger.info(`First path failed, trying: ${alternativePath}`)
         await access(alternativePath)
         // 如果alternative路径存在，更新路径
         const configContent = await readFile(alternativePath, 'utf-8')
         this._config = JSON.parse(configContent)
-        console.warn(`Config loaded from alternative path. Categories: ${this._config?.categories?.length || 0}, ProjectTypes: ${this._config?.projectTypes?.length || 0}`)
+        logger.info(`Config loaded from alternative path. Categories: ${this._config?.categories?.length || 0}, ProjectTypes: ${this._config?.projectTypes?.length || 0}`)
         return
       }
 
       const configContent = await readFile(defaultConfigPath, 'utf-8')
       this._config = JSON.parse(configContent)
-      console.warn(`Default config loaded successfully. Categories: ${this._config?.categories?.length || 0}, ProjectTypes: ${this._config?.projectTypes?.length || 0}`)
+      logger.info(`Default config loaded successfully. Categories: ${this._config?.categories?.length || 0}, ProjectTypes: ${this._config?.projectTypes?.length || 0}`)
     }
     catch (error) {
-      console.warn(`Failed to load default config: ${error}`, 'using fallback')
+      logger.info(`Failed to load default config: ${error}`, 'using fallback')
       this._config = this.getFallbackConfig()
     }
   }
@@ -115,7 +118,7 @@ export class ConfigManager {
       this._userConfig = JSON.parse(configContent)
     }
     catch (error) {
-      console.error(error)
+      logger.error(error)
       // 用户配置不存在或无效，使用VS Code设置
       this.loadVSCodeConfig()
     }
@@ -202,7 +205,7 @@ export class ConfigManager {
         this._customFunctions.set(name, func)
       }
       catch (error) {
-        console.warn(`Failed to register custom function ${name}:`, error)
+        logger.info(`Failed to register custom function ${name}:`, error)
       }
     }
   }
@@ -213,7 +216,7 @@ export class ConfigManager {
   private createSafeFunction(_functionCode: string): (...args: any[]) => any {
     // 在实际实现中，这里应该使用更安全的方式来执行用户代码
     // 比如使用 vm 模块或者预定义的函数库
-    console.warn('Custom functions are not implemented in safe mode')
+    logger.info('Custom functions are not implemented in safe mode')
     return () => false
   }
 
@@ -258,7 +261,7 @@ export class ConfigManager {
   public async executeCustomFunction(name: string, workspaceRoot: string): Promise<boolean> {
     const func = this._customFunctions.get(name)
     if (!func) {
-      console.warn(`Custom function ${name} not found`)
+      logger.info(`Custom function ${name} not found`)
       return false
     }
 
@@ -266,7 +269,7 @@ export class ConfigManager {
       return await func(workspaceRoot, vscode, fs, path)
     }
     catch (error) {
-      console.warn(`Error executing custom function ${name}:`, error)
+      logger.info(`Error executing custom function ${name}:`, error)
       return false
     }
   }
@@ -351,7 +354,7 @@ export class ConfigManager {
       })
     }
     catch (error) {
-      console.error('Failed to create user config template:', error)
+      logger.error('Failed to create user config template:', error)
     }
   }
 

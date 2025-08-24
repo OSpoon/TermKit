@@ -6,9 +6,12 @@ import type {
   ProjectTypeDefinition,
 } from '@src/types'
 import type { ConfigManager } from './configuration'
+
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { promisify } from 'node:util'
+
+import { logger } from '@src/utils'
 import * as vscode from 'vscode'
 
 const access = promisify(fs.access)
@@ -162,12 +165,12 @@ export class ProjectDetector {
           return await this.executeCustomRule(rule, workspaceRoot, weight)
 
         default:
-          console.warn(`Unknown detection rule type: ${rule.type}`)
+          logger.info(`Unknown detection rule type: ${rule.type}`)
           return { matched: false, score: 0 }
       }
     }
     catch (error) {
-      console.warn(`Error executing detection rule ${rule.name}:`, error)
+      logger.info(`Error executing detection rule ${rule.name}:`, error)
       return { matched: false, score: 0 }
     }
   }
@@ -267,7 +270,7 @@ export class ProjectDetector {
         }
       }
       catch (error) {
-        console.warn(`Custom function ${rule.config.customFunction} failed:`, error)
+        logger.info(`Custom function ${rule.config.customFunction} failed:`, error)
         return { matched: false, score: 0 }
       }
     }

@@ -2,6 +2,7 @@ import type { ProjectDetectionResult, UserCommand } from '@src/types'
 import type * as vscode from 'vscode'
 import { DatabaseManager } from '@src/data/database'
 import { CommandFilter } from '@src/data/filter'
+import { logger } from '@src/utils'
 import { ConfigManager } from './configuration'
 import { ProjectDetector } from './detector'
 
@@ -38,10 +39,10 @@ export class CommandManager {
       // 检测当前项目
       await this.detectCurrentProject()
 
-      console.warn('Commands loaded from database')
+      logger.info('Commands loaded from database')
     }
     catch (error) {
-      console.error('Failed to load commands from database:', error)
+      logger.error('Failed to load commands from database:', error)
       throw error
     }
   }
@@ -82,21 +83,21 @@ export class CommandManager {
    */
   public async getFilteredCategories(): Promise<string[]> {
     const allCategories = await this.getAvailableCategories()
-    console.warn(`All available categories: ${allCategories.join(', ')}`)
+    logger.info(`All available categories: ${allCategories.join(', ')}`)
 
     if (!this._currentProject) {
-      console.warn('No current project, detecting...')
+      logger.info('No current project, detecting...')
       await this.detectCurrentProject()
     }
 
     if (this._currentProject) {
-      console.warn(`Current project types: ${this._currentProject.detectedProjectTypes.map(pt => pt.displayName).join(', ')}`)
+      logger.info(`Current project types: ${this._currentProject.detectedProjectTypes.map(pt => pt.displayName).join(', ')}`)
       const filteredCategories = this._filter.filterCategories(allCategories, this._currentProject)
-      console.warn(`Filtered categories: ${filteredCategories.join(', ')}`)
+      logger.info(`Filtered categories: ${filteredCategories.join(', ')}`)
       return filteredCategories
     }
 
-    console.warn('No project detected, returning all categories')
+    logger.info('No project detected, returning all categories')
     return allCategories
   }
 
@@ -175,7 +176,7 @@ export class CommandManager {
       return this._database.getAllCommands()
     }
     catch (error) {
-      console.error('Failed to get all commands:', error)
+      logger.error('Failed to get all commands:', error)
       return []
     }
   }
@@ -185,7 +186,7 @@ export class CommandManager {
       return this._database.getCommandsByCategory(category)
     }
     catch (error) {
-      console.error('Failed to get commands by category:', error)
+      logger.error('Failed to get commands by category:', error)
       return []
     }
   }
@@ -195,7 +196,7 @@ export class CommandManager {
       return this._database.getAvailableCategories()
     }
     catch (error) {
-      console.error('Failed to get available categories:', error)
+      logger.error('Failed to get available categories:', error)
       return []
     }
   }
@@ -203,10 +204,10 @@ export class CommandManager {
   public async addCommand(command: Omit<UserCommand, 'id' | 'created_at' | 'updated_at'>): Promise<void> {
     try {
       this._database.addCommand(command)
-      console.warn('Command added successfully')
+      logger.info('Command added successfully')
     }
     catch (error) {
-      console.error('Failed to add command:', error)
+      logger.error('Failed to add command:', error)
       throw error
     }
   }
@@ -214,10 +215,10 @@ export class CommandManager {
   public async updateCommand(id: number, command: Partial<UserCommand>): Promise<void> {
     try {
       this._database.updateCommand(id, command)
-      console.warn('Command updated successfully')
+      logger.info('Command updated successfully')
     }
     catch (error) {
-      console.error('Failed to update command:', error)
+      logger.error('Failed to update command:', error)
       throw error
     }
   }
@@ -225,10 +226,10 @@ export class CommandManager {
   public async deleteCommand(id: number): Promise<void> {
     try {
       this._database.deleteCommand(id)
-      console.warn('Command deleted successfully')
+      logger.info('Command deleted successfully')
     }
     catch (error) {
-      console.error('Failed to delete command:', error)
+      logger.error('Failed to delete command:', error)
       throw error
     }
   }
@@ -238,7 +239,7 @@ export class CommandManager {
       return this._database.searchCommands(query)
     }
     catch (error) {
-      console.error('Failed to search commands:', error)
+      logger.error('Failed to search commands:', error)
       return []
     }
   }
@@ -252,7 +253,7 @@ export class CommandManager {
       await this._database.openDatabase()
     }
     catch (error) {
-      console.error('Failed to open database:', error)
+      logger.error('Failed to open database:', error)
       throw error
     }
   }
@@ -262,10 +263,10 @@ export class CommandManager {
       this._database.reload()
       // 重新检测项目以确保过滤器工作正常
       await this.detectCurrentProject()
-      console.warn('Commands reloaded from database and project re-detected')
+      logger.info('Commands reloaded from database and project re-detected')
     }
     catch (error) {
-      console.error('Failed to reload from database:', error)
+      logger.error('Failed to reload from database:', error)
       throw error
     }
   }
@@ -278,10 +279,10 @@ export class CommandManager {
   public async updateCategory(oldCategory: string, newCategory: string): Promise<void> {
     try {
       this._database.updateCategory(oldCategory, newCategory)
-      console.warn('Category updated successfully')
+      logger.info('Category updated successfully')
     }
     catch (error) {
-      console.error('Failed to update category:', error)
+      logger.error('Failed to update category:', error)
       throw error
     }
   }
@@ -289,10 +290,10 @@ export class CommandManager {
   public async deleteCategory(category: string): Promise<void> {
     try {
       this._database.deleteCategory(category)
-      console.warn('Category deleted successfully')
+      logger.info('Category deleted successfully')
     }
     catch (error) {
-      console.error('Failed to delete category:', error)
+      logger.error('Failed to delete category:', error)
       throw error
     }
   }
@@ -302,7 +303,7 @@ export class CommandManager {
       return this._database.getCategoryCommandCount(category)
     }
     catch (error) {
-      console.error('Failed to get category command count:', error)
+      logger.error('Failed to get category command count:', error)
       return 0
     }
   }

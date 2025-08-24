@@ -1,7 +1,10 @@
 import type { CommandsData, UserCommand } from '@src/types'
+
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { promisify } from 'node:util'
+
+import { logger } from '@src/utils'
 import * as vscode from 'vscode'
 
 const readFile = promisify(fs.readFile)
@@ -35,17 +38,17 @@ export class DatabaseManager {
       // 检查文件是否存在
       const fileExists = await this.checkFileExists()
       if (!fileExists) {
-        console.warn('Commands file is empty, initializing with default data...')
+        logger.info('Commands file is empty, initializing with default data...')
         await this.initializeWithDefaults()
       }
       else {
         await this.loadFromFile()
       }
 
-      console.warn('Commands initialized successfully at:', this._dataPath)
+      logger.info('Commands initialized successfully at:', this._dataPath)
     }
     catch (error) {
-      console.error('Failed to initialize commands:', error)
+      logger.error('Failed to initialize commands:', error)
       throw error
     }
   }
@@ -71,10 +74,10 @@ export class DatabaseManager {
         ? Math.max(...this._commands.map(cmd => cmd.id || 0)) + 1
         : 1
 
-      console.warn('Commands loaded from file:', this._commands.length)
+      logger.info('Commands loaded from file:', this._commands.length)
     }
     catch (error) {
-      console.error('Failed to load commands from file:', error)
+      logger.error('Failed to load commands from file:', error)
       await this.initializeWithDefaults()
     }
   }
@@ -85,7 +88,7 @@ export class DatabaseManager {
       await writeFile(this._dataPath, JSON.stringify(data, null, 2), 'utf8')
     }
     catch (error) {
-      console.error('Failed to save commands to file:', error)
+      logger.error('Failed to save commands to file:', error)
       throw error
     }
   }
@@ -108,10 +111,10 @@ export class DatabaseManager {
         : 1
 
       await this.saveToFile()
-      console.warn('Commands initialized with default data:', this._commands.length)
+      logger.info('Commands initialized with default data:', this._commands.length)
     }
     catch (error) {
-      console.error('Failed to initialize with defaults:', error)
+      logger.error('Failed to initialize with defaults:', error)
       this._commands = []
       this._nextId = 1
     }
@@ -148,7 +151,7 @@ export class DatabaseManager {
 
     this._commands.push(newCommand)
     this.saveToFile().catch((error) => {
-      console.error('Failed to save after adding command:', error)
+      logger.error('Failed to save after adding command:', error)
     })
   }
 
@@ -167,7 +170,7 @@ export class DatabaseManager {
     }
 
     this.saveToFile().catch((error) => {
-      console.error('Failed to save after updating command:', error)
+      logger.error('Failed to save after updating command:', error)
     })
   }
 
@@ -179,7 +182,7 @@ export class DatabaseManager {
 
     this._commands.splice(index, 1)
     this.saveToFile().catch((error) => {
-      console.error('Failed to save after deleting command:', error)
+      logger.error('Failed to save after deleting command:', error)
     })
   }
 
@@ -214,14 +217,14 @@ export class DatabaseManager {
 
   public reload(): void {
     this.loadFromFile().catch((error) => {
-      console.error('Failed to reload from file:', error)
+      logger.error('Failed to reload from file:', error)
     })
-    console.warn('Commands reloaded from file')
+    logger.info('Commands reloaded from file')
   }
 
   public cleanup(): void {
     // JSON文件不需要特殊清理
-    console.warn('Commands cleanup completed')
+    logger.info('Commands cleanup completed')
   }
 
   // 分类管理方法
@@ -239,7 +242,7 @@ export class DatabaseManager {
     })
 
     this.saveToFile().catch((error) => {
-      console.error('Failed to save after updating category:', error)
+      logger.error('Failed to save after updating category:', error)
     })
   }
 
@@ -253,7 +256,7 @@ export class DatabaseManager {
     this._commands = this._commands.filter(cmd => cmd.category !== category)
 
     this.saveToFile().catch((error) => {
-      console.error('Failed to save after deleting category:', error)
+      logger.error('Failed to save after deleting category:', error)
     })
   }
 

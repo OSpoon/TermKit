@@ -5,6 +5,7 @@ import type {
   ProjectDetectionResult,
   UserCommand,
 } from '@src/types'
+import { logger } from '@src/utils'
 
 /**
  * 通用命令过滤器
@@ -35,13 +36,13 @@ export class CommandFilter {
    * 根据项目检测结果过滤类别
    */
   public filterCategories(categories: string[], projectResult: ProjectDetectionResult): string[] {
-    console.warn(`Filter input - Categories: ${categories.join(', ')}, Project types: ${projectResult.detectedProjectTypes.map(pt => pt.displayName).join(', ')}`)
+    logger.info(`Filter input - Categories: ${categories.join(', ')}, Project types: ${projectResult.detectedProjectTypes.map(pt => pt.displayName).join(', ')}`)
     const filtered = categories.filter((category) => {
       const isSupported = this.isCategorySupported(category, projectResult)
-      console.warn(`Category ${category}: ${isSupported ? 'supported' : 'not supported'}`)
+      logger.info(`Category ${category}: ${isSupported ? 'supported' : 'not supported'}`)
       return isSupported
     })
-    console.warn(`Filter result: ${filtered.join(', ')}`)
+    logger.info(`Filter result: ${filtered.join(', ')}`)
     return filtered
   }
 
@@ -172,11 +173,11 @@ export class CommandFilter {
         return projectResult.detectedProjectTypes.some(pt => pt.confidence >= minConfidence)
       }
 
-      console.warn(`Unknown custom condition: ${customCondition}`)
+      logger.info(`Unknown custom condition: ${customCondition}`)
       return true
     }
     catch (error) {
-      console.warn(`Error evaluating custom condition ${customCondition}:`, error)
+      logger.info(`Error evaluating custom condition ${customCondition}:`, error)
       return true
     }
   }
@@ -352,7 +353,7 @@ export class CommandFilter {
   public async updateCategoryMapping(category: CategoryDefinition): Promise<void> {
     // 这个方法可以用于动态更新类别映射
     // 实际实现可能需要更新配置文件或内存中的配置
-    console.warn('Update category mapping:', category.id)
+    logger.info('Update category mapping:', category.id)
     // TODO: 实现配置更新逻辑
   }
 

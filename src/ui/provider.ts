@@ -1,4 +1,5 @@
 import type { CommandManager } from '@src/core/manager'
+import { logger } from '@src/utils'
 import * as vscode from 'vscode'
 
 function getCategoryConfig(commandManager: CommandManager, category: string): { displayName: string, icon: string } {
@@ -70,7 +71,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       this.commandManager.reloadFromDatabase().then(() => {
         this._onDidChangeTreeData.fire()
       }).catch((error) => {
-        console.error('Failed to reload commands:', error)
+        logger.error('Failed to reload commands:', error)
         // Still fire the event to show whatever data we have
         this._onDidChangeTreeData.fire()
       })

@@ -29,7 +29,7 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
       // If no commands exist in any category, they will be automatically initialized from database
       const allCommands = await commandManager.getAllCommands()
       if (allCommands.length === 0) {
-        console.warn('No existing commands found, database should have been initialized with defaults...')
+        logger.info('No existing commands found, database should have been initialized with defaults...')
       }
 
       // 立即检测项目类型以确保过滤功能正常工作
@@ -37,27 +37,27 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
       const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
 
       if (enableProjectDetection) {
-        console.warn('Project detection enabled, detecting current project...')
+        logger.info('Project detection enabled, detecting current project...')
         await commandManager.detectCurrentProject(true)
 
         // Log the current project detection status for debugging
         const currentProject = commandManager.getCurrentProject()
         if (currentProject) {
-          console.warn('Project detected on startup:', currentProject.detectedProjectTypes.map(pt => pt.displayName).join(', '))
+          logger.info('Project detected on startup:', currentProject.detectedProjectTypes.map(pt => pt.displayName).join(', '))
         }
         else {
-          console.warn('No project detected on startup')
+          logger.info('No project detected on startup')
         }
       }
       else {
-        console.warn('Project detection disabled')
+        logger.info('Project detection disabled')
       }
 
       // Always refresh the tree view after initialization
       depCmdProvider.refresh(true) // Skip reload since we just loaded/initialized
     }
     catch (error) {
-      console.error('Failed to initialize commands:', error)
+      logger.error('Failed to initialize commands:', error)
       window.showErrorMessage(`Failed to initialize commands: ${error}`)
     }
   }
