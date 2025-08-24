@@ -1,3 +1,9 @@
+import type {
+  CategoryDefinition,
+  CommandDefinition,
+  ConfigSchema,
+  ProjectTypeDefinition,
+} from './types'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as process from 'node:process'
@@ -8,99 +14,10 @@ const readFile = promisify(fs.readFile)
 const access = promisify(fs.access)
 
 /**
- * 通用项目类型配置
- */
-export interface ProjectTypeDefinition {
-  id: string
-  displayName: string
-  aliases?: string[]
-  priority?: number
-  detectionRules: DetectionRule[]
-  packageManagers?: PackageManagerDefinition[]
-  defaultCommands?: CommandDefinition[]
-}
-
-/**
- * 检测规则
- */
-export interface DetectionRule {
-  name: string
-  type: 'file_exists' | 'directory_exists' | 'file_content' | 'custom'
-  target: string
-  weight?: number
-  required?: boolean
-  config?: {
-    pattern?: string | RegExp
-    excludeIfExists?: string[]
-    customFunction?: string // 函数名引用
-  }
-}
-
-/**
- * 包管理器定义
- */
-export interface PackageManagerDefinition {
-  id: string
-  displayName: string
-  detectionRules: DetectionRule[]
-  commands?: string[]
-}
-
-/**
- * 命令定义
- */
-export interface CommandDefinition {
-  label: string
-  command: string
-  description?: string
-  category: string
-  icon?: string
-  conditions?: {
-    requiresPackageManager?: string
-    requiresProjectType?: string[]
-    requiresGit?: boolean
-    requiresDocker?: boolean
-    custom?: string
-  }
-}
-
-/**
- * 类别配置
- */
-export interface CategoryDefinition {
-  id: string
-  displayName: string
-  icon: string
-  supportedProjectTypes: string[] | '*'
-  conditions?: {
-    requiresGit?: boolean
-    requiresDocker?: boolean
-    requiredPackageManager?: string
-    custom?: string
-  }
-}
-
-/**
- * 完整的配置模式
- */
-export interface ConfigSchema {
-  version: string
-  projectTypes: ProjectTypeDefinition[]
-  categories: CategoryDefinition[]
-  commands: CommandDefinition[]
-  customFunctions?: Record<string, string>
-  extensionPoints?: {
-    beforeDetection?: string[]
-    afterDetection?: string[]
-    customConditions?: string[]
-  }
-}
-
-/**
  * 通用配置管理器
  */
-export class UniversalConfigManager {
-  private static _instance: UniversalConfigManager
+export class ConfigManager {
+  private static _instance: ConfigManager
   private _config: ConfigSchema | null = null
   private _userConfig: Partial<ConfigSchema> | null = null
   private _customFunctions: Map<string, (...args: any[]) => any> = new Map()
@@ -110,14 +27,14 @@ export class UniversalConfigManager {
     this._extensionContext = context || null
   }
 
-  public static getInstance(context?: vscode.ExtensionContext): UniversalConfigManager {
-    if (!UniversalConfigManager._instance) {
-      UniversalConfigManager._instance = new UniversalConfigManager(context)
+  public static getInstance(context?: vscode.ExtensionContext): ConfigManager {
+    if (!ConfigManager._instance) {
+      ConfigManager._instance = new ConfigManager(context)
     }
-    else if (context && !UniversalConfigManager._instance._extensionContext) {
-      UniversalConfigManager._instance._extensionContext = context
+    else if (context && !ConfigManager._instance._extensionContext) {
+      ConfigManager._instance._extensionContext = context
     }
-    return UniversalConfigManager._instance
+    return ConfigManager._instance
   }
 
   /**

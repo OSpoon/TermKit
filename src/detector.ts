@@ -1,10 +1,11 @@
+import type { ConfigManager } from './configuration'
 import type {
+  DetectionResult,
   DetectionRule,
   PackageManagerDefinition,
+  ProjectDetectionResult,
   ProjectTypeDefinition,
-  UniversalConfigManager,
-} from './configuration'
-import type { ProjectDetectionResult } from './types'
+} from './types'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { promisify } from 'node:util'
@@ -16,65 +17,29 @@ const readdir = promisify(fs.readdir)
 const stat = promisify(fs.stat)
 
 /**
- * 检测结果
- */
-interface DetectionResult {
-  matched: boolean
-  score: number
-  details?: any
-}
-
-/**
- * 项目检测结果（扩展版）
- */
-export interface UniversalProjectDetectionResult extends ProjectDetectionResult {
-  detectedProjectTypes: Array<{
-    id: string
-    displayName: string
-    score: number
-    confidence: number
-  }>
-  detectedPackageManagers: Array<{
-    id: string
-    displayName: string
-    projectType: string
-    score: number
-  }>
-  detectionDetails?: Array<{
-    projectType: string
-    rules: Array<{
-      name: string
-      matched: boolean
-      score: number
-      details?: any
-    }>
-  }>
-}
-
-/**
  * 通用项目检测器
  */
-export class UniversalProjectDetector {
-  private static _instance: UniversalProjectDetector
-  private _configManager: UniversalConfigManager
-  private _lastDetection: UniversalProjectDetectionResult | null = null
+export class ProjectDetector {
+  private static _instance: ProjectDetector
+  private _configManager: ConfigManager
+  private _lastDetection: ProjectDetectionResult | null = null
   private _workspaceRoot: string = ''
 
-  private constructor(configManager: UniversalConfigManager) {
+  private constructor(configManager: ConfigManager) {
     this._configManager = configManager
   }
 
-  public static getInstance(configManager: UniversalConfigManager): UniversalProjectDetector {
-    if (!UniversalProjectDetector._instance) {
-      UniversalProjectDetector._instance = new UniversalProjectDetector(configManager)
+  public static getInstance(configManager: ConfigManager): ProjectDetector {
+    if (!ProjectDetector._instance) {
+      ProjectDetector._instance = new ProjectDetector(configManager)
     }
-    return UniversalProjectDetector._instance
+    return ProjectDetector._instance
   }
 
   /**
    * 检测项目类型
    */
-  public async detectProject(forceRefresh: boolean = false): Promise<UniversalProjectDetectionResult> {
+  public async detectProject(forceRefresh: boolean = false): Promise<ProjectDetectionResult> {
     const workspaceFolders = vscode.workspace.workspaceFolders
     if (!workspaceFolders || workspaceFolders.length === 0) {
       return this.createEmptyResult()
@@ -98,7 +63,7 @@ export class UniversalProjectDetector {
   /**
    * 执行检测
    */
-  private async performDetection(workspaceRoot: string): Promise<UniversalProjectDetectionResult> {
+  private async performDetection(workspaceRoot: string): Promise<ProjectDetectionResult> {
     const projectTypes = this._configManager.getProjectTypes()
     const detectionResults: Array<{
       projectType: ProjectTypeDefinition
@@ -363,7 +328,7 @@ export class UniversalProjectDetector {
   private async buildDetectionResult(
     workspaceRoot: string,
     detectionResults: Array<{ projectType: ProjectTypeDefinition, score: number, details: any[] }>,
-  ): Promise<UniversalProjectDetectionResult> {
+  ): Promise<ProjectDetectionResult> {
     const detectedTypes: string[] = []
     const detectedProjectTypes: Array<{ id: string, displayName: string, score: number, confidence: number }> = []
     const detectedPackageManagers: Array<{ id: string, displayName: string, projectType: string, score: number }> = []
@@ -471,7 +436,7 @@ export class UniversalProjectDetector {
   /**
    * 创建空结果
    */
-  private createEmptyResult(): UniversalProjectDetectionResult {
+  private createEmptyResult(): ProjectDetectionResult {
     return {
       types: ['unknown' as any],
       hasGit: false,
@@ -485,7 +450,7 @@ export class UniversalProjectDetector {
   /**
    * 获取当前检测结果
    */
-  public getCurrentDetection(): UniversalProjectDetectionResult | null {
+  public getCurrentDetection(): ProjectDetectionResult | null {
     return this._lastDetection
   }
 

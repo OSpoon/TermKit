@@ -1,3 +1,4 @@
+import type { CommandsData, UserCommand } from './types'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { promisify } from 'node:util'
@@ -7,21 +8,6 @@ const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 const mkdir = promisify(fs.mkdir)
 const access = promisify(fs.access)
-
-export interface UserCommand {
-  id?: number
-  label: string
-  command: string
-  description?: string
-  category: string
-  icon?: string
-  created_at?: string
-  updated_at?: string
-}
-
-interface CommandsData {
-  commands: UserCommand[]
-}
 
 export class DatabaseManager {
   private static _instance: DatabaseManager

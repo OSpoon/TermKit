@@ -1,27 +1,26 @@
 import type * as vscode from 'vscode'
-import type { UserCommand } from './database'
-import type { UniversalProjectDetectionResult } from './detector'
-import { UniversalConfigManager } from './configuration'
+import type { ProjectDetectionResult, UserCommand } from './types'
+import { ConfigManager } from './configuration'
 import { DatabaseManager } from './database'
-import { UniversalProjectDetector } from './detector'
-import { UniversalCommandFilter } from './filter'
+import { ProjectDetector } from './detector'
+import { CommandFilter } from './filter'
 
-export type { UserCommand } from './database'
-export type ProjectDetectionResult = UniversalProjectDetectionResult
+export type { UserCommand } from './types'
+export type { ProjectDetectionResult } from './types'
 
 export class CommandManager {
   private static _instance: CommandManager
   private _database: DatabaseManager
-  private _configManager: UniversalConfigManager
-  private _detector: UniversalProjectDetector
-  private _filter: UniversalCommandFilter
-  private _currentProject: UniversalProjectDetectionResult | null = null
+  private _configManager: ConfigManager
+  private _detector: ProjectDetector
+  private _filter: CommandFilter
+  private _currentProject: ProjectDetectionResult | null = null
 
   private constructor(context: vscode.ExtensionContext) {
     this._database = DatabaseManager.getInstance(context)
-    this._configManager = UniversalConfigManager.getInstance(context)
-    this._detector = UniversalProjectDetector.getInstance(this._configManager)
-    this._filter = UniversalCommandFilter.getInstance(this._configManager)
+    this._configManager = ConfigManager.getInstance(context)
+    this._detector = ProjectDetector.getInstance(this._configManager)
+    this._filter = CommandFilter.getInstance(this._configManager)
   }
 
   public static getInstance(context?: vscode.ExtensionContext): CommandManager {
@@ -53,7 +52,7 @@ export class CommandManager {
   /**
    * 检测当前项目类型
    */
-  public async detectCurrentProject(forceRefresh: boolean = false): Promise<UniversalProjectDetectionResult> {
+  public async detectCurrentProject(forceRefresh: boolean = false): Promise<ProjectDetectionResult> {
     this._currentProject = await this._detector.detectProject(forceRefresh)
     return this._currentProject
   }
@@ -61,7 +60,7 @@ export class CommandManager {
   /**
    * 获取当前项目检测结果
    */
-  public getCurrentProject(): UniversalProjectDetectionResult | null {
+  public getCurrentProject(): ProjectDetectionResult | null {
     return this._currentProject
   }
 

@@ -1,40 +1,40 @@
+import type { ConfigManager } from './configuration'
 import type {
   CategoryDefinition,
   CommandDefinition,
-  UniversalConfigManager,
-} from './configuration'
-import type { UserCommand } from './database'
-import type { UniversalProjectDetectionResult } from './detector'
+  ProjectDetectionResult,
+  UserCommand,
+} from './types'
 
 /**
  * 通用命令过滤器
  */
-export class UniversalCommandFilter {
-  private static _instance: UniversalCommandFilter
-  private _configManager: UniversalConfigManager
+export class CommandFilter {
+  private static _instance: CommandFilter
+  private _configManager: ConfigManager
 
-  private constructor(configManager: UniversalConfigManager) {
+  private constructor(configManager: ConfigManager) {
     this._configManager = configManager
   }
 
-  public static getInstance(configManager: UniversalConfigManager): UniversalCommandFilter {
-    if (!UniversalCommandFilter._instance) {
-      UniversalCommandFilter._instance = new UniversalCommandFilter(configManager)
+  public static getInstance(configManager: ConfigManager): CommandFilter {
+    if (!CommandFilter._instance) {
+      CommandFilter._instance = new CommandFilter(configManager)
     }
-    return UniversalCommandFilter._instance
+    return CommandFilter._instance
   }
 
   /**
    * 根据项目检测结果过滤命令
    */
-  public filterCommands(commands: UserCommand[], projectResult: UniversalProjectDetectionResult): UserCommand[] {
+  public filterCommands(commands: UserCommand[], projectResult: ProjectDetectionResult): UserCommand[] {
     return commands.filter(command => this.isCommandSupported(command, projectResult))
   }
 
   /**
    * 根据项目检测结果过滤类别
    */
-  public filterCategories(categories: string[], projectResult: UniversalProjectDetectionResult): string[] {
+  public filterCategories(categories: string[], projectResult: ProjectDetectionResult): string[] {
     console.warn(`Filter input - Categories: ${categories.join(', ')}, Project types: ${projectResult.detectedProjectTypes.map(pt => pt.displayName).join(', ')}`)
     const filtered = categories.filter((category) => {
       const isSupported = this.isCategorySupported(category, projectResult)
@@ -48,7 +48,7 @@ export class UniversalCommandFilter {
   /**
    * 检查命令是否支持当前项目
    */
-  private isCommandSupported(command: UserCommand, projectResult: UniversalProjectDetectionResult): boolean {
+  private isCommandSupported(command: UserCommand, projectResult: ProjectDetectionResult): boolean {
     const category = this._configManager.getCategory(command.category)
     if (!category) {
       // 如果没有找到类别定义，默认支持
@@ -61,7 +61,7 @@ export class UniversalCommandFilter {
   /**
    * 检查类别是否支持当前项目
    */
-  private isCategorySupported(categoryId: string, projectResult: UniversalProjectDetectionResult): boolean {
+  private isCategorySupported(categoryId: string, projectResult: ProjectDetectionResult): boolean {
     const category = this._configManager.getCategory(categoryId)
     if (!category) {
       // 如果没有找到类别定义，默认支持
@@ -84,7 +84,7 @@ export class UniversalCommandFilter {
   /**
    * 检查项目类型支持
    */
-  private checkProjectTypeSupport(category: CategoryDefinition, projectResult: UniversalProjectDetectionResult): boolean {
+  private checkProjectTypeSupport(category: CategoryDefinition, projectResult: ProjectDetectionResult): boolean {
     // 如果支持所有项目类型
     if (category.supportedProjectTypes === '*') {
       return true
@@ -109,7 +109,7 @@ export class UniversalCommandFilter {
    */
   private checkCategoryConditions(
     conditions: CategoryDefinition['conditions'],
-    projectResult: UniversalProjectDetectionResult,
+    projectResult: ProjectDetectionResult,
   ): boolean {
     if (!conditions)
       return true
@@ -148,7 +148,7 @@ export class UniversalCommandFilter {
    */
   private checkCustomCondition(
     customCondition: string,
-    projectResult: UniversalProjectDetectionResult,
+    projectResult: ProjectDetectionResult,
   ): boolean {
     try {
       // 这里可以实现自定义条件逻辑
@@ -184,7 +184,7 @@ export class UniversalCommandFilter {
   /**
    * 获取建议的命令类别
    */
-  public getSuggestedCategories(projectResult: UniversalProjectDetectionResult): string[] {
+  public getSuggestedCategories(projectResult: ProjectDetectionResult): string[] {
     const allCategories = this._configManager.getCategories()
     const suggested: Array<{ id: string, priority: number }> = []
 
@@ -233,7 +233,7 @@ export class UniversalCommandFilter {
   /**
    * 获取项目类型统计信息
    */
-  public getProjectTypeStats(projectResult: UniversalProjectDetectionResult): {
+  public getProjectTypeStats(projectResult: ProjectDetectionResult): {
     totalCategories: number
     supportedCategories: number
     unsupportedCategories: string[]
@@ -263,7 +263,7 @@ export class UniversalCommandFilter {
    */
   public filterCommandsByDefinition(
     commandDefs: CommandDefinition[],
-    projectResult: UniversalProjectDetectionResult,
+    projectResult: ProjectDetectionResult,
   ): CommandDefinition[] {
     return commandDefs.filter(cmd => this.isCommandDefinitionSupported(cmd, projectResult))
   }
@@ -273,7 +273,7 @@ export class UniversalCommandFilter {
    */
   private isCommandDefinitionSupported(
     commandDef: CommandDefinition,
-    projectResult: UniversalProjectDetectionResult,
+    projectResult: ProjectDetectionResult,
   ): boolean {
     if (!commandDef.conditions) {
       return true
