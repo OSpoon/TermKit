@@ -1,9 +1,9 @@
-import type { CommandManager } from '../core/manager'
+import type { CommandManager } from '@src/core/manager'
 import type { DepCmdProvider, DepCmdTreeItem } from './provider'
+import * as meta from '@src/generated/meta'
+import { sendCommandToTerminal } from '@src/utils'
 import { useCommand } from 'reactive-vscode'
 import { env, window, workspace } from 'vscode'
-import * as meta from '../generated/meta'
-import { sendCommandToTerminal } from '../utils'
 
 export function useCommands(commandManager: CommandManager, depCmdProvider: DepCmdProvider) {
   useCommand(meta.commands.depCmdRefreshView, async () => {

@@ -1,6 +1,6 @@
+import { displayName } from '@src/generated/meta'
 import { useLogger } from 'reactive-vscode'
 import { window, workspace } from 'vscode'
-import { displayName } from '../generated/meta'
 
 export const logger = useLogger(displayName)
 

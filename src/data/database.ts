@@ -1,4 +1,4 @@
-import type { CommandsData, UserCommand } from '../types'
+import type { CommandsData, UserCommand } from '@src/types'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { promisify } from 'node:util'

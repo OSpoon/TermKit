@@ -3,7 +3,7 @@ import type {
   CommandDefinition,
   ConfigSchema,
   ProjectTypeDefinition,
-} from '../types'
+} from '@src/types'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as process from 'node:process'

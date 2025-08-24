@@ -4,7 +4,7 @@ import type {
   PackageManagerDefinition,
   ProjectDetectionResult,
   ProjectTypeDefinition,
-} from '../types'
+} from '@src/types'
 import type { ConfigManager } from './configuration'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
