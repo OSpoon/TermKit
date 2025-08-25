@@ -72,11 +72,6 @@
           "default": "all",
           "description": "Default category to display (all or specific category name)"
         },
-        "depCmd.sortCommands": {
-          "type": "boolean",
-          "default": false,
-          "description": "Sort commands alphabetically within each category"
-        },
         "depCmd.projectDetection": {
           "type": "object",
           "default": {
@@ -96,21 +91,6 @@
               "type": "string"
             }
           }
-        },
-        "depCmd.detectionStrategy": {
-          "type": "string",
-          "enum": [
-            "aggressive",
-            "conservative",
-            "balanced"
-          ],
-          "default": "balanced",
-          "description": "Project detection strategy: aggressive (more detection, possible false positives), conservative (strict detection), balanced (recommended)"
-        },
-        "depCmd.minDetectionScore": {
-          "type": "number",
-          "default": 50,
-          "description": "Minimum score required for project type detection (0-100)"
         }
       }
     },

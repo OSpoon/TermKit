@@ -205,28 +205,6 @@ export class DatabaseManager {
     return this._dataPath
   }
 
-  public async openDatabase(): Promise<void> {
-    try {
-      const uri = vscode.Uri.file(this._dataPath)
-      await vscode.window.showTextDocument(uri)
-    }
-    catch (error) {
-      vscode.window.showErrorMessage(`Failed to open commands file: ${error}`)
-    }
-  }
-
-  public reload(): void {
-    this.loadFromFile().catch((error) => {
-      logger.error('Failed to reload from file:', error)
-    })
-    logger.info('Commands reloaded from file')
-  }
-
-  public cleanup(): void {
-    // JSON文件不需要特殊清理
-    logger.info('Commands cleanup completed')
-  }
-
   // 分类管理方法
   public updateCategory(oldCategory: string, newCategory: string): void {
     const updatedCommands = this._commands.filter(cmd => cmd.category === oldCategory)

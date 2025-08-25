@@ -85,7 +85,6 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
   async getChildren(element?: DepCmdTreeItem): Promise<DepCmdTreeItem[]> {
     const config = vscode.workspace.getConfiguration('depCmd')
     const defaultCategory = config.get<string>('defaultCategory', 'all')
-    const sortCommands = config.get<boolean>('sortCommands', false)
     const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
 
     if (!element) {
@@ -142,10 +141,6 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       }
       else {
         commands = await this.commandManager.getCommandsByCategory(category)
-      }
-
-      if (sortCommands) {
-        commands = [...commands].sort((a, b) => a.label.localeCompare(b.label))
       }
 
       return commands.map(cmd => new DepCmdTreeItem(
