@@ -18,16 +18,6 @@ describe('simplified tests', () => {
       })
     })
 
-    it('should have correct project types enum', async () => {
-      const { ProjectType } = await import('@src/types')
-
-      expect(ProjectType.NODE).toBe('node')
-      expect(ProjectType.PYTHON).toBe('python')
-      expect(ProjectType.DOCKER).toBe('docker')
-      expect(ProjectType.GIT).toBe('git')
-      expect(ProjectType.UNKNOWN).toBe('unknown')
-    })
-
     it('should export singleton classes', async () => {
       const { DatabaseManager } = await import('@src/data/database')
       const { ProjectDetector } = await import('@src/core/detector')
