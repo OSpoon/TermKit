@@ -132,7 +132,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       // Category level - show commands
       // Extract category from the label dynamically
       const labelMatch = element.label.match(/^(.+?) \(\d+\)$/)
-      const categoryDisplayName = labelMatch ? labelMatch[1] : element.category || 'custom'
+      const categoryDisplayName = labelMatch ? labelMatch[1] : element.category || 'other'
       const category = element.category || categoryDisplayName.toLowerCase()
 
       let commands: any[]

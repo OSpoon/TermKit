@@ -270,7 +270,6 @@ export class CommandManager {
       go: { displayName: 'Go', icon: 'go' },
       docker: { displayName: 'Docker', icon: 'server-process' },
       git: { displayName: 'Git', icon: 'git-branch' },
-      custom: { displayName: 'Custom', icon: 'gear' },
     }
 
     return categoryMap[category] || {

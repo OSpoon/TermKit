@@ -12,7 +12,6 @@ export interface CommandDefinition {
     requiresProjectType?: string[]
     requiresGit?: boolean
     requiresDocker?: boolean
-    custom?: string
   }
 }
 
@@ -28,7 +27,6 @@ export interface CategoryDefinition {
     requiresGit?: boolean
     requiresDocker?: boolean
     requiredPackageManager?: string
-    custom?: string
   }
 }
 
