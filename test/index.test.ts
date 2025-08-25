@@ -13,24 +13,19 @@ describe('utils', () => {
 
       ;(vscode.window as any).activeTerminal = undefined
       vscode.window.createTerminal = vi.fn().mockReturnValue(mockTerminal)
-      vscode.workspace.getConfiguration = vi.fn().mockReturnValue({
-        get: vi.fn((key: string, defaultValue: any) => {
-          const configs: Record<string, any> = {
-            autoExecute: false,
-            showNotifications: true,
-            terminalName: 'Test Terminal',
-            clearTerminalLine: false,
-          }
-          return configs[key] ?? defaultValue
-        }),
-      })
 
+      vi.useFakeTimers()
       sendCommandToTerminal('npm test')
 
-      expect(vscode.window.createTerminal).toHaveBeenCalledWith('Test Terminal')
+      expect(vscode.window.createTerminal).toHaveBeenCalledWith('Development Commands')
       expect(mockTerminal.show).toHaveBeenCalled()
+      expect(mockTerminal.sendText).toHaveBeenCalledWith('\x03', false)
+
+      vi.advanceTimersByTime(50)
       expect(mockTerminal.sendText).toHaveBeenCalledWith('npm test', false)
       expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Command sent to terminal: npm test')
+
+      vi.useRealTimers()
     })
 
     it('should use active terminal when available', () => {
@@ -40,23 +35,19 @@ describe('utils', () => {
       }
 
       ;(vscode.window as any).activeTerminal = mockTerminal
-      vscode.workspace.getConfiguration = vi.fn().mockReturnValue({
-        get: vi.fn((key: string, defaultValue: any) => {
-          const configs: Record<string, any> = {
-            autoExecute: true,
-            showNotifications: false,
-            clearTerminalLine: false,
-          }
-          return configs[key] ?? defaultValue
-        }),
-      })
 
+      vi.useFakeTimers()
       sendCommandToTerminal('pnpm build')
 
       expect(vscode.window.createTerminal).not.toHaveBeenCalled()
       expect(mockTerminal.show).toHaveBeenCalled()
-      expect(mockTerminal.sendText).toHaveBeenCalledWith('pnpm build', true)
-      expect(vscode.window.showInformationMessage).not.toHaveBeenCalled()
+      expect(mockTerminal.sendText).toHaveBeenCalledWith('\x03', false)
+
+      vi.advanceTimersByTime(50)
+      expect(mockTerminal.sendText).toHaveBeenCalledWith('pnpm build', false)
+      expect(vscode.window.showInformationMessage).toHaveBeenCalledWith('Command sent to terminal: pnpm build')
+
+      vi.useRealTimers()
     })
 
     it('should clear terminal line when clearTerminalLine is enabled', () => {
@@ -66,16 +57,6 @@ describe('utils', () => {
       }
 
       ;(vscode.window as any).activeTerminal = mockTerminal
-      vscode.workspace.getConfiguration = vi.fn().mockReturnValue({
-        get: vi.fn((key: string, defaultValue: any) => {
-          const configs: Record<string, any> = {
-            autoExecute: false,
-            showNotifications: true,
-            clearTerminalLine: true,
-          }
-          return configs[key] ?? defaultValue
-        }),
-      })
 
       vi.useFakeTimers()
       sendCommandToTerminal('yarn install')

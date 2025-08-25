@@ -1,17 +1,16 @@
 import { displayName } from '@src/generated/meta'
 import { useLogger } from 'reactive-vscode'
-import { window, workspace } from 'vscode'
+import { window } from 'vscode'
 
 export const logger = useLogger(displayName)
 
 // Helper function to send command to terminal
 export function sendCommandToTerminal(command: string) {
   try {
-    const config = workspace.getConfiguration('depCmd')
-    const autoExecute = config.get<boolean>('autoExecute', false)
-    const showNotifications = config.get<boolean>('showNotifications', true)
-    const terminalName = config.get<string>('terminalName', 'Development Commands')
-    const clearTerminalLine = config.get<boolean>('clearTerminalLine', true)
+    const autoExecute = false
+    const showNotifications = true
+    const terminalName = 'Development Commands'
+    const clearTerminalLine = true
 
     // Get or create a terminal
     let terminal = window.activeTerminal

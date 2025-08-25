@@ -73,8 +73,7 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
     const command = depCmdProvider.getCommandByTreeItem(item)
     if (command) {
       env.clipboard.writeText(command)
-      const config = workspace.getConfiguration('depCmd')
-      const showNotifications = config.get<boolean>('showNotifications', true)
+      const showNotifications = true
 
       if (showNotifications) {
         window.showInformationMessage(`Command copied to clipboard: ${command}`)
