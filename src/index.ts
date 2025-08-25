@@ -43,7 +43,7 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
         // Log the current project detection status for debugging
         const currentProject = commandManager.getCurrentProject()
         if (currentProject) {
-          logger.info('Project detected on startup:', currentProject.detectedProjectTypes.map(pt => pt.displayName).join(', '))
+          logger.info('Project detected on startup:', currentProject.detectedCategories.join(', '))
         }
         else {
           logger.info('No project detected on startup')

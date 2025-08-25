@@ -23,16 +23,6 @@ describe('core functionality tests', () => {
     })
   })
 
-  describe('command filter', () => {
-    it('should export CommandFilter class', async () => {
-      const { CommandFilter } = await import('@src/data/filter')
-
-      expect(CommandFilter).toBeDefined()
-      expect(typeof CommandFilter).toBe('function')
-      expect(CommandFilter.getInstance).toBeDefined()
-    })
-  })
-
   describe('project detector', () => {
     it('should export ProjectDetector class', async () => {
       const { ProjectDetector } = await import('@src/core/detector')
@@ -50,16 +40,6 @@ describe('core functionality tests', () => {
       expect(CommandManager).toBeDefined()
       expect(typeof CommandManager).toBe('function')
       expect(CommandManager.getInstance).toBeDefined()
-    })
-  })
-
-  describe('configuration manager', () => {
-    it('should export ConfigManager class', async () => {
-      const { ConfigManager } = await import('@src/core/configuration')
-
-      expect(ConfigManager).toBeDefined()
-      expect(typeof ConfigManager).toBe('function')
-      expect(ConfigManager.getInstance).toBeDefined()
     })
   })
 

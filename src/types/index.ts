@@ -12,12 +12,5 @@ export type {
   ProjectTypeDefinition,
 } from './config'
 
-// 检测相关类型
-export type {
-  BaseProjectDetectionResult,
-  DetectionResult,
-  DetectionRule,
-  PackageManagerDefinition,
-  ProjectDetectionResult,
-} from './detection'
+// 简化的检测相关类型
 export { ProjectType } from './detection'

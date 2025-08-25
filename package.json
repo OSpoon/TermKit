@@ -77,29 +77,23 @@
           "default": false,
           "description": "Sort commands alphabetically within each category"
         },
-        "depCmd.customProjectConfigs": {
-          "type": "array",
-          "default": [],
-          "description": "Custom project type detection configurations",
-          "items": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "description": "Project type identifier"
-              },
-              "displayName": {
-                "type": "string",
-                "description": "Human-readable project type name"
-              },
-              "priority": {
-                "type": "number",
-                "description": "Detection priority (higher numbers have higher priority)"
-              },
-              "detectionRules": {
-                "type": "array",
-                "description": "Rules for detecting this project type"
-              }
+        "depCmd.projectDetection": {
+          "type": "object",
+          "default": {
+            "pnpm": ["pnpm-lock.yaml"],
+            "npm": ["package-lock.json"],
+            "yarn": ["yarn.lock"],
+            "python": ["requirements.txt", "pyproject.toml", "setup.py"],
+            "rust": ["Cargo.toml"],
+            "go": ["go.mod"],
+            "docker": ["Dockerfile", "docker-compose.yml"],
+            "git": [".git/"]
+          },
+          "description": "Simple project detection mapping: each key is a command category, and the value is an array of files/directories to look for",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           }
         },
@@ -175,12 +169,6 @@
         "category": "Development Commands"
       },
       {
-        "command": "depCmd.showProjectInfo",
-        "title": "Show Project Information",
-        "icon": "$(info)",
-        "category": "Development Commands"
-      },
-      {
         "command": "depCmd.toggleProjectDetection",
         "title": "Toggle Project Detection",
         "icon": "$(eye)",
@@ -208,11 +196,6 @@
           "command": "depCmd.addCommand",
           "when": "view == depCmdView",
           "group": "navigation@4"
-        },
-        {
-          "command": "depCmd.showProjectInfo",
-          "when": "view == depCmdView",
-          "group": "navigation@5"
         }
       ],
       "view/item/context": [

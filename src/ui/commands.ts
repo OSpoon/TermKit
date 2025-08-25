@@ -1,5 +1,8 @@
 import type { CommandManager } from '@src/core/manager'
 import type { DepCmdProvider, DepCmdTreeItem } from './provider'
+
+import * as path from 'node:path'
+
 import * as meta from '@src/generated/meta'
 import { sendCommandToTerminal } from '@src/utils'
 import { useCommand } from 'reactive-vscode'
@@ -18,13 +21,10 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
 
       // 显示检测结果
       if (stats) {
-        const projectTypes = stats.projectTypes.join(', ')
-        const packageManagerInfo = stats.packageManager ? ` | Package Manager: ${stats.packageManager}` : ''
-        const pythonManagerInfo = stats.pythonManager ? ` | Python Manager: ${stats.pythonManager}` : ''
-        const gitInfo = stats.hasGit ? ' | Git: ✓' : ' | Git: ✗'
-        const dockerInfo = stats.hasDocker ? ' | Docker: ✓' : ' | Docker: ✗'
+        const detectedCategories = stats.detectedCategories.join(', ')
+        const workspaceInfo = stats.workspaceRoot ? ` | Workspace: ${path.basename(stats.workspaceRoot)}` : ''
 
-        const message = `Refreshed! Project: ${projectTypes}${packageManagerInfo}${pythonManagerInfo}${gitInfo}${dockerInfo} | Categories: ${stats.supportedCategories}/${stats.totalCategories}`
+        const message = `Refreshed! Detected: ${detectedCategories || 'None'}${workspaceInfo} | Categories: ${stats.supportedCategories}/${stats.totalCategories}`
 
         window.showInformationMessage(message)
       }
@@ -372,92 +372,6 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
     }
     catch (error) {
       window.showErrorMessage(`Failed to delete category: ${error}`)
-    }
-  })
-
-  useCommand(meta.commands.depCmdShowProjectInfo, async () => {
-    try {
-      const stats = await commandManager.getProjectStats()
-
-      if (stats) {
-        const packageManagerInfo = stats.packageManager || 'None'
-        const pythonManagerInfo = stats.pythonManager || 'None'
-
-        // 创建一个信息面板
-        const panel = window.createWebviewPanel(
-          'projectInfo',
-          'Project Information',
-          { viewColumn: 1, preserveFocus: true },
-          {},
-        )
-
-        panel.webview.html = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>Project Information</title>
-            <style>
-              body { 
-                font-family: var(--vscode-font-family); 
-                padding: 20px; 
-                color: var(--vscode-foreground);
-                background-color: var(--vscode-editor-background);
-              }
-              .info-section { margin-bottom: 15px; }
-              .info-label { font-weight: bold; color: var(--vscode-textLink-foreground); }
-              .info-value { margin-left: 10px; }
-              .supported { color: var(--vscode-testing-iconPassed); }
-              .unsupported { color: var(--vscode-testing-iconFailed); }
-              ul { margin: 5px 0; padding-left: 20px; }
-            </style>
-          </head>
-          <body>
-            <h2>🔍 Project Detection Results</h2>
-            <div class="info-section">
-              <span class="info-label">Project Types:</span>
-              <span class="info-value">${stats.projectTypes.join(', ')}</span>
-            </div>
-            <div class="info-section">
-              <span class="info-label">Package Manager:</span>
-              <span class="info-value">${packageManagerInfo}</span>
-            </div>
-            <div class="info-section">
-              <span class="info-label">Python Manager:</span>
-              <span class="info-value">${pythonManagerInfo}</span>
-            </div>
-            <div class="info-section">
-              <span class="info-label">Git Repository:</span>
-              <span class="info-value ${stats.hasGit ? 'supported' : 'unsupported'}">${stats.hasGit ? 'Yes' : 'No'}</span>
-            </div>
-            <div class="info-section">
-              <span class="info-label">Docker Support:</span>
-              <span class="info-value ${stats.hasDocker ? 'supported' : 'unsupported'}">${stats.hasDocker ? 'Yes' : 'No'}</span>
-            </div>
-            <div class="info-section">
-              <span class="info-label">Supported Categories:</span>
-              <span class="info-value supported">${stats.supportedCategories}/${stats.totalCategories}</span>
-            </div>
-            ${stats.unsupportedCategories.length > 0
-              ? `
-            <div class="info-section">
-              <span class="info-label">Unsupported Categories:</span>
-              <ul>
-                ${stats.unsupportedCategories.map(cat => `<li class="unsupported">${cat}</li>`).join('')}
-              </ul>
-            </div>
-            `
-              : ''}
-          </body>
-          </html>
-        `
-      }
-      else {
-        window.showWarningMessage('No project information available')
-      }
-    }
-    catch (error) {
-      window.showErrorMessage(`Failed to show project info: ${error}`)
     }
   })
 

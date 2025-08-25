@@ -9,9 +9,7 @@ describe('simplified tests', () => {
         import('@src/types'),
         import('@src/utils'),
         import('@src/data/database'),
-        import('@src/data/filter'),
         import('@src/core/manager'),
-        import('@src/core/configuration'),
         import('@src/core/detector'),
       ])
 
@@ -32,10 +30,10 @@ describe('simplified tests', () => {
 
     it('should export singleton classes', async () => {
       const { DatabaseManager } = await import('@src/data/database')
-      const { CommandFilter } = await import('@src/data/filter')
+      const { ProjectDetector } = await import('@src/core/detector')
 
       expect(typeof DatabaseManager.getInstance).toBe('function')
-      expect(typeof CommandFilter.getInstance).toBe('function')
+      expect(typeof ProjectDetector.getInstance).toBe('function')
     })
 
     it('should export utility functions', async () => {
