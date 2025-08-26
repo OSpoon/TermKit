@@ -11,10 +11,17 @@ export class CommandManager {
   private _database: DatabaseManager
   private _detector: ProjectDetector
   private _currentProject: DetectionResult | null = null
+  private _unsubscribeDatabase?: () => void
 
   private constructor(context: vscode.ExtensionContext) {
     this._database = DatabaseManager.getInstance(context)
     this._detector = ProjectDetector.getInstance()
+
+    // 订阅数据库变化
+    this._unsubscribeDatabase = this._database.subscribe(() => {
+      // 当数据变化时，可以在这里处理一些逻辑
+      logger.info('Commands data updated')
+    })
   }
 
   public static getInstance(context?: vscode.ExtensionContext): CommandManager {
@@ -32,10 +39,10 @@ export class CommandManager {
       // 检测当前项目
       await this.detectCurrentProject()
 
-      logger.info('Commands loaded from database')
+      logger.info('Commands loaded successfully')
     }
     catch (error) {
-      logger.error('Failed to load commands from database:', error)
+      logger.error('Failed to load commands:', error)
       throw error
     }
   }
@@ -78,33 +85,25 @@ export class CommandManager {
    * 获取过滤后的命令分类
    */
   public async getFilteredCategories(): Promise<string[]> {
-    const allCategories = await this.getAvailableCategories()
-    logger.info(`All available categories: ${allCategories.join(', ')}`)
-
     if (!this._currentProject) {
-      logger.info('No current project, detecting...')
       await this.detectCurrentProject()
     }
 
     if (this._currentProject && this._currentProject.detectedCategories.length > 0) {
-      logger.info(`Detected categories: ${this._currentProject.detectedCategories.join(', ')}`)
-      // 只返回检测到的分类中存在命令的分类
-      const filteredCategories = allCategories.filter(category =>
+      const allCategories = this.getAvailableCategories()
+      return allCategories.filter(category =>
         this._currentProject!.detectedCategories.includes(category),
       )
-      logger.info(`Filtered categories: ${filteredCategories.join(', ')}`)
-      return filteredCategories
     }
 
-    logger.info('No categories detected, returning all categories')
-    return allCategories
+    return this.getAvailableCategories()
   }
 
   /**
    * 获取过滤后的指定分类命令
    */
   public async getFilteredCommandsByCategory(category: string): Promise<UserCommand[]> {
-    const allCommands = await this.getCommandsByCategory(category)
+    const allCommands = this.getCommandsByCategory(category)
 
     if (!this._currentProject) {
       await this.detectCurrentProject()
@@ -153,7 +152,7 @@ export class CommandManager {
       return null
     }
 
-    const allCategories = await this.getAvailableCategories()
+    const allCategories = this.getAvailableCategories()
 
     return {
       totalCategories: allCategories.length,
@@ -167,93 +166,109 @@ export class CommandManager {
    * 重新加载数据库中的命令
    */
   public async reloadFromDatabase(): Promise<void> {
-    try {
-      await this._database.initialize()
-      await this.detectCurrentProject(true) // 强制刷新项目检测
-      logger.info('Commands reloaded from database')
-    }
-    catch (error) {
-      logger.error('Failed to reload commands from database:', error)
-      throw error
-    }
+    // 现代数据库管理器中，数据已经是实时的，只需要重新检测项目
+    await this.detectCurrentProject(true)
+    logger.info('Commands reloaded')
   }
+
+  // 以下是直接代理到数据库管理器的方法
 
   /**
    * 获取所有命令
    */
-  public async getAllCommands(): Promise<UserCommand[]> {
-    return await this._database.getAllCommands()
+  public getAllCommands(): UserCommand[] {
+    return this._database.getAllCommands()
   }
 
   /**
    * 根据分类获取命令
    */
-  public async getCommandsByCategory(category: string): Promise<UserCommand[]> {
-    return await this._database.getCommandsByCategory(category)
+  public getCommandsByCategory(category: string): UserCommand[] {
+    return this._database.getCommandsByCategory(category)
   }
 
   /**
-   * 获取所有可用的分类
+   * 获取可用的分类
    */
-  public async getAvailableCategories(): Promise<string[]> {
-    return await this._database.getAvailableCategories()
+  public getAvailableCategories(): string[] {
+    return this._database.getAvailableCategories()
   }
 
   /**
-   * 添加新命令
+   * 添加命令
    */
-  public async addCommand(command: Omit<UserCommand, 'id' | 'created_at' | 'updated_at'>): Promise<void> {
-    try {
-      this._database.addCommand(command)
-      await this.detectCurrentProject()
-    }
-    catch (error) {
-      logger.error('Failed to add command:', error)
-      throw error
-    }
+  public addCommand(command: Omit<UserCommand, 'id' | 'created_at' | 'updated_at'>): UserCommand {
+    return this._database.addCommand(command)
   }
 
   /**
    * 更新命令
    */
-  public async updateCommand(id: number, command: Partial<Omit<UserCommand, 'id' | 'created_at' | 'updated_at'>>): Promise<void> {
-    try {
-      await this._database.updateCommand(id, command)
-      await this.detectCurrentProject()
-    }
-    catch (error) {
-      logger.error('Failed to update command:', error)
-      throw error
-    }
+  public updateCommand(id: number, command: Partial<UserCommand>): UserCommand {
+    return this._database.updateCommand(id, command)
   }
 
   /**
    * 删除命令
    */
-  public async deleteCommand(id: number): Promise<void> {
-    try {
-      await this._database.deleteCommand(id)
-      await this.detectCurrentProject()
-    }
-    catch (error) {
-      logger.error('Failed to delete command:', error)
-      throw error
-    }
-  }
-
-  /**
-   * 根据ID获取命令
-   */
-  public async getCommandById(id: number): Promise<UserCommand | null> {
-    const allCommands = await this.getAllCommands()
-    return allCommands.find(cmd => cmd.id === id) || null
+  public deleteCommand(id: number): void {
+    this._database.deleteCommand(id)
   }
 
   /**
    * 搜索命令
    */
-  public async searchCommands(query: string): Promise<UserCommand[]> {
-    return await this._database.searchCommands(query)
+  public searchCommands(query: string): UserCommand[] {
+    return this._database.searchCommands(query)
+  }
+
+  /**
+   * 分类管理：更新分类名称
+   */
+  public updateCategory(oldCategory: string, newCategory: string): void {
+    this._database.updateCategory(oldCategory, newCategory)
+  }
+
+  /**
+   * 分类管理：删除分类
+   */
+  public deleteCategory(category: string): void {
+    this._database.deleteCategory(category)
+  }
+
+  /**
+   * 获取分类中的命令数量
+   */
+  public getCategoryCommandCount(category: string): number {
+    return this._database.getCategoryCommandCount(category)
+  }
+
+  /**
+   * 批量更新操作
+   */
+  public async batchUpdate(operations: Array<{ type: 'add' | 'update' | 'delete', data: any }>): Promise<void> {
+    await this._database.batchUpdate(operations)
+  }
+
+  /**
+   * 导出数据
+   */
+  public async exportData() {
+    return this._database.exportData()
+  }
+
+  /**
+   * 导入数据
+   */
+  public async importData(data: any, merge: boolean = false): Promise<void> {
+    await this._database.importData(data, merge)
+  }
+
+  /**
+   * 获取数据库统计信息
+   */
+  public getStats() {
+    return this._database.getStats()
   }
 
   /**
@@ -279,73 +294,28 @@ export class CommandManager {
   }
 
   /**
+   * 订阅数据变化
+   */
+  public subscribe(callback: (commands: UserCommand[]) => void): () => void {
+    return this._database.subscribe(callback)
+  }
+
+  /**
    * 清空所有数据
    */
   public async clearAllData(): Promise<void> {
-    try {
-      // 删除所有命令
-      const allCommands = await this.getAllCommands()
-      for (const cmd of allCommands) {
-        if (cmd.id) {
-          this._database.deleteCommand(cmd.id)
-        }
-      }
-      await this.detectCurrentProject()
+    await this._database.clearAllData()
+    await this.detectCurrentProject()
+  }
+
+  /**
+   * 清理资源
+   */
+  public async dispose(): Promise<void> {
+    if (this._unsubscribeDatabase) {
+      this._unsubscribeDatabase()
     }
-    catch (error) {
-      logger.error('Failed to clear all data:', error)
-      throw error
-    }
-  }
-
-  /**
-   * 导入命令
-   */
-  public async importCommands(commands: Omit<UserCommand, 'id' | 'created_at' | 'updated_at'>[]): Promise<void> {
-    try {
-      for (const cmd of commands) {
-        this._database.addCommand(cmd)
-      }
-      await this.detectCurrentProject()
-    }
-    catch (error) {
-      logger.error('Failed to import commands:', error)
-      throw error
-    }
-  }
-
-  /**
-   * 导出命令
-   */
-  public async exportCommands(): Promise<UserCommand[]> {
-    return await this._database.getAllCommands()
-  }
-
-  /**
-   * 获取数据库文件路径
-   */
-  public getDatabasePath(): string {
-    return this._database.getDatabasePath()
-  }
-
-  /**
-   * 获取分类中的命令数量
-   */
-  public getCategoryCommandCount(category: string): number {
-    return this._database.getCategoryCommandCount(category)
-  }
-
-  /**
-   * 更新分类名称
-   */
-  public updateCategory(oldCategory: string, newCategory: string): void {
-    this._database.updateCategory(oldCategory, newCategory)
-  }
-
-  /**
-   * 删除分类
-   */
-  public deleteCategory(category: string): void {
-    this._database.deleteCategory(category)
+    await this._database.cleanup()
+    logger.info('CommandManager disposed')
   }
 }

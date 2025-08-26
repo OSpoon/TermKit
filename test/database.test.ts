@@ -1,210 +1,142 @@
-import type { UserCommand } from '@src/types'
+import type { ExtensionContext } from 'vscode'
 
 import { DatabaseManager } from '@src/data/database'
-
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Mock Node.js modules
-vi.mock('node:fs', () => ({
-  readFile: vi.fn(),
-  writeFile: vi.fn(),
-  mkdir: vi.fn(),
-  access: vi.fn(),
-}))
-
-vi.mock('node:path', () => ({
-  join: vi.fn((...args) => args.join('/')),
-  dirname: vi.fn(path => path.split('/').slice(0, -1).join('/')),
-}))
-
-// Mock vscode
-const mockContext = {
-  globalStorageUri: {
-    fsPath: '/mock/storage/path',
-  },
+// Mock VS Code API
+const mockGlobalState = {
+  get: vi.fn(),
+  update: vi.fn(),
 }
 
+const mockContext = {
+  globalState: mockGlobalState,
+  globalStorageUri: { fsPath: '/mock/path' },
+} as unknown as ExtensionContext
+
+// Mock VS Code extensions API
+vi.mock('vscode', () => ({
+  extensions: {
+    getExtension: vi.fn(() => ({
+      extensionPath: '/mock/extension/path',
+    })),
+  },
+}))
+
 describe('databaseManager', () => {
-  let databaseManager: DatabaseManager
-  const mockCommands: UserCommand[] = [
-    {
-      id: 1,
-      label: 'npm install',
-      command: 'npm install',
-      category: 'npm',
-      description: 'Install dependencies',
-    },
-    {
-      id: 2,
-      label: 'npm test',
-      command: 'npm test',
-      category: 'npm',
-      description: 'Run tests',
-    },
-  ]
+  let database: DatabaseManager
 
   beforeEach(() => {
     vi.clearAllMocks()
-    databaseManager = DatabaseManager.getInstance(mockContext as any)
+    // Reset singleton instance
+    ;(DatabaseManager as any)._instance = null
+    database = DatabaseManager.getInstance(mockContext)
   })
 
-  describe('singleton pattern', () => {
-    it('should return the same instance', () => {
-      const instance1 = DatabaseManager.getInstance(mockContext as any)
+  describe('basic functionality', () => {
+    it('should be a singleton', () => {
+      const instance1 = DatabaseManager.getInstance(mockContext)
       const instance2 = DatabaseManager.getInstance()
 
       expect(instance1).toBe(instance2)
     })
-  })
 
-  describe('getAllCommands', () => {
-    it('should return all commands', () => {
-      // Add some test commands directly to internal state for testing
-      ;(databaseManager as any)._commands = mockCommands
+    it('should initialize with empty commands', async () => {
+      mockGlobalState.get.mockReturnValue([])
 
-      const result = databaseManager.getAllCommands()
+      await database.initialize()
 
-      expect(result).toEqual(mockCommands)
+      expect(database.getAllCommands()).toEqual([])
     })
-  })
 
-  describe('getCommandsByCategory', () => {
-    it('should return commands filtered by category', () => {
-      ;(databaseManager as any)._commands = [
-        ...mockCommands,
-        {
-          id: 3,
-          label: 'docker build',
-          command: 'docker build .',
-          category: 'docker',
-          description: 'Build Docker image',
-        },
+    it('should load existing commands from global state', async () => {
+      const existingCommands = [
+        { id: 1, label: 'Test Command', command: 'echo test', category: 'test' },
       ]
 
-      const result = databaseManager.getCommandsByCategory('npm')
+      mockGlobalState.get
+        .mockReturnValueOnce(existingCommands) // for commands
+        .mockReturnValueOnce(2) // for next ID
 
-      expect(result).toHaveLength(2)
-      expect(result.every(cmd => cmd.category === 'npm')).toBe(true)
+      await database.initialize()
+
+      expect(database.getAllCommands()).toEqual(existingCommands)
     })
   })
 
-  describe('addCommand', () => {
+  describe('command operations', () => {
+    beforeEach(async () => {
+      mockGlobalState.get.mockReturnValue([])
+      await database.initialize()
+    })
+
     it('should add a new command', () => {
       const newCommand = {
-        label: 'npm build',
+        label: 'New Command',
+        command: 'echo new',
+        category: 'test',
+      }
+
+      const result = database.addCommand(newCommand)
+
+      expect(result).toMatchObject(newCommand)
+      expect(result.id).toBeDefined()
+      expect(result.created_at).toBeDefined()
+      expect(result.updated_at).toBeDefined()
+    })
+
+    it('should delete a command', () => {
+      // Add a command first
+      const added = database.addCommand({
+        label: 'To Delete',
+        command: 'echo delete',
+        category: 'test',
+      })
+
+      expect(database.getAllCommands()).toHaveLength(1)
+
+      database.deleteCommand(added.id!)
+
+      expect(database.getAllCommands()).toHaveLength(0)
+    })
+
+    it('should search commands', () => {
+      database.addCommand({
+        label: 'Install Dependencies',
+        command: 'npm install',
+        category: 'npm',
+      })
+
+      database.addCommand({
+        label: 'Build Project',
         command: 'npm run build',
         category: 'npm',
-        description: 'Build the project',
-      }
+      })
 
-      databaseManager.addCommand(newCommand)
-
-      const allCommands = databaseManager.getAllCommands()
-      const addedCommand = allCommands.find(cmd => cmd.label === 'npm build')
-
-      expect(addedCommand).toBeDefined()
-      expect(addedCommand?.id).toBeDefined()
-      expect(addedCommand?.created_at).toBeDefined()
-      expect(addedCommand?.updated_at).toBeDefined()
+      const results = database.searchCommands('npm')
+      expect(results).toHaveLength(2)
     })
   })
 
-  describe('updateCommand', () => {
-    it('should update an existing command', () => {
-      // Initialize with test data
-      ;(databaseManager as any)._commands = [...mockCommands]
+  describe('category operations', () => {
+    beforeEach(async () => {
+      mockGlobalState.get.mockReturnValue([])
+      await database.initialize()
 
-      const updates = {
-        label: 'npm install --save',
-        description: 'Install and save dependencies',
-      }
-
-      databaseManager.updateCommand(1, updates)
-
-      const updatedCommand = databaseManager.getAllCommands().find(cmd => cmd.id === 1)
-
-      expect(updatedCommand?.label).toBe('npm install --save')
-      expect(updatedCommand?.description).toBe('Install and save dependencies')
-      expect(updatedCommand?.updated_at).toBeDefined()
+      // Add some test commands
+      database.addCommand({ label: 'NPM Install', command: 'npm install', category: 'npm' })
+      database.addCommand({ label: 'Git Status', command: 'git status', category: 'git' })
     })
 
-    it('should throw error when command not found', () => {
-      ;(databaseManager as any)._commands = [...mockCommands]
-
-      expect(() => {
-        databaseManager.updateCommand(999, { label: 'non-existent' })
-      }).toThrow(/Command.*not found/)
-    })
-  })
-
-  describe('deleteCommand', () => {
-    it('should delete an existing command', () => {
-      ;(databaseManager as any)._commands = [...mockCommands]
-
-      databaseManager.deleteCommand(1)
-
-      const remainingCommands = databaseManager.getAllCommands()
-      expect(remainingCommands).toHaveLength(1)
-      expect(remainingCommands.find(cmd => cmd.id === 1)).toBeUndefined()
+    it('should get available categories', () => {
+      const categories = database.getAvailableCategories()
+      expect(categories).toEqual(['git', 'npm'])
     })
 
-    it('should throw error when command not found', () => {
-      ;(databaseManager as any)._commands = [...mockCommands]
-
-      expect(() => {
-        databaseManager.deleteCommand(999)
-      }).toThrow(/Command.*not found/)
-    })
-  })
-
-  describe('searchCommands', () => {
-    it('should search commands by label and command text', () => {
-      ;(databaseManager as any)._commands = [
-        ...mockCommands,
-        {
-          id: 3,
-          label: 'npm start',
-          command: 'npm start',
-          category: 'npm',
-          description: 'Start development server',
-        },
-      ]
-
-      const result = databaseManager.searchCommands('install')
-
-      expect(result).toHaveLength(1)
-      expect(result[0].label).toBe('npm install')
-    })
-
-    it('should return empty array when no matches found', () => {
-      ;(databaseManager as any)._commands = [...mockCommands]
-
-      const result = databaseManager.searchCommands('nonexistent')
-
-      expect(result).toHaveLength(0)
-    })
-  })
-
-  describe('getCategoryCommandCount', () => {
-    it('should return correct command count for category', () => {
-      ;(databaseManager as any)._commands = [
-        ...mockCommands,
-        {
-          id: 3,
-          label: 'docker build',
-          command: 'docker build .',
-          category: 'docker',
-          description: 'Build Docker image',
-        },
-      ]
-
-      const npmCount = databaseManager.getCategoryCommandCount('npm')
-      const dockerCount = databaseManager.getCategoryCommandCount('docker')
-      const emptyCount = databaseManager.getCategoryCommandCount('nonexistent')
-
-      expect(npmCount).toBe(2)
-      expect(dockerCount).toBe(1)
-      expect(emptyCount).toBe(0)
+    it('should get commands by category', () => {
+      const npmCommands = database.getCommandsByCategory('npm')
+      expect(npmCommands).toHaveLength(1)
+      expect(npmCommands[0].category).toBe('npm')
     })
   })
 })

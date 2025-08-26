@@ -84,30 +84,6 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
     }
   })
 
-  useCommand(meta.commands.depCmdOpenCommandsFile, async () => {
-    try {
-      const filePath = commandManager.getDatabasePath()
-
-      // Show information about the file location
-      const result = await window.showInformationMessage(
-        `Opening command data file for viewing. This is a JSON data file.`,
-        { modal: false },
-        'Show File Path',
-        'Cancel',
-      )
-
-      if (result === 'Show File Path') {
-        window.showInformationMessage(`Command database file location: ${filePath}`)
-        // Also copy to clipboard
-        await env.clipboard.writeText(filePath)
-        window.showInformationMessage('File path copied to clipboard')
-      }
-    }
-    catch (error) {
-      window.showErrorMessage(`Failed to open command database file: ${error}`)
-    }
-  })
-
   useCommand(meta.commands.depCmdEditCommand, async (item: DepCmdTreeItem) => {
     try {
       const commandObj = depCmdProvider.getCommandObjectByTreeItem(item)
@@ -388,6 +364,26 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
     }
     catch (error) {
       window.showErrorMessage(`Failed to toggle project detection: ${error}`)
+    }
+  })
+
+  useCommand(meta.commands.depCmdClearAllData, async () => {
+    try {
+      const result = await window.showWarningMessage(
+        'Are you sure you want to clear all command data? This action cannot be undone.',
+        { modal: true },
+        'Clear All Data',
+        'Cancel',
+      )
+
+      if (result === 'Clear All Data') {
+        await commandManager.clearAllData()
+        depCmdProvider.refresh()
+        window.showInformationMessage('All command data has been cleared')
+      }
+    }
+    catch (error) {
+      window.showErrorMessage(`Failed to clear data: ${error}`)
     }
   })
 }

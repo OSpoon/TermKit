@@ -131,12 +131,6 @@
         "icon": "$(add)"
       },
       {
-        "command": "depCmd.openCommandsFile",
-        "title": "Edit Command Memories",
-        "icon": "$(database)",
-        "category": "Development Commands"
-      },
-      {
         "command": "depCmd.editCategory",
         "title": "Rename Category",
         "icon": "$(edit)",
@@ -153,29 +147,30 @@
         "title": "Toggle Project Detection",
         "icon": "$(eye)",
         "category": "Development Commands"
+      },
+      {
+        "command": "depCmd.clearAllData",
+        "title": "Clear All Command Data",
+        "icon": "$(trash)",
+        "category": "Development Commands"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "depCmd.openCommandsFile",
+          "command": "depCmd.searchCommands",
           "when": "view == depCmdView",
           "group": "navigation@1"
         },
         {
-          "command": "depCmd.searchCommands",
+          "command": "depCmd.refreshView",
           "when": "view == depCmdView",
           "group": "navigation@2"
         },
         {
-          "command": "depCmd.refreshView",
-          "when": "view == depCmdView",
-          "group": "navigation@3"
-        },
-        {
           "command": "depCmd.addCommand",
           "when": "view == depCmdView",
-          "group": "navigation@4"
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
