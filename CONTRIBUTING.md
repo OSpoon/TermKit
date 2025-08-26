@@ -150,8 +150,8 @@ pnpm test:watch
 测试文件位于 `test/` 目录下，使用 Vitest 框架：
 
 ```typescript
-import { describe, expect, it } from 'vitest'
 import { YourModule } from '@src/your-module'
+import { describe, expect, it } from 'vitest'
 
 describe('YourModule', () => {
   it('should work correctly', () => {
