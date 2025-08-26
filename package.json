@@ -45,7 +45,7 @@
       "activitybar": [
         {
           "id": "depCmd",
-          "title": "Development Commands",
+          "title": "Dependencies Commands",
           "icon": "res/icon.png"
         }
       ]
@@ -134,43 +134,70 @@
         "command": "depCmd.editCategory",
         "title": "Rename Category",
         "icon": "$(edit)",
-        "category": "Development Commands"
+        "category": "Dependencies Commands"
       },
       {
         "command": "depCmd.deleteCategory",
         "title": "Delete Category",
         "icon": "$(trash)",
-        "category": "Development Commands"
+        "category": "Dependencies Commands"
       },
       {
         "command": "depCmd.toggleProjectDetection",
         "title": "Toggle Project Detection",
         "icon": "$(eye)",
-        "category": "Development Commands"
+        "category": "Dependencies Commands"
       },
       {
         "command": "depCmd.clearAllData",
         "title": "Clear All Command Data",
         "icon": "$(trash)",
-        "category": "Development Commands"
+        "category": "Dependencies Commands"
+      },
+      {
+        "command": "depCmd.exportData",
+        "title": "Export Command Data",
+        "icon": "$(export)",
+        "category": "Dependencies Commands"
+      },
+      {
+        "command": "depCmd.importData",
+        "title": "Import Command Data",
+        "icon": "$(import)",
+        "category": "Dependencies Commands"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "depCmd.searchCommands",
+          "command": "depCmd.addCommand",
           "when": "view == depCmdView",
           "group": "navigation@1"
         },
         {
-          "command": "depCmd.refreshView",
+          "command": "depCmd.searchCommands",
           "when": "view == depCmdView",
           "group": "navigation@2"
         },
         {
-          "command": "depCmd.addCommand",
+          "command": "depCmd.refreshView",
           "when": "view == depCmdView",
           "group": "navigation@3"
+        },
+        {
+          "command": "depCmd.importData",
+          "when": "view == depCmdView",
+          "group": "management@1"
+        },
+        {
+          "command": "depCmd.exportData",
+          "when": "view == depCmdView",
+          "group": "management@2"
+        },
+        {
+          "command": "depCmd.clearAllData",
+          "when": "view == depCmdView",
+          "group": "management@3"
         }
       ],
       "view/item/context": [

@@ -9,7 +9,7 @@ export function sendCommandToTerminal(command: string) {
   try {
     const autoExecute = false
     const showNotifications = true
-    const terminalName = 'Development Commands'
+    const terminalName = 'Dependencies Commands'
     const clearTerminalLine = true
 
     // Get or create a terminal

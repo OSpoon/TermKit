@@ -17,7 +17,7 @@ describe('utils', () => {
       vi.useFakeTimers()
       sendCommandToTerminal('npm test')
 
-      expect(vscode.window.createTerminal).toHaveBeenCalledWith('Development Commands')
+      expect(vscode.window.createTerminal).toHaveBeenCalledWith('Dependencies Commands')
       expect(mockTerminal.show).toHaveBeenCalled()
       expect(mockTerminal.sendText).toHaveBeenCalledWith('\x03', false)
 
