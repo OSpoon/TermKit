@@ -56,6 +56,15 @@ export class CommandManager {
   }
 
   /**
+   * 清除项目缓存
+   */
+  public clearProjectCache(): void {
+    this._detector.clearCache()
+    this._currentProject = null
+    logger.info('Project cache cleared')
+  }
+
+  /**
    * 获取当前项目检测结果
    */
   public getCurrentProject(): DetectionResult | null {
@@ -291,6 +300,27 @@ export class CommandManager {
       displayName: category.charAt(0).toUpperCase() + category.slice(1),
       icon: 'gear',
     }
+  }
+
+  /**
+   * 获取项目脚本
+   */
+  public getProjectScripts(): import('./detector').PackageJsonScript[] {
+    return this._detector.getProjectScripts()
+  }
+
+  /**
+   * 获取检测到的包管理器
+   */
+  public getPackageManager(): import('./detector').PackageManager | undefined {
+    return this._currentProject?.packageManager
+  }
+
+  /**
+   * 检查是否有项目脚本
+   */
+  public hasProjectScripts(): boolean {
+    return this.getProjectScripts().length > 0
   }
 
   /**

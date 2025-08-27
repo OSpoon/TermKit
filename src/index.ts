@@ -70,6 +70,13 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
   // Initialize commands
   useCommands(commandManager, depCmdProvider)
 
+  // 监听工作区变化，清除项目缓存
+  const workspaceWatcher = workspace.onDidChangeWorkspaceFolders(() => {
+    logger.info('Workspace folders changed, clearing project cache')
+    commandManager.clearProjectCache()
+    depCmdProvider.refresh()
+  })
+
   // Register double-click handler for tree items
   treeView.onDidChangeSelection((e) => {
     if (e.selection.length > 0) {
@@ -83,6 +90,7 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
   // Add disposables to context
   context.subscriptions.push(
     treeView,
+    workspaceWatcher,
   )
 })
 

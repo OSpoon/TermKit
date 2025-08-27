@@ -4,9 +4,18 @@ import * as path from 'node:path'
 import { logger } from '@src/utils'
 import * as vscode from 'vscode'
 
+export interface PackageJsonScript {
+  name: string
+  command: string
+}
+
+export type PackageManager = 'npm' | 'pnpm' | 'yarn'
+
 export interface DetectionResult {
   detectedCategories: string[]
   workspaceRoot: string
+  projectScripts?: PackageJsonScript[]
+  packageManager?: PackageManager
 }
 
 /**
@@ -59,6 +68,8 @@ export class ProjectDetector {
     const projectDetection = config.get<Record<string, string[]>>('projectDetection', {})
 
     const detectedCategories: string[] = []
+    let projectScripts: PackageJsonScript[] = []
+    let packageManager: PackageManager = 'npm' // 默认使用 npm
 
     // 遍历每个配置的项目类型
     for (const [category, paths] of Object.entries(projectDetection)) {
@@ -67,6 +78,25 @@ export class ProjectDetector {
         detectedCategories.push(category)
         logger.info(`Detected ${category} project based on paths: ${paths.join(', ')}`)
       }
+    }
+
+    // 检测包管理器类型
+    packageManager = await this.detectPackageManager(workspaceRoot)
+    logger.info(`Detected package manager: ${packageManager}`)
+
+    // 检测并解析 package.json scripts
+    const packageJsonPath = path.join(workspaceRoot, 'package.json')
+    try {
+      const packageJsonStats = await fs.promises.stat(packageJsonPath)
+      if (packageJsonStats.isFile()) {
+        projectScripts = await this.extractPackageJsonScripts(packageJsonPath, packageManager)
+        if (projectScripts.length > 0) {
+          logger.info(`Found ${projectScripts.length} scripts in package.json`)
+        }
+      }
+    }
+    catch {
+      // package.json 不存在或无法读取，跳过
     }
 
     // Git 特殊处理 - 几乎所有项目都会有 git
@@ -82,6 +112,60 @@ export class ProjectDetector {
     return {
       detectedCategories,
       workspaceRoot,
+      projectScripts,
+      packageManager,
+    }
+  }
+
+  /**
+   * 检测包管理器类型
+   */
+  private async detectPackageManager(workspaceRoot: string): Promise<PackageManager> {
+    try {
+      // 按优先级检测包管理器
+      const pnpmLockPath = path.join(workspaceRoot, 'pnpm-lock.yaml')
+      const yarnLockPath = path.join(workspaceRoot, 'yarn.lock')
+      const npmLockPath = path.join(workspaceRoot, 'package-lock.json')
+
+      // 检查 pnpm
+      try {
+        const pnpmStats = await fs.promises.stat(pnpmLockPath)
+        if (pnpmStats.isFile()) {
+          return 'pnpm'
+        }
+      }
+      catch {
+        // pnpm-lock.yaml 不存在，继续检查其他
+      }
+
+      // 检查 yarn
+      try {
+        const yarnStats = await fs.promises.stat(yarnLockPath)
+        if (yarnStats.isFile()) {
+          return 'yarn'
+        }
+      }
+      catch {
+        // yarn.lock 不存在，继续检查其他
+      }
+
+      // 检查 npm
+      try {
+        const npmStats = await fs.promises.stat(npmLockPath)
+        if (npmStats.isFile()) {
+          return 'npm'
+        }
+      }
+      catch {
+        // package-lock.json 不存在
+      }
+
+      // 默认返回 npm
+      return 'npm'
+    }
+    catch (error) {
+      logger.error(`Failed to detect package manager:`, error)
+      return 'npm'
     }
   }
 
@@ -124,6 +208,40 @@ export class ProjectDetector {
     return {
       detectedCategories: [],
       workspaceRoot: '',
+      projectScripts: [],
+      packageManager: 'npm',
+    }
+  }
+
+  /**
+   * 提取 package.json 中的 scripts
+   */
+  private async extractPackageJsonScripts(packageJsonPath: string, packageManager: PackageManager): Promise<PackageJsonScript[]> {
+    try {
+      const content = await fs.promises.readFile(packageJsonPath, 'utf-8')
+      const packageJson = JSON.parse(content)
+
+      if (!packageJson.scripts || typeof packageJson.scripts !== 'object') {
+        return []
+      }
+
+      const scripts: PackageJsonScript[] = []
+      for (const [name, command] of Object.entries(packageJson.scripts)) {
+        if (typeof command === 'string') {
+          // 根据包管理器生成正确的执行命令
+          const runCommand = `${packageManager} run ${name}`
+          scripts.push({
+            name,
+            command: runCommand,
+          })
+        }
+      }
+
+      return scripts
+    }
+    catch (error) {
+      logger.error(`Failed to parse package.json at ${packageJsonPath}:`, error)
+      return []
     }
   }
 
@@ -132,6 +250,13 @@ export class ProjectDetector {
    */
   public getDetectedCategories(): string[] {
     return this._lastDetection?.detectedCategories || []
+  }
+
+  /**
+   * 获取项目脚本
+   */
+  public getProjectScripts(): PackageJsonScript[] {
+    return this._lastDetection?.projectScripts || []
   }
 
   /**

@@ -19,6 +19,7 @@ export class DepCmdTreeItem extends vscode.TreeItem {
   public readonly commandText?: string
   public readonly commandId?: number
   public readonly categoryName?: string
+  public readonly isProjectScript?: boolean
 
   constructor(
     public readonly label: string,
@@ -29,19 +30,22 @@ export class DepCmdTreeItem extends vscode.TreeItem {
     commandId?: number,
     commandDescription?: string,
     categoryIcon?: string,
+    isProjectScript?: boolean,
   ) {
     super(label, collapsibleState)
 
     this.commandText = commandText
     this.commandId = commandId
+    this.isProjectScript = isProjectScript
 
     if (commandText) {
       // Use the actual description if available, otherwise fall back to command text
       this.description = commandText || commandDescription
-      this.tooltip = `${commandText}${commandDescription ? `\n${commandDescription}` : ''}\n\nClick to send to terminal`
+      this.tooltip = `${commandText}${commandDescription ? `\n${commandDescription}` : ''}${isProjectScript ? '\n\n🔧 Project Script' : ''}\n\nClick to send to terminal`
       this.contextValue = 'command'
       // Use command-specific icon if available, otherwise use terminal icon
-      this.iconPath = new vscode.ThemeIcon(commandIcon || 'terminal')
+      // Use a different icon for project scripts
+      this.iconPath = new vscode.ThemeIcon(isProjectScript ? 'package' : (commandIcon || 'terminal'))
     }
     else {
       this.contextValue = 'category'
@@ -91,6 +95,21 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       // Root level - show categories dynamically
       const categories: DepCmdTreeItem[] = []
 
+      // 首先检查项目脚本，如果有的话显示在最前面
+      if (this.commandManager.hasProjectScripts()) {
+        const projectScripts = this.commandManager.getProjectScripts()
+        categories.push(new DepCmdTreeItem(
+          `Project Scripts (${projectScripts.length})`,
+          vscode.TreeItemCollapsibleState.Expanded,
+          undefined,
+          'project',
+          undefined,
+          undefined,
+          undefined,
+          'folder-opened', // 使用文件夹图标
+        ))
+      }
+
       // 根据配置决定是否使用项目检测过滤
       let availableCategories: string[]
       if (enableProjectDetection) {
@@ -135,6 +154,25 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       const categoryDisplayName = labelMatch ? labelMatch[1] : element.category || 'other'
       const category = element.category || categoryDisplayName.toLowerCase()
 
+      // 如果是 project 分类，显示项目脚本
+      if (category === 'project') {
+        const projectScripts = this.commandManager.getProjectScripts()
+        const packageManager = this.commandManager.getPackageManager() || 'npm'
+
+        return projectScripts.map(script => new DepCmdTreeItem(
+          script.name,
+          vscode.TreeItemCollapsibleState.None,
+          script.command,
+          'project',
+          'package',
+          undefined, // 项目脚本没有数据库ID
+          `Project script using ${packageManager}: ${script.command}`,
+          undefined,
+          true, // 是项目脚本
+        ))
+      }
+
+      // 其他分类显示常规命令
       let commands: any[]
       if (enableProjectDetection) {
         commands = await this.commandManager.getFilteredCommandsByCategory(category)
@@ -151,6 +189,8 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
         cmd.icon,
         cmd.id,
         cmd.description,
+        undefined,
+        false, // 不是项目脚本
       ))
     }
   }
