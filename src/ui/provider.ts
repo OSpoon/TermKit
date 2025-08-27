@@ -99,7 +99,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       if (this.commandManager.hasProjectScripts()) {
         const projectScripts = this.commandManager.getProjectScripts()
         categories.push(new DepCmdTreeItem(
-          `Project Scripts (${projectScripts.length})`,
+          `Project (${projectScripts.length})`,
           vscode.TreeItemCollapsibleState.Expanded,
           undefined,
           'project',
