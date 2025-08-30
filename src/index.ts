@@ -21,64 +21,70 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
     showCollapseAll: true,
   })
 
-  // Initialize commands and ensure tree view is populated
-  async function initializeCommands() {
+  // Initialize extension data and tree view
+  async function initializeExtension() {
     try {
       await commandManager.loadCommands()
 
-      // If no commands exist in any category, they will be automatically initialized from database
+      // Check if commands were loaded successfully
       const allCommands = await commandManager.getAllCommands()
-      if (allCommands.length === 0) {
-        logger.info('No existing commands found, database should have been initialized with defaults...')
-      }
+      logger.info(`Loaded ${allCommands.length} commands from database`)
 
-      // 立即检测项目类型以确保过滤功能正常工作
+      // Detect project type for command filtering
       const config = workspace.getConfiguration('depCmd')
       const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
 
       if (enableProjectDetection) {
-        logger.info('Project detection enabled, detecting current project...')
         await commandManager.detectCurrentProject(true)
 
-        // Log the current project detection status for debugging
         const currentProject = commandManager.getCurrentProject()
         if (currentProject) {
-          logger.info('Project detected on startup:', currentProject.detectedCategories.join(', '))
+          logger.info(`Project detected: ${currentProject.detectedCategories.join(', ')}`)
         }
         else {
-          logger.info('No project detected on startup')
+          logger.info('No project detected in current workspace')
         }
       }
       else {
-        logger.info('Project detection disabled')
+        logger.info('Project detection is disabled')
+        // 清除任何现有的项目缓存
+        commandManager.clearProjectCache()
       }
 
-      // Always refresh the tree view after initialization
-      depCmdProvider.refresh(true) // Skip reload since we just loaded/initialized
+      // Refresh tree view with loaded data
+      depCmdProvider.refresh(true)
+      logger.info('Extension initialization completed successfully')
     }
     catch (error) {
-      logger.error('Failed to initialize commands:', error)
-      window.showErrorMessage(`Failed to initialize commands: ${error}`)
+      logger.error('Extension initialization failed:', error)
+      window.showErrorMessage(`DepCmd initialization failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
-  // Call initialization immediately, but give a minimal delay for workspace to be ready
-  setTimeout(() => {
-    initializeCommands()
-  }, 50)
-
-  // Initialize commands
+  // Register VS Code command handlers first
   useCommands(commandManager, depCmdProvider)
 
-  // 监听工作区变化，清除项目缓存
-  const workspaceWatcher = workspace.onDidChangeWorkspaceFolders(() => {
-    logger.info('Workspace folders changed, clearing project cache')
+  // Initialize extension data and tree view
+  await initializeExtension()
+
+  // Monitor workspace changes and update project detection
+  const workspaceWatcher = workspace.onDidChangeWorkspaceFolders(async () => {
+    logger.info('Workspace folders changed, updating project detection')
     commandManager.clearProjectCache()
+
+    // Re-detect project type if detection is enabled
+    const config = workspace.getConfiguration('depCmd')
+    const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
+
+    if (enableProjectDetection) {
+      await commandManager.detectCurrentProject(true)
+    }
+
     depCmdProvider.refresh()
   })
 
-  // Register double-click handler for tree items
-  treeView.onDidChangeSelection((e) => {
+  // Handle tree item selection for command execution
+  const treeSelectionHandler = treeView.onDidChangeSelection((e) => {
     if (e.selection.length > 0) {
       const item = e.selection[0]
       if (item.contextValue === 'command') {
@@ -87,11 +93,24 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
     }
   })
 
-  // Add disposables to context
+  // Register all disposables for proper cleanup
   context.subscriptions.push(
     treeView,
     workspaceWatcher,
+    treeSelectionHandler,
   )
+
+  // Return cleanup function for proper deactivation
+  return async () => {
+    logger.info('DepCmd is being deactivated, cleaning up resources...')
+    try {
+      await commandManager.dispose()
+      logger.info('DepCmd deactivated successfully')
+    }
+    catch (error) {
+      logger.error('Error during DepCmd deactivation:', error)
+    }
+  }
 })
 
 export { activate, deactivate }

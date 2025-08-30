@@ -121,7 +121,8 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
         availableCategories = await this.commandManager.getFilteredCategories()
       }
       else {
-        availableCategories = await this.commandManager.getAvailableCategories()
+        // 项目检测禁用时显示所有分类
+        availableCategories = this.commandManager.getAvailableCategories()
       }
 
       for (const category of availableCategories) {

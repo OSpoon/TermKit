@@ -72,10 +72,20 @@ export class CommandManager {
   }
 
   /**
-   * 获取过滤后的命令（根据项目类型）
+   * 获取过滤后的命令（考虑项目检测设置）
    */
   public async getFilteredCommands(): Promise<UserCommand[]> {
     const allCommands = await this.getAllCommands()
+
+    // 检查是否启用项目检测
+    const config = await import('vscode').then(vscode => vscode.workspace.getConfiguration('depCmd'))
+    const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
+
+    if (!enableProjectDetection) {
+      // 项目检测禁用时返回所有命令
+      return allCommands
+    }
+
     if (!this._currentProject) {
       await this.detectCurrentProject()
     }
@@ -91,9 +101,18 @@ export class CommandManager {
   }
 
   /**
-   * 获取过滤后的命令分类
+   * 获取过滤后的命令分类（考虑项目检测设置）
    */
   public async getFilteredCategories(): Promise<string[]> {
+    // 检查是否启用项目检测
+    const config = await import('vscode').then(vscode => vscode.workspace.getConfiguration('depCmd'))
+    const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
+
+    if (!enableProjectDetection) {
+      // 项目检测禁用时返回所有分类
+      return this.getAvailableCategories()
+    }
+
     if (!this._currentProject) {
       await this.detectCurrentProject()
     }
@@ -109,10 +128,19 @@ export class CommandManager {
   }
 
   /**
-   * 获取过滤后的指定分类命令
+   * 获取过滤后的指定分类命令（考虑项目检测设置）
    */
   public async getFilteredCommandsByCategory(category: string): Promise<UserCommand[]> {
     const allCommands = this.getCommandsByCategory(category)
+
+    // 检查是否启用项目检测
+    const config = await import('vscode').then(vscode => vscode.workspace.getConfiguration('depCmd'))
+    const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
+
+    if (!enableProjectDetection) {
+      // 项目检测禁用时返回所有命令
+      return allCommands
+    }
 
     if (!this._currentProject) {
       await this.detectCurrentProject()
