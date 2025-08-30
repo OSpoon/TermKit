@@ -82,22 +82,24 @@ export class CommandManager {
     const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
 
     if (!enableProjectDetection) {
-      // 项目检测禁用时返回所有命令
-      return allCommands
+      // 项目检测禁用时，只显示用户管理级别的命令
+      return allCommands.filter(cmd => this.isUserManagedCategory(cmd.category))
     }
 
+    // 启用项目检测时，显示用户管理级别的命令 + 检测到的项目命令
     if (!this._currentProject) {
       await this.detectCurrentProject()
     }
 
-    if (this._currentProject && this._currentProject.detectedCategories.length > 0) {
-      // 只返回检测到的分类的命令
-      return allCommands.filter(cmd =>
-        this._currentProject!.detectedCategories.includes(cmd.category),
-      )
-    }
+    return allCommands.filter((cmd) => {
+      // 用户管理级别的分类总是显示
+      if (this.isUserManagedCategory(cmd.category)) {
+        return true
+      }
 
-    return allCommands
+      // 项目检测生成的分类只有在检测到时才显示
+      return this.isDetectedCategory(cmd.category)
+    })
   }
 
   /**
@@ -109,22 +111,25 @@ export class CommandManager {
     const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
 
     if (!enableProjectDetection) {
-      // 项目检测禁用时返回所有分类
-      return this.getAvailableCategories()
+      // 项目检测禁用时，只返回用户管理级别的分类
+      return this.getUserManagedCategories()
     }
 
+    // 启用项目检测时，返回用户管理级别的分类 + 检测到的项目分类
     if (!this._currentProject) {
       await this.detectCurrentProject()
     }
 
-    if (this._currentProject && this._currentProject.detectedCategories.length > 0) {
-      const allCategories = this.getAvailableCategories()
-      return allCategories.filter(category =>
-        this._currentProject!.detectedCategories.includes(category),
-      )
-    }
+    const userManagedCategories = this.getUserManagedCategories()
+    const detectedCategories = this.getDetectedCategories()
 
-    return this.getAvailableCategories()
+    // 合并两种分类，去重
+    const resultCategories = [...new Set([...userManagedCategories, ...detectedCategories])]
+
+    // 只返回实际有命令的分类
+    return resultCategories.filter(category =>
+      this.getCommandsByCategory(category).length > 0,
+    )
   }
 
   /**
@@ -138,23 +143,29 @@ export class CommandManager {
     const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
 
     if (!enableProjectDetection) {
-      // 项目检测禁用时返回所有命令
-      return allCommands
-    }
-
-    if (!this._currentProject) {
-      await this.detectCurrentProject()
-    }
-
-    if (this._currentProject && this._currentProject.detectedCategories.length > 0) {
-      // 只有当分类被检测到时才返回命令
-      if (this._currentProject.detectedCategories.includes(category)) {
+      // 项目检测禁用时，只返回用户管理级别分类的命令
+      if (this.isUserManagedCategory(category)) {
         return allCommands
       }
       return []
     }
 
-    return allCommands
+    // 启用项目检测时
+    // 用户管理级别的分类总是返回命令
+    if (this.isUserManagedCategory(category)) {
+      return allCommands
+    }
+
+    // 项目检测生成的分类只有在检测到时才返回命令
+    if (!this._currentProject) {
+      await this.detectCurrentProject()
+    }
+
+    if (this.isDetectedCategory(category)) {
+      return allCommands
+    }
+
+    return []
   }
 
   /**
@@ -203,8 +214,19 @@ export class CommandManager {
    * 重新加载数据库中的命令
    */
   public async reloadFromDatabase(): Promise<void> {
-    // 现代数据库管理器中，数据已经是实时的，只需要重新检测项目
-    await this.detectCurrentProject(true)
+    // 检查是否启用项目检测
+    const config = await import('vscode').then(vscode => vscode.workspace.getConfiguration('depCmd'))
+    const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
+
+    if (enableProjectDetection) {
+      // 只有启用项目检测时才重新检测项目
+      await this.detectCurrentProject(true)
+    }
+    else {
+      // 禁用项目检测时清除项目缓存
+      this.clearProjectCache()
+    }
+
     logger.info('Commands reloaded')
   }
 
@@ -359,6 +381,35 @@ export class CommandManager {
       return false
     }
     return this._currentProject.detectedCategories.includes(category)
+  }
+
+  /**
+   * 检查分类是否是用户管理级别的（支持增删改查）
+   */
+  public isUserManagedCategory(category: string): boolean {
+    // 用户管理级别的分类是指不是通过项目检测生成的分类
+    // 这些分类的命令都是用户手动创建或从默认配置加载的
+    return !this.isDetectedCategory(category)
+  }
+
+  /**
+   * 获取用户管理级别的分类
+   */
+  public getUserManagedCategories(): string[] {
+    const allCategories = this.getAvailableCategories()
+    return allCategories.filter(category => this.isUserManagedCategory(category))
+  }
+
+  /**
+   * 获取项目检测生成的分类
+   */
+  public getDetectedCategories(): string[] {
+    if (!this._currentProject) {
+      return []
+    }
+    return this._currentProject.detectedCategories.filter(category =>
+      this.getAvailableCategories().includes(category),
+    )
   }
 
   /**

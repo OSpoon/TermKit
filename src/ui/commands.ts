@@ -13,14 +13,25 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
     try {
       await commandManager.reloadFromDatabase()
 
-      // 执行项目检测
-      await commandManager.detectCurrentProject(true)
-      const stats = await commandManager.getProjectStats()
+      // 检查是否启用项目检测
+      const config = workspace.getConfiguration('depCmd')
+      const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
+
+      let stats = null
+      if (enableProjectDetection) {
+        // 只有启用项目检测时才执行项目检测
+        await commandManager.detectCurrentProject(true)
+        stats = await commandManager.getProjectStats()
+      }
+      else {
+        // 禁用项目检测时清除项目缓存
+        commandManager.clearProjectCache()
+      }
 
       depCmdProvider.refresh()
 
       // 显示检测结果
-      if (stats) {
+      if (enableProjectDetection && stats) {
         const detectedCategories = stats.detectedCategories.join(', ')
         const workspaceInfo = stats.workspaceRoot ? ` | Workspace: ${path.basename(stats.workspaceRoot)}` : ''
 
@@ -29,7 +40,10 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
         window.showInformationMessage(message)
       }
       else {
-        window.showInformationMessage('Command memories reloaded! No project detected in current workspace')
+        const message = enableProjectDetection
+          ? 'Command memories reloaded! No project detected in current workspace'
+          : 'Command memories reloaded! Project detection is disabled'
+        window.showInformationMessage(message)
       }
     }
     catch (error) {
@@ -357,6 +371,13 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
       await config.update('enableProjectDetection', !currentValue, true)
 
       const newStatus = !currentValue ? 'enabled' : 'disabled'
+
+      // 如果禁用项目检测，清除项目缓存
+      if (currentValue) {
+        // 从启用变为禁用
+        commandManager.clearProjectCache()
+      }
+
       window.showInformationMessage(`Project detection ${newStatus}`)
 
       // 刷新视图以应用新设置
