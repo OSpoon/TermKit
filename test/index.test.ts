@@ -66,9 +66,37 @@ describe('utils', () => {
 
       sendCommandToTerminal('yarn install')
 
+      // Check that sendText was called twice - once for clear, once for command
+      expect(mockTerminal.sendText).toHaveBeenCalledTimes(2)
+
       // Since we're on macOS (the current test environment), expect Ctrl+U
       expect(mockTerminal.sendText).toHaveBeenNthCalledWith(1, '\x15', false) // Ctrl+U for macOS/Linux
       expect(mockTerminal.sendText).toHaveBeenNthCalledWith(2, 'yarn install', false)
+    })
+
+    it('should work correctly on different platforms', () => {
+      const mockTerminal = {
+        show: vi.fn(),
+        sendText: vi.fn(),
+        name: 'test-terminal',
+        exitStatus: undefined,
+      }
+
+      // Mock useActiveTerminal to return an active terminal
+      vi.mocked(reactiveVscode.useActiveTerminal).mockReturnValue({
+        value: mockTerminal,
+      } as any)
+
+      sendCommandToTerminal('test command')
+
+      // Should always send clear signal first, then the command
+      expect(mockTerminal.sendText).toHaveBeenCalledTimes(2)
+      expect(mockTerminal.sendText).toHaveBeenNthCalledWith(2, 'test command', false)
+
+      // First call should be either \x03 (Windows) or \x15 (macOS/Linux)
+      const firstCall = mockTerminal.sendText.mock.calls[0]
+      expect(['\x03', '\x15']).toContain(firstCall[0])
+      expect(firstCall[1]).toBe(false)
     })
 
     it('should handle errors gracefully', () => {

@@ -47,12 +47,13 @@ export function sendCommandToTerminal(command: string) {
         if (clearTerminalLine) {
           // 根据操作系统选择清除策略
           if (process.platform === 'win32') {
-            // Windows 环境：先发送 Ctrl+C 中断，然后发送 ESC 清除行
-            // 这样可以确保在不同的 Windows 终端中都能正常工作
+            // Windows 环境：使用 Ctrl+C 中断当前命令
+            // 这在 PowerShell、Command Prompt 和 Windows Terminal 中都能正常工作
             terminal.sendText('\x03', false) // Ctrl+C 中断当前命令
           }
           else {
             // macOS 和 Linux 环境使用 Ctrl+U 清除行
+            // 这在 bash、zsh、fish 等 shell 中都能正常工作
             terminal.sendText('\x15', false) // Ctrl+U 清除行（macOS/Linux）
           }
         }
