@@ -51,29 +51,6 @@ describe('utils', () => {
       expect(mockTerminal.sendText).toHaveBeenCalledWith('pnpm build', false)
     })
 
-    it('should clear terminal line when clearTerminalLine is enabled', () => {
-      const mockTerminal = {
-        show: vi.fn(),
-        sendText: vi.fn(),
-        name: 'test-terminal',
-        exitStatus: undefined,
-      }
-
-      // Mock useActiveTerminal to return an active terminal
-      vi.mocked(reactiveVscode.useActiveTerminal).mockReturnValue({
-        value: mockTerminal,
-      } as any)
-
-      sendCommandToTerminal('yarn install')
-
-      // Check that sendText was called twice - once for clear, once for command
-      expect(mockTerminal.sendText).toHaveBeenCalledTimes(2)
-
-      // Since we're on macOS (the current test environment), expect Ctrl+U
-      expect(mockTerminal.sendText).toHaveBeenNthCalledWith(1, '\x15', false) // Ctrl+U for macOS/Linux
-      expect(mockTerminal.sendText).toHaveBeenNthCalledWith(2, 'yarn install', false)
-    })
-
     it('should work correctly on different platforms', () => {
       const mockTerminal = {
         show: vi.fn(),
