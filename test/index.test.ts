@@ -64,17 +64,11 @@ describe('utils', () => {
         value: mockTerminal,
       } as any)
 
-      // Mock process.platform for macOS (default test environment)
-      const originalPlatform = process.platform
-      Object.defineProperty(process, 'platform', { value: 'darwin' })
-
       sendCommandToTerminal('yarn install')
 
-      expect(mockTerminal.sendText).toHaveBeenNthCalledWith(1, '\x15', false) // Ctrl+U for macOS
+      // Since we're on macOS (the current test environment), expect Ctrl+U
+      expect(mockTerminal.sendText).toHaveBeenNthCalledWith(1, '\x15', false) // Ctrl+U for macOS/Linux
       expect(mockTerminal.sendText).toHaveBeenNthCalledWith(2, 'yarn install', false)
-
-      // Restore original platform
-      Object.defineProperty(process, 'platform', { value: originalPlatform })
     })
 
     it('should handle errors gracefully', () => {
