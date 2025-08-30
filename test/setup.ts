@@ -51,6 +51,13 @@ vi.mock('reactive-vscode', () => ({
     activate: fn,
     deactivate: vi.fn(),
   })),
+  defineConfigObject: vi.fn(() => ({
+    get: vi.fn((key: string, defaultValue?: any) => defaultValue),
+    update: vi.fn(),
+  })),
+  useActiveTerminal: vi.fn(() => ({
+    value: undefined,
+  })),
 }))
 
 // Reset all mocks before each test

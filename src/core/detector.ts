@@ -1,9 +1,12 @@
-import * as fs from 'node:fs'
-import * as path from 'node:path'
+import type { DetectorConfig } from '@src/types'
 
 import { logger } from '@src/utils'
 import * as vscode from 'vscode'
 
+import { GoDetector, NodeJSDetector, PythonDetector, RustDetector } from './detectors'
+import { ProjectDetectorFactory } from './factory'
+
+// 向后兼容的类型定义
 export interface PackageJsonScript {
   name: string
   command: string
@@ -20,20 +23,82 @@ export interface DetectionResult {
 
 /**
  * 项目检测器
- * 基于用户配置的文件/目录映射来检测项目类型
+ * 基于工厂模式的项目类型检测器
  */
 export class ProjectDetector {
   private static _instance: ProjectDetector
   private _lastDetection: DetectionResult | null = null
   private _workspaceRoot: string = ''
+  private _factory: ProjectDetectorFactory
 
-  private constructor() {}
+  private constructor() {
+    this._factory = ProjectDetectorFactory.getInstance()
+    this.initializeDetectors()
+  }
 
   public static getInstance(): ProjectDetector {
     if (!ProjectDetector._instance) {
       ProjectDetector._instance = new ProjectDetector()
     }
     return ProjectDetector._instance
+  }
+
+  /**
+   * 初始化所有检测器
+   */
+  private initializeDetectors(): void {
+    // 注册检测器构造函数（映射项目类型到检测器类）
+    this._factory.registerDetector('nodejs', NodeJSDetector)
+    this._factory.registerDetector('npm', NodeJSDetector)
+    this._factory.registerDetector('yarn', NodeJSDetector)
+    this._factory.registerDetector('pnpm', NodeJSDetector)
+    this._factory.registerDetector('python', PythonDetector)
+    this._factory.registerDetector('rust', RustDetector)
+    this._factory.registerDetector('go', GoDetector)
+
+    // 从VS Code配置获取检测器配置
+    const config = vscode.workspace.getConfiguration('depCmd')
+    const projectDetection = config.get<Record<string, string[]>>('projectDetection', {})
+
+    // 验证配置并创建检测器
+    const detectorConfigs: DetectorConfig[] = []
+
+    for (const [type, patterns] of Object.entries(projectDetection)) {
+      // 检查是否有对应的检测器构造函数
+      if (this._factory.hasDetectorConstructor(type)) {
+        detectorConfigs.push({
+          type,
+          patterns: Array.isArray(patterns) ? patterns : [],
+          enabled: true,
+          priority: this.getDefaultPriority(type),
+        })
+      }
+      else {
+        logger.warn(`No detector implementation found for project type: ${type}`)
+      }
+    }
+
+    // 创建检测器实例
+    const createdCount = this._factory.createDetectorsFromConfigs(detectorConfigs)
+
+    logger.info(`Initialized ${createdCount} project detectors from configuration`)
+    logger.info(`Available project types: ${detectorConfigs.map(c => c.type).join(', ')}`)
+  }
+
+  /**
+   * 获取默认优先级
+   */
+  private getDefaultPriority(type: string): number {
+    const priorityMap: Record<string, number> = {
+      nodejs: 10,
+      npm: 10,
+      yarn: 10,
+      pnpm: 10,
+      python: 20,
+      rust: 20,
+      go: 20,
+    }
+    return priorityMap[type] || 50
   }
 
   /**
@@ -64,46 +129,33 @@ export class ProjectDetector {
    * 执行检测
    */
   private async performDetection(workspaceRoot: string): Promise<DetectionResult> {
-    const config = vscode.workspace.getConfiguration('depCmd')
-    const projectDetection = config.get<Record<string, string[]>>('projectDetection', {})
-
+    const detectors = this._factory.getDetectorsByPriority()
     const detectedCategories: string[] = []
     let projectScripts: PackageJsonScript[] = []
-    let packageManager: PackageManager = 'npm' // 默认使用 npm
+    let packageManager: PackageManager = 'npm'
 
-    // 遍历每个配置的项目类型
-    for (const [category, paths] of Object.entries(projectDetection)) {
-      const isDetected = await this.checkPaths(workspaceRoot, paths)
-      if (isDetected) {
-        detectedCategories.push(category)
-        logger.info(`Detected ${category} project based on paths: ${paths.join(', ')}`)
-      }
-    }
+    // 使用工厂创建的检测器进行检测
+    for (const detector of detectors) {
+      try {
+        const result = await detector.detect(workspaceRoot)
 
-    // 检测包管理器类型
-    packageManager = await this.detectPackageManager(workspaceRoot)
-    logger.info(`Detected package manager: ${packageManager}`)
+        if (result.detected) {
+          detectedCategories.push(result.type)
+          logger.info(`Detected ${result.type} project based on: ${result.detectedBy?.join(', ')}`)
 
-    // 检测并解析 package.json scripts
-    const packageJsonPath = path.join(workspaceRoot, 'package.json')
-    try {
-      const packageJsonStats = await fs.promises.stat(packageJsonPath)
-      if (packageJsonStats.isFile()) {
-        projectScripts = await this.extractPackageJsonScripts(packageJsonPath, packageManager)
-        if (projectScripts.length > 0) {
-          logger.info(`Found ${projectScripts.length} scripts in package.json`)
+          // 处理 Node.js 项目的特殊逻辑
+          if (result.type === 'nodejs' || ['npm', 'yarn', 'pnpm'].includes(result.type)) {
+            if (result.scripts && result.scripts.length > 0) {
+              projectScripts = result.scripts
+            }
+            if (result.metadata?.packageManager) {
+              packageManager = result.metadata.packageManager as PackageManager
+            }
+          }
         }
       }
-    }
-    catch {
-      // package.json 不存在或无法读取，跳过
-    }
-
-    // Git 特殊处理 - 几乎所有项目都会有 git
-    if (detectedCategories.length > 0 && !detectedCategories.includes('git')) {
-      const hasGit = await this.checkPaths(workspaceRoot, ['.git/'])
-      if (hasGit) {
-        detectedCategories.push('git')
+      catch (error) {
+        logger.error(`Error detecting ${detector.type} project:`, error)
       }
     }
 
@@ -118,90 +170,6 @@ export class ProjectDetector {
   }
 
   /**
-   * 检测包管理器类型
-   */
-  private async detectPackageManager(workspaceRoot: string): Promise<PackageManager> {
-    try {
-      // 按优先级检测包管理器
-      const pnpmLockPath = path.join(workspaceRoot, 'pnpm-lock.yaml')
-      const yarnLockPath = path.join(workspaceRoot, 'yarn.lock')
-      const npmLockPath = path.join(workspaceRoot, 'package-lock.json')
-
-      // 检查 pnpm
-      try {
-        const pnpmStats = await fs.promises.stat(pnpmLockPath)
-        if (pnpmStats.isFile()) {
-          return 'pnpm'
-        }
-      }
-      catch {
-        // pnpm-lock.yaml 不存在，继续检查其他
-      }
-
-      // 检查 yarn
-      try {
-        const yarnStats = await fs.promises.stat(yarnLockPath)
-        if (yarnStats.isFile()) {
-          return 'yarn'
-        }
-      }
-      catch {
-        // yarn.lock 不存在，继续检查其他
-      }
-
-      // 检查 npm
-      try {
-        const npmStats = await fs.promises.stat(npmLockPath)
-        if (npmStats.isFile()) {
-          return 'npm'
-        }
-      }
-      catch {
-        // package-lock.json 不存在
-      }
-
-      // 默认返回 npm
-      return 'npm'
-    }
-    catch (error) {
-      logger.error(`Failed to detect package manager:`, error)
-      return 'npm'
-    }
-  }
-
-  /**
-   * 检查路径是否存在
-   */
-  private async checkPaths(workspaceRoot: string, paths: string[]): Promise<boolean> {
-    for (const targetPath of paths) {
-      const fullPath = path.join(workspaceRoot, targetPath)
-
-      try {
-        const stats = await fs.promises.stat(fullPath)
-
-        // 如果路径以 / 结尾，检查是否为目录
-        if (targetPath.endsWith('/')) {
-          if (stats.isDirectory()) {
-            return true
-          }
-        }
-        else {
-          // 否则检查是否为文件
-          if (stats.isFile()) {
-            return true
-          }
-        }
-      }
-      catch {
-        // 文件/目录不存在，继续检查下一个
-        continue
-      }
-    }
-
-    return false
-  }
-
-  /**
    * 创建空结果
    */
   private createEmptyResult(): DetectionResult {
@@ -210,38 +178,6 @@ export class ProjectDetector {
       workspaceRoot: '',
       projectScripts: [],
       packageManager: 'npm',
-    }
-  }
-
-  /**
-   * 提取 package.json 中的 scripts
-   */
-  private async extractPackageJsonScripts(packageJsonPath: string, packageManager: PackageManager): Promise<PackageJsonScript[]> {
-    try {
-      const content = await fs.promises.readFile(packageJsonPath, 'utf-8')
-      const packageJson = JSON.parse(content)
-
-      if (!packageJson.scripts || typeof packageJson.scripts !== 'object') {
-        return []
-      }
-
-      const scripts: PackageJsonScript[] = []
-      for (const [name, command] of Object.entries(packageJson.scripts)) {
-        if (typeof command === 'string') {
-          // 根据包管理器生成正确的执行命令
-          const runCommand = `${packageManager} run ${name}`
-          scripts.push({
-            name,
-            command: runCommand,
-          })
-        }
-      }
-
-      return scripts
-    }
-    catch (error) {
-      logger.error(`Failed to parse package.json at ${packageJsonPath}:`, error)
-      return []
     }
   }
 
@@ -272,5 +208,31 @@ export class ProjectDetector {
   public clearCache(): void {
     this._lastDetection = null
     this._workspaceRoot = ''
+  }
+
+  /**
+   * 重新初始化检测器（用于配置更改后）
+   */
+  public reinitialize(): void {
+    this._factory.clearDetectors()
+    this.initializeDetectors()
+    this.clearCache()
+    logger.info('Project detector reinitialized')
+  }
+
+  /**
+   * 获取工厂实例（用于扩展）
+   */
+  public getFactory(): ProjectDetectorFactory {
+    return this._factory
+  }
+
+  /**
+   * 添加自定义检测器
+   */
+  public addCustomDetector(config: DetectorConfig, constructor: new (...args: any[]) => any): void {
+    this._factory.registerDetector(config.type, constructor)
+    this._factory.createDetector(config)
+    logger.info(`Added custom detector: ${config.type}`)
   }
 }

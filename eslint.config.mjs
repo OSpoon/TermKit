@@ -5,6 +5,10 @@ export default antfu(
   {
     ignores: [
       // eslint ignore globs here
+      '.github/**/*.md',
+      '**/*.md',
+      'dist/**',
+      'node_modules/**',
     ],
   },
   {

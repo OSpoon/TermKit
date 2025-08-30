@@ -31,6 +31,7 @@ export class DepCmdTreeItem extends vscode.TreeItem {
     commandDescription?: string,
     categoryIcon?: string,
     isProjectScript?: boolean,
+    isDetectedCategory?: boolean, // 新增参数：是否是检测到的分类
   ) {
     super(label, collapsibleState)
 
@@ -42,13 +43,15 @@ export class DepCmdTreeItem extends vscode.TreeItem {
       // Use the actual description if available, otherwise fall back to command text
       this.description = commandText || commandDescription
       this.tooltip = `${commandText}${commandDescription ? `\n${commandDescription}` : ''}${isProjectScript ? '\n\n🔧 Project Script' : ''}\n\nClick to send to terminal`
-      this.contextValue = 'command'
+      // 项目脚本使用不同的 contextValue，不显示编辑删除按钮
+      this.contextValue = isProjectScript ? 'project-script' : 'command'
       // Use command-specific icon if available, otherwise use terminal icon
       // Use a different icon for project scripts
       this.iconPath = new vscode.ThemeIcon(isProjectScript ? 'package' : (commandIcon || 'terminal'))
     }
     else {
-      this.contextValue = 'category'
+      // 区分检测到的分类和用户自定义分类
+      this.contextValue = isDetectedCategory ? 'detected-category' : 'category'
       this.categoryName = category
       // Use provided category icon or fallback
       this.iconPath = new vscode.ThemeIcon(categoryIcon || 'gear')
@@ -107,6 +110,8 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
           undefined,
           undefined,
           'folder-opened', // 使用文件夹图标
+          false, // isProjectScript
+          true, // 项目脚本分类也是检测生成的，不应该有编辑按钮
         ))
       }
 
@@ -131,6 +136,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
 
           if (commands.length > 0) {
             const categoryConfig = getCategoryConfig(this.commandManager, category)
+            const isDetectedCategory = this.commandManager.isDetectedCategory(category)
             categories.push(new DepCmdTreeItem(
               `${categoryConfig.displayName} (${commands.length})`,
               vscode.TreeItemCollapsibleState.Expanded,
@@ -140,6 +146,8 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
               undefined,
               undefined,
               categoryConfig.icon,
+              false, // isProjectScript
+              isDetectedCategory, // 传入是否为检测到的分类
             ))
           }
         }
@@ -169,6 +177,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
           `Project script using ${packageManager}: ${script.command}`,
           undefined,
           true, // 是项目脚本
+          false, // isDetectedCategory - 对于命令项不适用
         ))
       }
 
@@ -191,6 +200,7 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
         cmd.description,
         undefined,
         false, // 不是项目脚本
+        false, // isDetectedCategory - 对于命令项不适用
       ))
     }
   }

@@ -1,8 +1,9 @@
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import { ProjectDetector } from '@src/core/detector'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
+import { NodeJSDetector, ProjectDetector } from '@src/core'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('项目脚本检测', () => {
   let tempDir: string
@@ -14,6 +15,12 @@ describe('项目脚本检测', () => {
     detector = ProjectDetector.getInstance()
     // 清除检测器缓存
     detector.clearCache()
+
+    // Mock workspace folders
+    const vscode = await import('vscode')
+    vi.mocked(vscode.workspace).workspaceFolders = [
+      { uri: { fsPath: tempDir } } as any,
+    ]
   })
 
   afterEach(async () => {
@@ -41,21 +48,22 @@ describe('项目脚本检测', () => {
     const pnpmLockPath = path.join(tempDir, 'pnpm-lock.yaml')
     await fs.promises.writeFile(pnpmLockPath, 'lockfileVersion: 5.4')
 
-    // 调用私有方法进行测试
-    const extractMethod = (detector as any).extractPackageJsonScripts.bind(detector)
-    const scripts = await extractMethod(packageJsonPath, 'pnpm')
+    // 使用 NodeJSDetector 进行测试
+    const nodeDetector = new NodeJSDetector('nodejs', ['package.json'])
+    const result = await nodeDetector.detect(tempDir)
 
-    expect(scripts).toHaveLength(4)
-    expect(scripts).toEqual([
+    expect(result.detected).toBe(true)
+    expect(result.scripts).toHaveLength(4)
+    expect(result.scripts).toEqual([
       { name: 'build', command: 'pnpm run build' },
       { name: 'dev', command: 'pnpm run dev' },
       { name: 'test', command: 'pnpm run test' },
       { name: 'lint', command: 'pnpm run lint' },
     ])
+    expect(result.metadata?.packageManager).toBe('pnpm')
   })
 
   it('should handle package.json without scripts', async () => {
-    // 创建没有 scripts 的 package.json
     const packageJson = {
       name: 'test-project',
       version: '1.0.0',
@@ -64,37 +72,36 @@ describe('项目脚本检测', () => {
     const packageJsonPath = path.join(tempDir, 'package.json')
     await fs.promises.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
 
-    const extractMethod = (detector as any).extractPackageJsonScripts.bind(detector)
-    const scripts = await extractMethod(packageJsonPath, 'npm')
+    const nodeDetector = new NodeJSDetector('nodejs', ['package.json'])
+    const result = await nodeDetector.detect(tempDir)
 
-    expect(scripts).toHaveLength(0)
+    expect(result.detected).toBe(true)
+    expect(result.scripts).toHaveLength(0)
   })
 
   it('should handle invalid package.json', async () => {
-    // 创建无效的 package.json
     const packageJsonPath = path.join(tempDir, 'package.json')
-    await fs.promises.writeFile(packageJsonPath, 'invalid json content')
+    await fs.promises.writeFile(packageJsonPath, 'invalid json')
 
-    const extractMethod = (detector as any).extractPackageJsonScripts.bind(detector)
-    const scripts = await extractMethod(packageJsonPath, 'npm')
+    const nodeDetector = new NodeJSDetector('nodejs', ['package.json'])
+    const result = await nodeDetector.detect(tempDir)
 
-    expect(scripts).toHaveLength(0)
+    expect(result.detected).toBe(true) // 文件存在，但解析失败
+    expect(result.scripts).toHaveLength(0)
   })
 
   it('should handle non-existent package.json', async () => {
-    const packageJsonPath = path.join(tempDir, 'non-existent-package.json')
+    const nodeDetector = new NodeJSDetector('nodejs', ['package.json'])
+    const result = await nodeDetector.detect(tempDir)
 
-    const extractMethod = (detector as any).extractPackageJsonScripts.bind(detector)
-    const scripts = await extractMethod(packageJsonPath, 'npm')
-
-    expect(scripts).toHaveLength(0)
+    expect(result.detected).toBe(false)
+    expect(result.scripts).toHaveLength(0)
   })
 
   it('should not include project scripts in regular categories after detection', async () => {
-    // 这个测试确保项目脚本不会影响常规分类
+    // 创建 package.json 和 npm scripts
     const packageJson = {
       name: 'test-project',
-      version: '1.0.0',
       scripts: {
         dev: 'vite dev',
         build: 'vite build',
@@ -104,54 +111,70 @@ describe('项目脚本检测', () => {
     const packageJsonPath = path.join(tempDir, 'package.json')
     await fs.promises.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
 
-    // 模拟工作区目录
-    const mockWorkspace = tempDir
-    const performDetectionMethod = (detector as any).performDetection.bind(detector)
-    const result = await performDetectionMethod(mockWorkspace)
+    // Mock 配置 - 直接通过全局mock处理
+    const vscode = await import('vscode')
+    const mockGetConfig = vi.fn((key: string) => {
+      if (key === 'projectDetection') {
+        return {
+          nodejs: ['package.json'],
+        }
+      }
+      return {}
+    })
 
-    // 项目脚本应该在结果中，但不应该影响分类检测
+    vi.mocked(vscode.workspace.getConfiguration).mockReturnValue({
+      get: mockGetConfig,
+    } as any)
+
+    // 重新初始化检测器以应用新配置
+    detector.reinitialize()
+
+    const result = await detector.detectProject(true)
+
+    // 项目脚本应该在结果中，分类检测也应该正常工作
+    expect(result.detectedCategories).toContain('nodejs')
     expect(result.projectScripts).toHaveLength(2)
     expect(result.projectScripts).toEqual([
       { name: 'dev', command: 'npm run dev' },
       { name: 'build', command: 'npm run build' },
     ])
-    expect(result.packageManager).toBe('npm')
   })
 
   it('should detect package manager correctly', async () => {
-    // 测试 pnpm 检测
+    // 创建基本的 package.json
+    const packageJson = { name: 'test', version: '1.0.0' }
+    const packageJsonPath = path.join(tempDir, 'package.json')
+    await fs.promises.writeFile(packageJsonPath, JSON.stringify(packageJson))
+
+    const nodeDetector = new NodeJSDetector('nodejs', ['package.json'])
+
+    // 测试 pnpm
     const pnpmLockPath = path.join(tempDir, 'pnpm-lock.yaml')
     await fs.promises.writeFile(pnpmLockPath, 'lockfileVersion: 5.4')
 
-    const detectMethod = (detector as any).detectPackageManager.bind(detector)
-    let packageManager = await detectMethod(tempDir)
-    expect(packageManager).toBe('pnpm')
+    let result = await nodeDetector.detect(tempDir)
+    expect(result.metadata?.packageManager).toBe('pnpm')
 
-    // 清理 pnpm lock 文件
+    // 清理 pnpm 文件，测试 yarn
     await fs.promises.unlink(pnpmLockPath)
-
-    // 测试 yarn 检测
     const yarnLockPath = path.join(tempDir, 'yarn.lock')
     await fs.promises.writeFile(yarnLockPath, '# yarn lockfile v1')
 
-    packageManager = await detectMethod(tempDir)
-    expect(packageManager).toBe('yarn')
+    result = await nodeDetector.detect(tempDir)
+    expect(result.metadata?.packageManager).toBe('yarn')
 
-    // 清理 yarn lock 文件
+    // 清理 yarn 文件，测试 npm
     await fs.promises.unlink(yarnLockPath)
-
-    // 测试 npm 检测
     const npmLockPath = path.join(tempDir, 'package-lock.json')
-    await fs.promises.writeFile(npmLockPath, '{"lockfileVersion": 2}')
+    await fs.promises.writeFile(npmLockPath, '{"lockfileVersion": 1}')
 
-    packageManager = await detectMethod(tempDir)
-    expect(packageManager).toBe('npm')
+    result = await nodeDetector.detect(tempDir)
+    expect(result.metadata?.packageManager).toBe('npm')
 
-    // 清理 npm lock 文件
+    // 清理所有锁文件，测试默认值
     await fs.promises.unlink(npmLockPath)
 
-    // 测试默认情况（没有任何 lock 文件）
-    packageManager = await detectMethod(tempDir)
-    expect(packageManager).toBe('npm')
+    result = await nodeDetector.detect(tempDir)
+    expect(result.metadata?.packageManager).toBe('npm') // 默认为 npm
   })
 })

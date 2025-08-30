@@ -324,6 +324,16 @@ export class CommandManager {
   }
 
   /**
+   * 检查分类是否是通过项目检测生成的
+   */
+  public isDetectedCategory(category: string): boolean {
+    if (!this._currentProject) {
+      return false
+    }
+    return this._currentProject.detectedCategories.includes(category)
+  }
+
+  /**
    * 订阅数据变化
    */
   public subscribe(callback: (commands: UserCommand[]) => void): () => void {

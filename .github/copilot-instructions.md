@@ -7,7 +7,7 @@ DepCmd is a VS Code extension that simplifies terminal command management for de
 
 ### Core Components
 - **CommandManager** (`src/core/manager.ts`): Singleton orchestrating commands, project detection, and data persistence
-- **ProjectDetector** (`src/core/detector.ts`): Maps file patterns to project categories using VS Code configuration  
+- **ProjectDetector** (`src/core/detector.ts`): Maps file patterns to project categories using VS Code configuration
 - **DatabaseManager** (`src/data/database.ts`): Manages command storage via VS Code's globalState with reactive events
 - **DepCmdProvider** (`src/ui/provider.ts`): Tree view data provider for the sidebar interface
 
