@@ -429,6 +429,226 @@
       "icon": "trash",
       "created_at": "2025-01-01T00:00:00.000Z",
       "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 44,
+      "label": "Install Package",
+      "command": "pip install <package-name>",
+      "description": "Install a Python package",
+      "category": "python",
+      "icon": "package",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 45,
+      "label": "Install Requirements",
+      "command": "pip install -r requirements.txt",
+      "description": "Install packages from requirements.txt",
+      "category": "python",
+      "icon": "file-code",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 46,
+      "label": "List Packages",
+      "command": "pip list",
+      "description": "List installed Python packages",
+      "category": "python",
+      "icon": "list-ordered",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 47,
+      "label": "Show Package Info",
+      "command": "pip show <package-name>",
+      "description": "Show information about a package",
+      "category": "python",
+      "icon": "info",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 48,
+      "label": "Upgrade Package",
+      "command": "pip install --upgrade <package-name>",
+      "description": "Upgrade a Python package",
+      "category": "python",
+      "icon": "sync",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 49,
+      "label": "Uninstall Package",
+      "command": "pip uninstall <package-name>",
+      "description": "Uninstall a Python package",
+      "category": "python",
+      "icon": "trash",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 50,
+      "label": "Freeze Requirements",
+      "command": "pip freeze > requirements.txt",
+      "description": "Save current packages to requirements.txt",
+      "category": "python",
+      "icon": "export",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 51,
+      "label": "Create Virtual Env",
+      "command": "python -m venv <env-name>",
+      "description": "Create a Python virtual environment",
+      "category": "python",
+      "icon": "plus",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 52,
+      "label": "Run Python Script",
+      "command": "python <script.py>",
+      "description": "Run a Python script",
+      "category": "python",
+      "icon": "play",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 53,
+      "label": "Check Version",
+      "command": "python --version",
+      "description": "Check Python version",
+      "category": "python",
+      "icon": "info",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 54,
+      "label": "Install Dependencies",
+      "command": "npm install",
+      "description": "Install all dependencies from package.json",
+      "category": "npm",
+      "icon": "package",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 55,
+      "label": "Install Package",
+      "command": "npm install <package-name>",
+      "description": "Install a specific package",
+      "category": "npm",
+      "icon": "add",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 56,
+      "label": "Install Dev Dependency",
+      "command": "npm install --save-dev <package-name>",
+      "description": "Install package as dev dependency",
+      "category": "npm",
+      "icon": "tools",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 57,
+      "label": "Install Global Package",
+      "command": "npm install -g <package-name>",
+      "description": "Install package globally",
+      "category": "npm",
+      "icon": "globe",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 58,
+      "label": "Uninstall Package",
+      "command": "npm uninstall <package-name>",
+      "description": "Uninstall a package",
+      "category": "npm",
+      "icon": "trash",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 59,
+      "label": "Update Package",
+      "command": "npm update <package-name>",
+      "description": "Update a specific package",
+      "category": "npm",
+      "icon": "sync",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 60,
+      "label": "List Packages",
+      "command": "npm list",
+      "description": "List installed packages",
+      "category": "npm",
+      "icon": "list-unordered",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 61,
+      "label": "Run Script",
+      "command": "npm run <script-name>",
+      "description": "Run a script from package.json",
+      "category": "npm",
+      "icon": "play",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 62,
+      "label": "Check Outdated",
+      "command": "npm outdated",
+      "description": "Check for outdated packages",
+      "category": "npm",
+      "icon": "warning",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 63,
+      "label": "Audit Packages",
+      "command": "npm audit",
+      "description": "Check for security vulnerabilities",
+      "category": "npm",
+      "icon": "shield",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 64,
+      "label": "Fix Vulnerabilities",
+      "command": "npm audit fix",
+      "description": "Automatically fix security vulnerabilities",
+      "category": "npm",
+      "icon": "check",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 65,
+      "label": "Clean Cache",
+      "command": "npm cache clean --force",
+      "description": "Clear npm cache",
+      "category": "npm",
+      "icon": "trash",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
     }
   ]
 }

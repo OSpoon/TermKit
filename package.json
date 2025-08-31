@@ -113,6 +113,16 @@
               "command": "conda --version",
               "enabled": true,
               "description": "检测 Conda 是否安装"
+            },
+            "python": {
+              "command": "python --version",
+              "enabled": true,
+              "description": "检测 Python 是否安装"
+            },
+            "npm": {
+              "command": "npm --version",
+              "enabled": true,
+              "description": "检测 NPM 是否安装"
             }
           },
           "description": "依赖检测配置：定义用于检测系统工具是否安装的命令。只有检测成功的工具对应的分组才会显示。",
