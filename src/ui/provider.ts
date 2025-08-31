@@ -100,22 +100,24 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       // Root level - show categories dynamically
       const categories: DepCmdTreeItem[] = []
 
-        // 首先检查项目脚本，如果有的话显示在最前面
-        if (this.commandManager.hasProjectScripts()) {
-          const projectScripts = this.commandManager.getProjectScripts()
-          categories.push(new DepCmdTreeItem(
-            `Project (${projectScripts.length})`,
-            vscode.TreeItemCollapsibleState.Expanded, // Project 分组默认展开
-            undefined,
-            'project',
-            undefined,
-            undefined,
-            undefined,
-            'folder-opened', // 使用文件夹图标
-            false, // isProjectScript
-            true, // 项目脚本分类也是检测生成的，不应该有编辑按钮
-          ))
-        }      // 根据配置决定是否使用项目检测过滤
+      // 首先检查项目脚本，如果有的话显示在最前面
+      if (this.commandManager.hasProjectScripts()) {
+        const projectScripts = this.commandManager.getProjectScripts()
+        categories.push(new DepCmdTreeItem(
+          `Project (${projectScripts.length})`,
+          vscode.TreeItemCollapsibleState.Expanded, // Project 分组默认展开
+          undefined,
+          'project',
+          undefined,
+          undefined,
+          undefined,
+          'folder-opened', // 使用文件夹图标
+          false, // isProjectScript
+          true, // 项目脚本分类也是检测生成的，不应该有编辑按钮
+        ))
+      }
+
+      // 根据配置决定是否使用项目检测过滤
       let availableCategories: string[]
       if (enableProjectDetection) {
         availableCategories = await this.commandManager.getFilteredCategories()
