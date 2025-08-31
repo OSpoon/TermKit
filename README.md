@@ -27,19 +27,6 @@
 - **☁️ 云端同步** - 基于 VS Code 设置同步，多设备共享
 - **📦 导入导出** - JSON 格式，轻松备份迁移
 
-## 🎯 支持的技术栈
-
-| 技术 | 检测文件 | 预置命令 |
-|:---:|:---:|:---:|
-| NPM | `package-lock.json` | `npm install`, `npm run dev` |
-| Yarn | `yarn.lock` | `yarn install`, `yarn dev` |
-| PNPM | `pnpm-lock.yaml` | `pnpm install`, `pnpm dev` |
-| Python | `requirements.txt` | `pip install`, `python run` |
-| Rust | `Cargo.toml` | `cargo build`, `cargo run` |
-| Go | `go.mod` | `go build`, `go run` |
-| Docker | `Dockerfile` | `docker build`, `docker run` |
-| Git | `.git/` | `git status`, `git commit` |
-
 ## 📸 预览
 
 ![Preview](https://github.com/OSpoon/DepCmd/blob/main/screenshots/preview.png?raw=true)
@@ -87,13 +74,6 @@ code --install-extension ospoon.dep-cmd
 3. 提交更改 (`git commit -m '添加新功能'`)
 4. 推送分支 (`git push origin feature/新功能`)
 5. 创建 Pull Request
-
-## 📋 Todo
-
-- [ ] 支持更多编程语言
-- [ ] 自定义主题
-- [ ] AI 智能命令推荐
-- [ ] 团队命令共享
 
 ## 🐛 问题反馈
 
