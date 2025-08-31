@@ -149,6 +149,286 @@
       "icon": "stop-circle",
       "created_at": "2025-01-01T00:00:00.000Z",
       "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 16,
+      "label": "List Registries",
+      "command": "nrm ls",
+      "description": "List all available npm registries",
+      "category": "nrm",
+      "icon": "list-unordered",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 17,
+      "label": "Show Current Registry",
+      "command": "nrm current",
+      "description": "Show current registry name or URL",
+      "category": "nrm",
+      "icon": "eye",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 18,
+      "label": "Use Registry",
+      "command": "nrm use <registry-name>",
+      "description": "Change current npm registry (replace <registry-name> with actual name)",
+      "category": "nrm",
+      "icon": "arrow-swap",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 19,
+      "label": "Use NPM Registry",
+      "command": "nrm use npm",
+      "description": "Switch to official npm registry",
+      "category": "nrm",
+      "icon": "package",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 20,
+      "label": "Use Taobao Registry",
+      "command": "nrm use taobao",
+      "description": "Switch to Taobao npm registry (China mirror)",
+      "category": "nrm",
+      "icon": "globe",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 21,
+      "label": "Add Custom Registry",
+      "command": "nrm add <name> <url>",
+      "description": "Add a custom npm registry (replace <name> and <url>)",
+      "category": "nrm",
+      "icon": "add",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 22,
+      "label": "Delete Registry",
+      "command": "nrm del <name>",
+      "description": "Delete a custom registry (replace <name> with registry name)",
+      "category": "nrm",
+      "icon": "trash",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 23,
+      "label": "Test Registry Speed",
+      "command": "nrm test",
+      "description": "Test response time for all registries",
+      "category": "nrm",
+      "icon": "pulse",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 24,
+      "label": "Test Specific Registry",
+      "command": "nrm test <registry-name>",
+      "description": "Test response time for specific registry",
+      "category": "nrm",
+      "icon": "clock",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 25,
+      "label": "Open Registry Homepage",
+      "command": "nrm home <registry-name>",
+      "description": "Open the homepage of specified registry",
+      "category": "nrm",
+      "icon": "home",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 26,
+      "label": "Set Scope",
+      "command": "nrm set-scope <scope> <url>",
+      "description": "Associate a scope with a registry",
+      "category": "nrm",
+      "icon": "link",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 27,
+      "label": "Delete Scope",
+      "command": "nrm del-scope <scope>",
+      "description": "Remove a scope association",
+      "category": "nrm",
+      "icon": "close",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 28,
+      "label": "Rename Registry",
+      "command": "nrm rename <old-name> <new-name>",
+      "description": "Change custom registry name",
+      "category": "nrm",
+      "icon": "edit",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 29,
+      "label": "Info",
+      "command": "conda info",
+      "description": "Display information about current conda install",
+      "category": "conda",
+      "icon": "info",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 30,
+      "label": "List Environments",
+      "command": "conda env list",
+      "description": "List all conda environments",
+      "category": "conda",
+      "icon": "list-unordered",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 31,
+      "label": "Create Environment",
+      "command": "conda create --name <env-name> python=3.11",
+      "description": "Create a new conda environment",
+      "category": "conda",
+      "icon": "plus",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 32,
+      "label": "Activate Environment",
+      "command": "conda activate <env-name>",
+      "description": "Activate a conda environment",
+      "category": "conda",
+      "icon": "play",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 33,
+      "label": "Deactivate Environment",
+      "command": "conda deactivate",
+      "description": "Deactivate the current active conda environment",
+      "category": "conda",
+      "icon": "stop",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 34,
+      "label": "Install Package",
+      "command": "conda install <package-name>",
+      "description": "Install a package into the current environment",
+      "category": "conda",
+      "icon": "package",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 35,
+      "label": "Remove Package",
+      "command": "conda remove <package-name>",
+      "description": "Remove a package from the current environment",
+      "category": "conda",
+      "icon": "trash",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 36,
+      "label": "List Packages",
+      "command": "conda list",
+      "description": "List installed packages in current environment",
+      "category": "conda",
+      "icon": "list-ordered",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 37,
+      "label": "Update Package",
+      "command": "conda update <package-name>",
+      "description": "Update a package to the latest compatible version",
+      "category": "conda",
+      "icon": "sync",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 38,
+      "label": "Update All",
+      "command": "conda update --all",
+      "description": "Update all packages in current environment",
+      "category": "conda",
+      "icon": "sync",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 39,
+      "label": "Search Package",
+      "command": "conda search <package-name>",
+      "description": "Search for packages and display information",
+      "category": "conda",
+      "icon": "search",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 40,
+      "label": "Export Environment",
+      "command": "conda env export > environment.yml",
+      "description": "Export current environment to YAML file",
+      "category": "conda",
+      "icon": "export",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 41,
+      "label": "Create from File",
+      "command": "conda env create -f environment.yml",
+      "description": "Create environment from YAML file",
+      "category": "conda",
+      "icon": "file-code",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 42,
+      "label": "Remove Environment",
+      "command": "conda env remove --name <env-name>",
+      "description": "Remove an entire conda environment",
+      "category": "conda",
+      "icon": "trash",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 43,
+      "label": "Clean Cache",
+      "command": "conda clean --all",
+      "description": "Remove unused packages and caches",
+      "category": "conda",
+      "icon": "trash",
+      "created_at": "2025-01-01T00:00:00.000Z",
+      "updated_at": "2025-01-01T00:00:00.000Z"
     }
   ]
 }

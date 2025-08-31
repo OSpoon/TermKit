@@ -4,7 +4,7 @@ import type { DepCmdProvider, DepCmdTreeItem } from './provider'
 import * as path from 'node:path'
 
 import * as meta from '@src/generated/meta'
-import { sendCommandToTerminal } from '@src/utils'
+import { logger, sendCommandToTerminal } from '@src/utils'
 import { useCommand } from 'reactive-vscode'
 import { env, window, workspace } from 'vscode'
 
@@ -13,11 +13,19 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
     try {
       await commandManager.reloadFromDatabase()
 
+      // 恢复缺失的默认命令分类（如被删除的NRM等）
+      await commandManager.restoreMissingDefaultCategories()
+
       // 检查是否启用项目检测
       const config = workspace.getConfiguration('depCmd')
       const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
 
       let stats = null
+      let dependencyStats = null
+
+      // 清除依赖检测缓存，强制重新检测
+      commandManager.clearDependencyCache()
+
       if (enableProjectDetection) {
         // 只有启用项目检测时才执行项目检测
         await commandManager.detectCurrentProject(true)
@@ -28,14 +36,23 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
         commandManager.clearProjectCache()
       }
 
+      // 获取依赖检测统计信息（会重新检测因为缓存已清除）
+      try {
+        dependencyStats = await commandManager.getDependencyStats()
+      }
+      catch (error) {
+        logger.error('Failed to get dependency stats:', error)
+      }
+
       depCmdProvider.refresh()
 
       // 显示检测结果
       if (enableProjectDetection && stats) {
         const detectedCategories = stats.detectedCategories.join(', ')
         const workspaceInfo = stats.workspaceRoot ? ` | Workspace: ${path.basename(stats.workspaceRoot)}` : ''
+        const dependencyInfo = dependencyStats ? ` | Dependencies: ${dependencyStats.installed}/${dependencyStats.total}` : ''
 
-        const message = `Refreshed! Detected: ${detectedCategories || 'None'}${workspaceInfo} | Categories: ${stats.supportedCategories}/${stats.totalCategories}`
+        const message = `Refreshed! Detected: ${detectedCategories || 'None'}${workspaceInfo} | Categories: ${stats.supportedCategories}/${stats.totalCategories}${dependencyInfo}`
 
         window.showInformationMessage(message)
       }

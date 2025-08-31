@@ -1,21 +1,24 @@
 import type { UserCommand } from '@src/types'
-import type * as vscode from 'vscode'
 import type { DetectionResult } from './detector'
 
 import { DatabaseManager } from '@src/data/database'
 import { logger } from '@src/utils'
+import * as vscode from 'vscode'
+import { DependencyDetector } from './deps'
 import { ProjectDetector } from './detector'
 
 export class CommandManager {
   private static _instance: CommandManager
   private _database: DatabaseManager
   private _detector: ProjectDetector
+  private _dependencyDetector: DependencyDetector
   private _currentProject: DetectionResult | null = null
   private _unsubscribeDatabase?: () => void
 
   private constructor(context: vscode.ExtensionContext) {
     this._database = DatabaseManager.getInstance(context)
     this._detector = ProjectDetector.getInstance()
+    this._dependencyDetector = DependencyDetector.getInstance()
 
     // 订阅数据库变化
     this._unsubscribeDatabase = this._database.subscribe(() => {
@@ -120,7 +123,7 @@ export class CommandManager {
       await this.detectCurrentProject()
     }
 
-    const userManagedCategories = this.getUserManagedCategories()
+    const userManagedCategories = await this.getUserManagedCategories()
     const detectedCategories = this.getDetectedCategories()
 
     // 合并两种分类，去重
@@ -151,9 +154,10 @@ export class CommandManager {
     }
 
     // 启用项目检测时
-    // 用户管理级别的分类总是返回命令
+    // 用户管理级别的分类需要检查依赖是否安装
     if (this.isUserManagedCategory(category)) {
-      return allCommands
+      const isInstalled = await this._dependencyDetector.isDependencyInstalled(category)
+      return isInstalled ? allCommands : []
     }
 
     // 项目检测生成的分类只有在检测到时才返回命令
@@ -334,21 +338,28 @@ export class CommandManager {
    * 获取分类显示信息
    */
   public getCategoryDisplayInfo(category: string): { displayName: string, icon: string } | null {
-    // 简化版本，直接返回基本信息
-    const categoryMap: Record<string, { displayName: string, icon: string }> = {
-      npm: { displayName: 'NPM', icon: 'package' },
-      yarn: { displayName: 'Yarn', icon: 'package' },
-      pnpm: { displayName: 'PNPM', icon: 'package' },
-      python: { displayName: 'Python', icon: 'snake' },
-      rust: { displayName: 'Cargo', icon: 'gear' },
-      go: { displayName: 'Go', icon: 'go' },
-      docker: { displayName: 'Docker', icon: 'server-process' },
-      git: { displayName: 'Git', icon: 'git-branch' },
-    }
+    try {
+      // 从 VS Code 配置中获取分类显示信息
+      const config = vscode.workspace.getConfiguration('depCmd')
+      const categoryDisplayConfig = config.get<Record<string, { displayName: string, icon: string }>>('categoryDisplay', {})
 
-    return categoryMap[category] || {
-      displayName: category.charAt(0).toUpperCase() + category.slice(1),
-      icon: 'gear',
+      // 如果配置中有该分类，使用配置的信息
+      if (categoryDisplayConfig[category]) {
+        return categoryDisplayConfig[category]
+      }
+
+      // 如果配置中没有，返回默认值
+      return {
+        displayName: category.charAt(0).toUpperCase() + category.slice(1),
+        icon: 'gear',
+      }
+    }
+    catch (error) {
+      logger.warn(`Failed to get category display info for ${category}:`, error)
+      return {
+        displayName: category.charAt(0).toUpperCase() + category.slice(1),
+        icon: 'gear',
+      }
     }
   }
 
@@ -393,9 +404,28 @@ export class CommandManager {
   }
 
   /**
-   * 获取用户管理级别的分类
+   * 获取用户管理级别的分类（考虑依赖检测）
    */
-  public getUserManagedCategories(): string[] {
+  public async getUserManagedCategories(): Promise<string[]> {
+    const allCategories = this.getAvailableCategories()
+    const userManagedCategories = allCategories.filter(category => this.isUserManagedCategory(category))
+
+    // 过滤出已安装依赖的分类
+    const availableCategories: string[] = []
+    for (const category of userManagedCategories) {
+      const isInstalled = await this._dependencyDetector.isDependencyInstalled(category)
+      if (isInstalled) {
+        availableCategories.push(category)
+      }
+    }
+
+    return availableCategories
+  }
+
+  /**
+   * 获取用户管理级别的分类（同步版本，不考虑依赖检测）
+   */
+  public getUserManagedCategoriesSync(): string[] {
     const allCategories = this.getAvailableCategories()
     return allCategories.filter(category => this.isUserManagedCategory(category))
   }
@@ -413,6 +443,20 @@ export class CommandManager {
   }
 
   /**
+   * 清除依赖检测缓存
+   */
+  public clearDependencyCache(): void {
+    this._dependencyDetector.clearCache()
+  }
+
+  /**
+   * 获取依赖检测统计信息
+   */
+  public async getDependencyStats() {
+    return this._dependencyDetector.getDetectionStats()
+  }
+
+  /**
    * 订阅数据变化
    */
   public subscribe(callback: (commands: UserCommand[]) => void): () => void {
@@ -425,6 +469,13 @@ export class CommandManager {
   public async clearAllData(): Promise<void> {
     await this._database.clearAllData()
     await this.detectCurrentProject()
+  }
+
+  /**
+   * 恢复缺失的默认命令分类
+   */
+  public async restoreMissingDefaultCategories(): Promise<void> {
+    await this._database.restoreMissingDefaultCategories()
   }
 
   /**

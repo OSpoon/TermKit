@@ -1,5 +1,5 @@
 import type { CommandManager } from '@src/core/manager'
-import { logger } from '@src/utils'
+import { logger, validateIcon } from '@src/utils'
 import * as vscode from 'vscode'
 
 function getCategoryConfig(commandManager: CommandManager, category: string): { displayName: string, icon: string } {
@@ -47,14 +47,16 @@ export class DepCmdTreeItem extends vscode.TreeItem {
       this.contextValue = isProjectScript ? 'project-script' : 'command'
       // Use command-specific icon if available, otherwise use terminal icon
       // Use a different icon for project scripts
-      this.iconPath = new vscode.ThemeIcon(isProjectScript ? 'package' : (commandIcon || 'terminal'))
+      const validatedIcon = validateIcon(isProjectScript ? 'package' : commandIcon, category)
+      this.iconPath = new vscode.ThemeIcon(validatedIcon)
     }
     else {
       // 区分检测到的分类和用户自定义分类
       this.contextValue = isDetectedCategory ? 'detected-category' : 'category'
       this.categoryName = category
-      // Use provided category icon or fallback
-      this.iconPath = new vscode.ThemeIcon(categoryIcon || 'gear')
+      // Use provided category icon or fallback with validation
+      const validatedCategoryIcon = validateIcon(categoryIcon, category)
+      this.iconPath = new vscode.ThemeIcon(validatedCategoryIcon)
     }
   }
 }

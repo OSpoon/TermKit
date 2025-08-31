@@ -70,7 +70,7 @@ export class ProjectDetector {
           type,
           patterns: Array.isArray(patterns) ? patterns : [],
           enabled: true,
-          priority: this.getDefaultPriority(type),
+          priority: 100,
         })
       }
       else {
@@ -83,22 +83,6 @@ export class ProjectDetector {
 
     logger.info(`Initialized ${createdCount} project detectors from configuration`)
     logger.info(`Available project types: ${detectorConfigs.map(c => c.type).join(', ')}`)
-  }
-
-  /**
-   * 获取默认优先级
-   */
-  private getDefaultPriority(type: string): number {
-    const priorityMap: Record<string, number> = {
-      nodejs: 10,
-      npm: 10,
-      yarn: 10,
-      pnpm: 10,
-      python: 20,
-      rust: 20,
-      go: 20,
-    }
-    return priorityMap[type] || 50
   }
 
   /**

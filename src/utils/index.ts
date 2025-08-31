@@ -6,6 +6,9 @@ import { window } from 'vscode'
 
 export const logger = useLogger(displayName)
 
+// Export icon utilities
+export * from './icons'
+
 // Helper function to send command to terminal using reactive-vscode
 export function sendCommandToTerminal(command: string) {
   try {
