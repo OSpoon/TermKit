@@ -7,12 +7,6 @@ export interface CommandDefinition {
   description?: string
   category: string
   icon?: string
-  conditions?: {
-    requiresPackageManager?: string
-    requiresProjectType?: string[]
-    requiresGit?: boolean
-    requiresDocker?: boolean
-  }
 }
 
 /**
@@ -22,12 +16,6 @@ export interface CategoryDefinition {
   id: string
   displayName: string
   icon: string
-  supportedProjectTypes: string[] | '*'
-  conditions?: {
-    requiresGit?: boolean
-    requiresDocker?: boolean
-    requiredPackageManager?: string
-  }
 }
 
 /**
