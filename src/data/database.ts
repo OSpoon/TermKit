@@ -1,8 +1,8 @@
 import type { CommandsData, UserCommand } from '@src/types'
+
+import type * as vscode from 'vscode'
 import { EventEmitter } from 'node:events'
-import * as path from 'node:path'
 import { logger } from '@src/utils'
-import * as vscode from 'vscode'
 
 export interface DatabaseEvents {
   initialized: () => void
@@ -53,9 +53,6 @@ export class DatabaseManager extends EventEmitter {
       this._commands = storedCommands
       this._nextId = storedNextId
 
-      // 检查并合并新的默认命令
-      await this.checkAndMergeDefaultCommands()
-
       this._isInitialized = true
       logger.info('Modern database initialized successfully with', this._commands.length, 'commands')
       this.emit('initialized')
@@ -63,79 +60,6 @@ export class DatabaseManager extends EventEmitter {
     catch (error) {
       logger.error('Failed to initialize modern database:', error)
       throw error
-    }
-  }
-
-  /**
-   * 检查并合并默认命令（包括新分类和缺失的默认分类）
-   */
-  private async checkAndMergeDefaultCommands(): Promise<void> {
-    try {
-      // 读取默认命令JSON文件
-      const extensionPath = vscode.extensions.getExtension('OSpoon.dep-cmd')?.extensionPath
-      if (!extensionPath) {
-        throw new Error('Could not find extension path')
-      }
-
-      const defaultDataPath = path.join(extensionPath, 'config', 'default-commands.json')
-      const { readFile } = await import('node:fs/promises')
-      const content = await readFile(defaultDataPath, 'utf8')
-      const defaultData: CommandsData = JSON.parse(content)
-      const defaultCommands = defaultData.commands || []
-
-      if (this._commands.length === 0) {
-        // 第一次初始化，直接使用默认命令
-        logger.info('No existing commands found, initializing with default data...')
-        this._commands = defaultCommands
-        this._nextId = defaultCommands.length > 0
-          ? Math.max(...defaultCommands.map(cmd => cmd.id || 0)) + 1
-          : 1
-        await this.saveImmediately()
-        logger.info('Commands initialized with default data:', this._commands.length)
-      }
-      else {
-        // 已有数据，检查缺失的默认分类
-        const existingCategories = new Set(this._commands.map(cmd => cmd.category))
-        const defaultCategories = new Set(defaultCommands.map(cmd => cmd.category))
-
-        // 找出缺失的默认分类（包括新增的和被删除的）
-        const missingCategories = [...defaultCategories].filter(cat => !existingCategories.has(cat))
-
-        if (missingCategories.length > 0) {
-          logger.info(`Found missing default categories: ${missingCategories.join(', ')}, restoring commands...`)
-
-          // 获取缺失分类的默认命令
-          const missingCommands = defaultCommands.filter(cmd => missingCategories.includes(cmd.category))
-
-          // 重新分配ID，避免冲突
-          const maxExistingId = this._commands.length > 0
-            ? Math.max(...this._commands.map(cmd => cmd.id || 0))
-            : 0
-
-          const commandsToAdd = missingCommands.map((cmd, index) => ({
-            ...cmd,
-            id: maxExistingId + index + 1,
-          }))
-
-          // 合并命令
-          this._commands.push(...commandsToAdd)
-          this._nextId = Math.max(...this._commands.map(cmd => cmd.id || 0)) + 1
-
-          await this.saveImmediately()
-          logger.info(`Restored ${commandsToAdd.length} commands for missing categories: ${missingCategories.join(', ')}`)
-        }
-        else {
-          logger.info('All default categories are present, no restoration needed')
-        }
-      }
-    }
-    catch (error) {
-      logger.error('Failed to check and merge default commands:', error)
-      // 如果出错且没有现有命令，至少确保有一个空的状态
-      if (this._commands.length === 0) {
-        this._commands = []
-        this._nextId = 1
-      }
     }
   }
 
@@ -435,17 +359,5 @@ export class DatabaseManager extends EventEmitter {
     this._nextId = 1
     await this.saveImmediately()
     logger.info('All data cleared')
-  }
-
-  /**
-   * 恢复缺失的默认命令分类
-   */
-  public async restoreMissingDefaultCategories(): Promise<void> {
-    if (!this._isInitialized) {
-      throw new Error('Database not initialized')
-    }
-
-    logger.info('Manually checking for missing default categories...')
-    await this.checkAndMergeDefaultCommands()
   }
 }

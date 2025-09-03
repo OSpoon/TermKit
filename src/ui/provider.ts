@@ -1,4 +1,5 @@
 import type { CommandManager } from '@src/core/manager'
+import { DependencyChecker } from '@src/core/checker'
 import { logger, validateIcon } from '@src/utils'
 import * as vscode from 'vscode'
 
@@ -95,10 +96,15 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
         const availableCategories = this.commandManager.getAvailableCategories()
         const categories: DepCmdTreeItem[] = []
 
+        // 批量检查依赖
+        const dependencyChecker = DependencyChecker.getInstance()
+        const dependencyResults = await dependencyChecker.checkMultipleDependencies(availableCategories)
+
         for (const category of availableCategories) {
           const commands = this.commandManager.getCommandsByCategory(category)
 
-          if (commands.length > 0) {
+          // 只显示有命令且依赖检测通过的分类
+          if (commands.length > 0 && dependencyResults[category]) {
             const categoryConfig = getCategoryConfig(this.commandManager, category)
             categories.push(new DepCmdTreeItem(
               `${categoryConfig.displayName} (${commands.length})`,
@@ -117,6 +123,15 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       }
       else {
         // Show commands from the default category directly at root level
+        // 检查默认分类的依赖
+        const dependencyChecker = DependencyChecker.getInstance()
+        const isDependencyAvailable = await dependencyChecker.checkCategoryDependency(defaultCategory)
+
+        if (!isDependencyAvailable) {
+          // 如果默认分类的依赖不可用，显示空或提示
+          return []
+        }
+
         const commands = this.commandManager.getCommandsByCategory(defaultCategory)
 
         return commands.map(command => new DepCmdTreeItem(
@@ -134,6 +149,14 @@ export class DepCmdProvider implements vscode.TreeDataProvider<DepCmdTreeItem> {
       // Category level - show commands for the selected category
       const category = element.category
       if (category) {
+        // 再次检查分类的依赖（可能已缓存）
+        const dependencyChecker = DependencyChecker.getInstance()
+        const isDependencyAvailable = await dependencyChecker.checkCategoryDependency(category)
+
+        if (!isDependencyAvailable) {
+          return []
+        }
+
         const commands = this.commandManager.getCommandsByCategory(category)
 
         return commands.map(command => new DepCmdTreeItem(

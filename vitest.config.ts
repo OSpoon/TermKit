@@ -23,7 +23,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@src': path.resolve(__dirname, './src'),
-      '@config': path.resolve(__dirname, './config'),
     },
   },
 })

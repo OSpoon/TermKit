@@ -189,13 +189,6 @@ export class CommandManager {
   }
 
   /**
-   * 恢复缺失的默认命令分类
-   */
-  public async restoreMissingDefaultCategories(): Promise<void> {
-    await this._database.restoreMissingDefaultCategories()
-  }
-
-  /**
    * 清理资源
    */
   public async dispose(): Promise<void> {

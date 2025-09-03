@@ -6,8 +6,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
-      "@src/*": ["src/*"],
-      "@config/*": ["config/*"]
+      "@src/*": ["src/*"]
     },
     "resolveJsonModule": true,
     "strict": true,

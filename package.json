@@ -69,38 +69,7 @@
         },
         "depCmd.dependencyDetection": {
           "type": "object",
-          "default": {
-            "git": {
-              "command": "git --version",
-              "enabled": true,
-              "description": "检测 Git 是否安装"
-            },
-            "docker": {
-              "command": "docker --version",
-              "enabled": true,
-              "description": "检测 Docker 是否安装"
-            },
-            "nrm": {
-              "command": "nrm --version",
-              "enabled": true,
-              "description": "检测 NRM (npm registry manager) 是否安装"
-            },
-            "conda": {
-              "command": "conda --version",
-              "enabled": true,
-              "description": "检测 Conda 是否安装"
-            },
-            "python": {
-              "command": "python --version",
-              "enabled": true,
-              "description": "检测 Python 是否安装"
-            },
-            "npm": {
-              "command": "npm --version",
-              "enabled": true,
-              "description": "检测 NPM 是否安装"
-            }
-          },
+          "default": {},
           "description": "依赖检测配置：定义用于检测系统工具是否安装的命令。只有检测成功的工具对应的分组才会显示。",
           "additionalProperties": {
             "type": "object",
@@ -122,48 +91,7 @@
         },
         "depCmd.categoryDisplay": {
           "type": "object",
-          "default": {
-            "npm": {
-              "displayName": "NPM",
-              "icon": "package"
-            },
-            "yarn": {
-              "displayName": "Yarn",
-              "icon": "package"
-            },
-            "pnpm": {
-              "displayName": "PNPM",
-              "icon": "package"
-            },
-            "git": {
-              "displayName": "Git",
-              "icon": "git-branch"
-            },
-            "docker": {
-              "displayName": "Docker",
-              "icon": "server-process"
-            },
-            "python": {
-              "displayName": "Python",
-              "icon": "package"
-            },
-            "rust": {
-              "displayName": "Cargo",
-              "icon": "gear"
-            },
-            "go": {
-              "displayName": "Go",
-              "icon": "symbol-function"
-            },
-            "nrm": {
-              "displayName": "NRM",
-              "icon": "settings"
-            },
-            "conda": {
-              "displayName": "Conda",
-              "icon": "symbol-namespace"
-            }
-          },
+          "default": {},
           "description": "分类显示配置：自定义每个分类的显示名称和图标。用户可以添加新分类或修改现有分类的显示信息。",
           "additionalProperties": {
             "type": "object",

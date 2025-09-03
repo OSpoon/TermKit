@@ -1,6 +1,7 @@
 import type { CommandManager } from '@src/core/manager'
 import type { DepCmdProvider, DepCmdTreeItem } from './provider'
 
+import { DependencyChecker } from '@src/core/checker'
 import * as meta from '@src/generated/meta'
 import { getCommonCategoryIcons, sendCommandToTerminal } from '@src/utils'
 import { useCommand } from 'reactive-vscode'
@@ -11,8 +12,9 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
     try {
       await commandManager.reloadFromDatabase()
 
-      // 恢复缺失的默认命令分类（如被删除的NRM等）
-      await commandManager.restoreMissingDefaultCategories()
+      // 清除依赖检测缓存，强制重新检测
+      const dependencyChecker = DependencyChecker.getInstance()
+      dependencyChecker.clearCache()
 
       depCmdProvider.refresh()
 
@@ -631,6 +633,10 @@ async function configureDependencyDetection(categoryKey: string, displayName: st
     }
 
     await config.update('dependencyDetection', dependencyDetection, true)
+
+    // 清除该分类的依赖检测缓存
+    const dependencyChecker = DependencyChecker.getInstance()
+    dependencyChecker.clearCategoryCache(categoryKey)
   }
 }
 
@@ -753,6 +759,11 @@ async function editDependencyDetection(categoryName: string): Promise<void> {
       if (currentDetection) {
         dependencyDetection[categoryName].enabled = !currentDetection.enabled
         await config.update('dependencyDetection', dependencyDetection, true)
+
+        // 清除该分类的依赖检测缓存
+        const dependencyChecker = DependencyChecker.getInstance()
+        dependencyChecker.clearCategoryCache(categoryName)
+
         window.showInformationMessage(
           `Dependency detection ${dependencyDetection[categoryName].enabled ? 'enabled' : 'disabled'} for "${categoryName}"`,
         )
@@ -765,6 +776,11 @@ async function editDependencyDetection(categoryName: string): Promise<void> {
       if (currentDetection) {
         delete dependencyDetection[categoryName]
         await config.update('dependencyDetection', dependencyDetection, true)
+
+        // 清除该分类的依赖检测缓存
+        const dependencyChecker = DependencyChecker.getInstance()
+        dependencyChecker.clearCategoryCache(categoryName)
+
         window.showInformationMessage(`Dependency detection removed for "${categoryName}"`)
       }
       else {
