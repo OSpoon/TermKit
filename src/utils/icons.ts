@@ -212,3 +212,46 @@ export function getDefaultIconByCategory(category?: string): string {
 export function isIconSupported(icon: string): boolean {
   return SUPPORTED_ICONS.has(icon)
 }
+
+/**
+ * 获取所有支持的图标列表，用于图标选择器
+ * @returns 图标列表，包含显示标签和值
+ */
+export function getSupportedIconsForPicker(): Array<{ label: string, value: string }> {
+  return Array.from(SUPPORTED_ICONS)
+    .sort()
+    .map(icon => ({
+      label: `$(${icon}) ${icon}`,
+      value: icon,
+    }))
+}
+
+/**
+ * 获取分类的常用图标列表
+ * @returns 常用图标列表
+ */
+export function getCommonCategoryIcons(): Array<{ label: string, value: string }> {
+  const commonIcons = [
+    'package',
+    'gear',
+    'settings',
+    'terminal',
+    'git-branch',
+    'server-process',
+    'symbol-class',
+    'symbol-function',
+    'symbol-method',
+    'tools',
+    'database',
+    'cloud',
+    'globe',
+    'extensions',
+    'folder',
+    'file-code',
+  ]
+
+  return commonIcons.map(icon => ({
+    label: `$(${icon}) ${icon}`,
+    value: icon,
+  }))
+}
