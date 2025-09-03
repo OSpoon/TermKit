@@ -1,6 +1,2 @@
 export { config } from './config'
-export { DependencyDetector } from './deps'
-export { ProjectDetector } from './detector'
-export * from './detectors'
-export { ProjectDetectorFactory } from './factory'
 export { CommandManager } from './manager'

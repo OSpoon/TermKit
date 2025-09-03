@@ -1,10 +1,8 @@
 import type { CommandManager } from '@src/core/manager'
 import type { DepCmdProvider, DepCmdTreeItem } from './provider'
 
-import * as path from 'node:path'
-
 import * as meta from '@src/generated/meta'
-import { logger, sendCommandToTerminal } from '@src/utils'
+import { sendCommandToTerminal } from '@src/utils'
 import { useCommand } from 'reactive-vscode'
 import { env, window, workspace } from 'vscode'
 
@@ -16,52 +14,9 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
       // 恢复缺失的默认命令分类（如被删除的NRM等）
       await commandManager.restoreMissingDefaultCategories()
 
-      // 检查是否启用项目检测
-      const config = workspace.getConfiguration('depCmd')
-      const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
-
-      let stats = null
-      let dependencyStats = null
-
-      // 清除依赖检测缓存，强制重新检测
-      commandManager.clearDependencyCache()
-
-      if (enableProjectDetection) {
-        // 只有启用项目检测时才执行项目检测
-        await commandManager.detectCurrentProject(true)
-        stats = await commandManager.getProjectStats()
-      }
-      else {
-        // 禁用项目检测时清除项目缓存
-        commandManager.clearProjectCache()
-      }
-
-      // 获取依赖检测统计信息（会重新检测因为缓存已清除）
-      try {
-        dependencyStats = await commandManager.getDependencyStats()
-      }
-      catch (error) {
-        logger.error('Failed to get dependency stats:', error)
-      }
-
       depCmdProvider.refresh()
 
-      // 显示检测结果
-      if (enableProjectDetection && stats) {
-        const detectedCategories = stats.detectedCategories.join(', ')
-        const workspaceInfo = stats.workspaceRoot ? ` | Workspace: ${path.basename(stats.workspaceRoot)}` : ''
-        const dependencyInfo = dependencyStats ? ` | Dependencies: ${dependencyStats.installed}/${dependencyStats.total}` : ''
-
-        const message = `Refreshed! Detected: ${detectedCategories || 'None'}${workspaceInfo} | Categories: ${stats.supportedCategories}/${stats.totalCategories}${dependencyInfo}`
-
-        window.showInformationMessage(message)
-      }
-      else {
-        const message = enableProjectDetection
-          ? 'Command memories reloaded! No project detected in current workspace'
-          : 'Command memories reloaded! Project detection is disabled'
-        window.showInformationMessage(message)
-      }
+      window.showInformationMessage('Command memories reloaded!')
     }
     catch (error) {
       window.showErrorMessage(`Failed to refresh: ${error}`)
@@ -378,30 +333,6 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
     }
     catch (error) {
       window.showErrorMessage(`Failed to delete category: ${error}`)
-    }
-  })
-
-  useCommand(meta.commands.depCmdToggleProjectDetection, async () => {
-    try {
-      const config = workspace.getConfiguration('depCmd')
-      const currentValue = config.get<boolean>('enableProjectDetection', true)
-      await config.update('enableProjectDetection', !currentValue, true)
-
-      const newStatus = !currentValue ? 'enabled' : 'disabled'
-
-      // 如果禁用项目检测，清除项目缓存
-      if (currentValue) {
-        // 从启用变为禁用
-        commandManager.clearProjectCache()
-      }
-
-      window.showInformationMessage(`Project detection ${newStatus}`)
-
-      // 刷新视图以应用新设置
-      depCmdProvider.refresh()
-    }
-    catch (error) {
-      window.showErrorMessage(`Failed to toggle project detection: ${error}`)
     }
   })
 

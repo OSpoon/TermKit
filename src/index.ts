@@ -3,7 +3,7 @@ import { CommandManager } from '@src/core'
 import { DepCmdProvider, useCommands } from '@src/ui'
 import { logger } from '@src/utils'
 import { defineExtension } from 'reactive-vscode'
-import { commands, window, workspace } from 'vscode'
+import { commands, window } from 'vscode'
 import { version } from '../package.json'
 
 const { activate, deactivate } = defineExtension(async (context: ExtensionContext) => {
@@ -30,27 +30,6 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
       const allCommands = await commandManager.getAllCommands()
       logger.info(`Loaded ${allCommands.length} commands from database`)
 
-      // Detect project type for command filtering
-      const config = workspace.getConfiguration('depCmd')
-      const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
-
-      if (enableProjectDetection) {
-        await commandManager.detectCurrentProject(true)
-
-        const currentProject = commandManager.getCurrentProject()
-        if (currentProject) {
-          logger.info(`Project detected: ${currentProject.detectedCategories.join(', ')}`)
-        }
-        else {
-          logger.info('No project detected in current workspace')
-        }
-      }
-      else {
-        logger.info('Project detection is disabled')
-        // 清除任何现有的项目缓存
-        commandManager.clearProjectCache()
-      }
-
       // Refresh tree view with loaded data
       depCmdProvider.refresh(true)
       logger.info('Extension initialization completed successfully')
@@ -67,22 +46,6 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
   // Initialize extension data and tree view
   await initializeExtension()
 
-  // Monitor workspace changes and update project detection
-  const workspaceWatcher = workspace.onDidChangeWorkspaceFolders(async () => {
-    logger.info('Workspace folders changed, updating project detection')
-    commandManager.clearProjectCache()
-
-    // Re-detect project type if detection is enabled
-    const config = workspace.getConfiguration('depCmd')
-    const enableProjectDetection = config.get<boolean>('enableProjectDetection', true)
-
-    if (enableProjectDetection) {
-      await commandManager.detectCurrentProject(true)
-    }
-
-    depCmdProvider.refresh()
-  })
-
   // Handle tree item selection for command execution
   const treeSelectionHandler = treeView.onDidChangeSelection((e) => {
     if (e.selection.length > 0) {
@@ -96,7 +59,6 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
   // Register all disposables for proper cleanup
   context.subscriptions.push(
     treeView,
-    workspaceWatcher,
     treeSelectionHandler,
   )
 

@@ -62,34 +62,10 @@
     "configuration": {
       "title": "DepCmd",
       "properties": {
-        "depCmd.enableProjectDetection": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable automatic project detection to filter commands based on project type"
-        },
         "depCmd.defaultCategory": {
           "type": "string",
           "default": "all",
           "description": "Default category to display (all or specific category name)"
-        },
-        "depCmd.projectDetection": {
-          "type": "object",
-          "default": {
-            "nodejs": ["package.json"],
-            "npm": ["package-lock.json"],
-            "yarn": ["yarn.lock"],
-            "pnpm": ["pnpm-lock.yaml"],
-            "python": ["requirements.txt", "pyproject.toml", "setup.py", "Pipfile"],
-            "rust": ["Cargo.toml"],
-            "go": ["go.mod"]
-          },
-          "description": "项目检测配置：每个键是项目类型，值是要检测的文件/目录模式数组。检测器会根据这些模式判断项目类型，然后自动提取相应的运行命令。开发者可以自由修改检测模式，但命令提取逻辑由检测器内部实现。",
-          "additionalProperties": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
         },
         "depCmd.dependencyDetection": {
           "type": "object",
@@ -169,7 +145,7 @@
             },
             "python": {
               "displayName": "Python",
-              "icon": "symbol-class"
+              "icon": "package"
             },
             "rust": {
               "displayName": "Cargo",
@@ -252,12 +228,6 @@
         "command": "depCmd.deleteCategory",
         "title": "Delete Category",
         "icon": "$(trash)",
-        "category": "Dependencies Commands"
-      },
-      {
-        "command": "depCmd.toggleProjectDetection",
-        "title": "Toggle Project Detection",
-        "icon": "$(eye)",
         "category": "Dependencies Commands"
       },
       {
