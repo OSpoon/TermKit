@@ -1,94 +1,128 @@
 import { sendCommandToTerminal } from '@src/utils'
 import * as reactiveVscode from 'reactive-vscode'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { vscode } from './setup'
+import { mockControlledTerminal, mockShow, vscode } from './setup'
 
 describe('utils', () => {
   describe('sendCommandToTerminal', () => {
-    it('should create new terminal when no active terminal exists', () => {
-      const mockTerminal = {
-        show: vi.fn(),
-        sendText: vi.fn(),
+    beforeEach(() => {
+      // Reset all mocks before each test
+      vi.clearAllMocks()
+
+      // Reset the controlled terminal state
+      ;(mockControlledTerminal.value as any) = {
         name: 'Dep CMDs',
         exitStatus: undefined,
+        sendText: vi.fn(), // Reset the sendText mock
+        shellIntegration: undefined, // Add shellIntegration property
       }
+    })
 
+    it('should use controlled terminal and send command with shell integration', async () => {
       // Mock useActiveTerminal to return no active terminal
       vi.mocked(reactiveVscode.useActiveTerminal).mockReturnValue({
         value: undefined,
       } as any)
 
-      vscode.window.createTerminal = vi.fn().mockReturnValue(mockTerminal)
+      // Mock terminal with shell integration
+      ;(mockControlledTerminal.value as any).shellIntegration = {}
 
-      sendCommandToTerminal('npm test')
+      await sendCommandToTerminal('npm test')
 
-      expect(vscode.window.createTerminal).toHaveBeenCalledWith({
-        name: 'Dep CMDs',
-        hideFromUser: false,
-      })
-      expect(mockTerminal.show).toHaveBeenCalledWith(true)
-      expect(mockTerminal.sendText).toHaveBeenCalledWith('npm test', false)
+      expect(mockShow).toHaveBeenCalled()
+
+      // With shell integration: should send control characters first, then command
+      // On non-Windows: \x15 (Ctrl+U), on Windows: \x03 (Ctrl+C)
+      const expectedControlChar = process.platform === 'win32' ? '\x03' : '\x15'
+      expect(mockControlledTerminal.value.sendText).toHaveBeenCalledWith(expectedControlChar, false)
+      expect(mockControlledTerminal.value.sendText).toHaveBeenCalledWith('npm test', false)
     })
 
-    it('should use active terminal when available', () => {
-      const mockTerminal = {
-        show: vi.fn(),
-        sendText: vi.fn(),
-        name: 'existing-terminal',
+    it('should handle different active terminal gracefully without shell integration', async () => {
+      const mockActiveTerminal = {
+        name: 'other-terminal',
         exitStatus: undefined,
       }
 
-      // Mock useActiveTerminal to return an active terminal
+      // Mock useActiveTerminal to return a different terminal
       vi.mocked(reactiveVscode.useActiveTerminal).mockReturnValue({
-        value: mockTerminal,
+        value: mockActiveTerminal,
       } as any)
 
-      sendCommandToTerminal('pnpm build')
+      // Mock terminal without shell integration
+      ;(mockControlledTerminal.value as any).shellIntegration = undefined
 
-      expect(vscode.window.createTerminal).not.toHaveBeenCalled()
-      expect(mockTerminal.show).toHaveBeenCalledWith(true)
-      expect(mockTerminal.sendText).toHaveBeenCalledWith('pnpm build', false)
-    })
+      await sendCommandToTerminal('pnpm build')
 
-    it('should work correctly on different platforms', () => {
-      const mockTerminal = {
-        show: vi.fn(),
-        sendText: vi.fn(),
-        name: 'test-terminal',
-        exitStatus: undefined,
-      }
+      // Should still use controlled terminal, not the active one
+      expect(mockShow).toHaveBeenCalled()
 
-      // Mock useActiveTerminal to return an active terminal
-      vi.mocked(reactiveVscode.useActiveTerminal).mockReturnValue({
-        value: mockTerminal,
-      } as any)
+      // Without shell integration: should eventually use fallback sendText
+      expect(mockControlledTerminal.value.sendText).toHaveBeenCalledWith('pnpm build', false)
+    }, 2000) // 2 second timeout - enough for 1 second polling + 50ms delay
 
-      sendCommandToTerminal('test command')
-
-      // Should always send clear signal first, then the command
-      expect(mockTerminal.sendText).toHaveBeenCalledTimes(2)
-      expect(mockTerminal.sendText).toHaveBeenNthCalledWith(2, 'test command', false)
-
-      // First call should be either \x03 (Windows) or \x15 (macOS/Linux)
-      const firstCall = mockTerminal.sendText.mock.calls[0]
-      expect(['\x03', '\x15']).toContain(firstCall[0])
-      expect(firstCall[1]).toBe(false)
-    })
-
-    it('should handle errors gracefully', () => {
-      // Mock useActiveTerminal to return no active terminal
+    it('should work correctly with different terminal states', async () => {
+      // Mock useActiveTerminal
       vi.mocked(reactiveVscode.useActiveTerminal).mockReturnValue({
         value: undefined,
       } as any)
 
-      vscode.window.createTerminal = vi.fn().mockImplementation(() => {
-        throw new Error('Terminal creation failed')
-      })
+      // Test without shell integration (will trigger polling)
+      ;(mockControlledTerminal.value as any).shellIntegration = undefined
+
+      await sendCommandToTerminal('test command')
+
+      // Should eventually use fallback sendText after polling timeout
+      expect(mockControlledTerminal.value.sendText).toHaveBeenCalledWith('test command', false)
+    }, 2000) // 2 second timeout
+
+    it('should fallback to sendText when shell integration executeCommand fails', async () => {
+      // Use fake timers for the 50ms delay
+      vi.useFakeTimers()
+
+      // Mock useActiveTerminal
+      vi.mocked(reactiveVscode.useActiveTerminal).mockReturnValue({
+        value: undefined,
+      } as any)
+
+      // Mock terminal with shell integration (available immediately)
+      ;(mockControlledTerminal.value as any).shellIntegration = {}
+
+      const promise = sendCommandToTerminal('fallback test')
+
+      expect(mockShow).toHaveBeenCalled()
+
+      // Fast-forward time to handle the 50ms delay
+      vi.advanceTimersByTime(50)
+
+      await promise
+
+      // Should use shell integration path (control char + command)
+      const expectedControlChar = process.platform === 'win32' ? '\x03' : '\x15'
+      expect(mockControlledTerminal.value.sendText).toHaveBeenCalledWith(expectedControlChar, false)
+      expect(mockControlledTerminal.value.sendText).toHaveBeenCalledWith('fallback test', false)
+
+      vi.useRealTimers()
+    })
+
+    it('should handle errors gracefully when terminal is closed', () => {
+      // Set the controlled terminal as closed
+      ;(mockControlledTerminal.value as any) = {
+        name: 'Dep CMDs',
+        exitStatus: 1, // Terminal has exited
+      }
+
+      // Mock useActiveTerminal
+      vi.mocked(reactiveVscode.useActiveTerminal).mockReturnValue({
+        value: undefined,
+      } as any)
 
       sendCommandToTerminal('test command')
 
-      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith('Failed to send command: Terminal creation failed')
+      expect(vscode.window.showErrorMessage).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to send command'),
+      )
     })
   })
 })

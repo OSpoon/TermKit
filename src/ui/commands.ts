@@ -43,14 +43,14 @@ export function useCommands(commandManager: CommandManager, depCmdProvider: DepC
     })
 
     if (selected) {
-      sendCommandToTerminal(selected.command)
+      await sendCommandToTerminal(selected.command)
     }
   })
 
   useCommand(meta.commands.depCmdSendToTerminal, async (item: DepCmdTreeItem) => {
     const command = depCmdProvider.getCommandByTreeItem(item)
     if (command) {
-      sendCommandToTerminal(command)
+      await sendCommandToTerminal(command)
     }
     else {
       window.showWarningMessage('No command found for this item')

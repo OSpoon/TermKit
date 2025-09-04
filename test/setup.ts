@@ -41,6 +41,18 @@ const vscode = {
 vi.mock('vscode', () => vscode)
 
 // Mock reactive-vscode
+const mockTerminalSendText = vi.fn()
+const mockControlledTerminal = {
+  value: {
+    name: 'Dep CMDs',
+    exitStatus: undefined,
+    sendText: mockTerminalSendText, // Add sendText method to the terminal object
+    shellIntegration: undefined, // Add shellIntegration property for testing
+  },
+}
+const mockShow = vi.fn()
+const mockSendText = vi.fn()
+
 vi.mock('reactive-vscode', () => ({
   useLogger: vi.fn(() => ({
     info: vi.fn(),
@@ -58,7 +70,21 @@ vi.mock('reactive-vscode', () => ({
   useActiveTerminal: vi.fn(() => ({
     value: undefined,
   })),
+  useControlledTerminal: vi.fn(() => ({
+    terminal: mockControlledTerminal,
+    show: mockShow,
+    sendText: mockSendText,
+    close: vi.fn(),
+    state: {
+      value: {
+        exitStatus: undefined,
+      },
+    },
+  })),
 }))
+
+// Export the mocks so tests can access them
+export { mockControlledTerminal, mockSendText, mockShow, mockTerminalSendText }
 
 // Reset all mocks before each test
 beforeEach(() => {
