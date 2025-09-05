@@ -32,7 +32,7 @@ assignees: ''
 **桌面环境 (请完成以下信息):**
 - OS: [e.g. Windows 11, macOS 14, Ubuntu 22.04]
 - VS Code 版本: [e.g. 1.85.0]
-- DepCmd 版本: [e.g. 0.0.8]
+- QuickCmd 版本: [e.g. 0.0.8]
 
 **项目信息:**
 - 项目类型: [e.g. npm, yarn, python, rust]

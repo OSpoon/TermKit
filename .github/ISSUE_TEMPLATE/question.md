@@ -28,7 +28,7 @@ assignees: ''
 **环境详情:**
 - OS: [e.g. Windows 11, macOS 14, Ubuntu 22.04]
 - VS Code 版本: [e.g. 1.85.0]
-- DepCmd 版本: [e.g. 0.0.8]
+- QuickCmd 版本: [e.g. 0.0.8]
 - 项目类型: [e.g. npm, python, rust]
 
 ## 📝 相关配置
@@ -37,8 +37,8 @@ assignees: ''
 
 ```json
 {
-  "depCmd.enableProjectDetection": true,
-  "depCmd.defaultCategory": "all"
+  "QuickCmd.enableProjectDetection": true,
+  "QuickCmd.defaultCategory": "all"
 }
 ```
 

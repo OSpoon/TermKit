@@ -1,7 +1,7 @@
-# DepCmd VS Code Extension - AI Coding Agent Guide
+# QuickCmd VS Code Extension - AI Coding Agent Guide
 
 ## Project Overview
-DepCmd is a VS Code extension that simplifies terminal command management for developers. It auto-detects project types and provides categorized command shortcuts through a tree view interface.
+QuickCmd is a VS Code extension that simplifies terminal command management for developers. It auto-detects project types and provides categorized command shortcuts through a tree view interface.
 
 ## Architecture
 
@@ -9,7 +9,7 @@ DepCmd is a VS Code extension that simplifies terminal command management for de
 - **CommandManager** (`src/core/manager.ts`): Singleton orchestrating commands, project detection, and data persistence
 - **ProjectDetector** (`src/core/detector.ts`): Maps file patterns to project categories using VS Code configuration
 - **DatabaseManager** (`src/data/database.ts`): Manages command storage via VS Code's globalState with reactive events
-- **DepCmdProvider** (`src/ui/provider.ts`): Tree view data provider for the sidebar interface
+- **QuickCmdProvider** (`src/ui/provider.ts`): Tree view data provider for the sidebar interface
 
 ### Data Flow
 1. Extension activates → CommandManager initializes → loads from DatabaseManager
@@ -39,7 +39,7 @@ DatabaseManager extends EventEmitter for reactive updates:
 ### Project Detection Configuration
 Uses VS Code settings for flexible project detection mapping:
 ```json
-"depCmd.projectDetection": {
+"QuickCmd.projectDetection": {
   "pnpm": ["pnpm-lock.yaml"],
   "npm": ["package-lock.json"],
   "python": ["requirements.txt", "pyproject.toml"]
@@ -73,7 +73,7 @@ Uses `@src/*` and `@config/*` aliases configured in both tsconfig.json and vites
 ## Extension Points
 
 ### Adding New Project Types
-1. Update `depCmd.projectDetection` configuration schema in package.json
+1. Update `QuickCmd.projectDetection` configuration schema in package.json
 2. Add detection patterns to `ProjectDetector.detectProject()`
 3. Include default commands in `config/default-commands.json`
 

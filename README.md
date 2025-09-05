@@ -42,7 +42,7 @@
 
 或通过命令行：
 ```bash
-code --install-extension ospoon.dep-cmd
+code --install-extension ospoon.quick-cmd
 ```
 
 ### 快速开始
