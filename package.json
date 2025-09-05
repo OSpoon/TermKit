@@ -1,7 +1,7 @@
 {
   "publisher": "OSpoon",
-  "name": "dep-cmd",
-  "displayName": "DepCmd",
+  "name": "quick-cmd",
+  "displayName": "QuickCmd",
   "version": "0.0.12",
   "private": true,
   "packageManager": "pnpm@10.4.1",
@@ -9,13 +9,13 @@
   "author": "OSpoon <zxin088@gmail.com>",
   "license": "MIT",
   "funding": "https://github.com/sponsors/OSpoon",
-  "homepage": "https://github.com/OSpoon/DepCmd#readme",
+  "homepage": "https://github.com/OSpoon/QuickCmd#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OSpoon/DepCmd"
+    "url": "https://github.com/OSpoon/QuickCmd"
   },
   "bugs": {
-    "url": "https://github.com/OSpoon/DepCmd/issues"
+    "url": "https://github.com/OSpoon/QuickCmd/issues"
   },
   "sponsor": {
     "url": "https://github.com/sponsors/OSpoon"
@@ -44,30 +44,30 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "depCmd",
-          "title": "Dependencies Commands",
+          "id": "quickCmd",
+          "title": "Quick Commands",
           "icon": "res/icon.png"
         }
       ]
     },
     "views": {
-      "depCmd": [
+      "quickCmd": [
         {
-          "id": "depCmdView",
+          "id": "quickCmdView",
           "name": "Commands",
           "icon": "res/icon.png"
         }
       ]
     },
     "configuration": {
-      "title": "DepCmd",
+      "title": "QuickCmd",
       "properties": {
-        "depCmd.defaultCategory": {
+        "quickCmd.defaultCategory": {
           "type": "string",
           "default": "all",
           "description": "Default category to display (all or specific category name)"
         },
-        "depCmd.dependencyDetection": {
+        "quickCmd.dependencyDetection": {
           "type": "object",
           "default": {},
           "description": "依赖检测配置：定义用于检测系统工具是否安装的命令。只有检测成功的工具对应的分组才会显示。",
@@ -89,7 +89,7 @@
             }
           }
         },
-        "depCmd.categoryDisplay": {
+        "quickCmd.categoryDisplay": {
           "type": "object",
           "default": {},
           "description": "分类显示配置：自定义每个分类的显示名称和图标。用户可以添加新分类或修改现有分类的显示信息。",
@@ -112,143 +112,143 @@
     },
     "commands": [
       {
-        "command": "depCmd.sendToTerminal",
+        "command": "quickCmd.sendToTerminal",
         "title": "Send to Terminal",
         "icon": "$(terminal)"
       },
       {
-        "command": "depCmd.refreshView",
+        "command": "quickCmd.refreshView",
         "title": "Refresh",
         "icon": "$(refresh)"
       },
       {
-        "command": "depCmd.searchCommands",
+        "command": "quickCmd.searchCommands",
         "title": "Search Commands",
         "icon": "$(search)"
       },
       {
-        "command": "depCmd.copyCommand",
+        "command": "quickCmd.copyCommand",
         "title": "Copy Command",
         "icon": "$(copy)"
       },
       {
-        "command": "depCmd.editCommand",
+        "command": "quickCmd.editCommand",
         "title": "Edit Command",
         "icon": "$(edit)"
       },
       {
-        "command": "depCmd.deleteCommand",
+        "command": "quickCmd.deleteCommand",
         "title": "Delete Command",
         "icon": "$(trash)"
       },
       {
-        "command": "depCmd.addCommand",
+        "command": "quickCmd.addCommand",
         "title": "Add New Command",
         "icon": "$(add)"
       },
       {
-        "command": "depCmd.editCategory",
+        "command": "quickCmd.editCategory",
         "title": "Rename Category",
         "icon": "$(edit)",
-        "category": "Dependencies Commands"
+        "category": "Quick Commands"
       },
       {
-        "command": "depCmd.deleteCategory",
+        "command": "quickCmd.deleteCategory",
         "title": "Delete Category",
         "icon": "$(trash)",
-        "category": "Dependencies Commands"
+        "category": "Quick Commands"
       },
       {
-        "command": "depCmd.clearAllData",
+        "command": "quickCmd.clearAllData",
         "title": "Clear All Command Data",
         "icon": "$(trash)",
-        "category": "Dependencies Commands"
+        "category": "Quick Commands"
       },
       {
-        "command": "depCmd.exportData",
+        "command": "quickCmd.exportData",
         "title": "Export Command Data",
         "icon": "$(export)",
-        "category": "Dependencies Commands"
+        "category": "Quick Commands"
       },
       {
-        "command": "depCmd.importData",
+        "command": "quickCmd.importData",
         "title": "Import Command Data",
         "icon": "$(import)",
-        "category": "Dependencies Commands"
+        "category": "Quick Commands"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "depCmd.addCommand",
-          "when": "view == depCmdView",
+          "command": "quickCmd.addCommand",
+          "when": "view == quickCmdView",
           "group": "navigation@1"
         },
         {
-          "command": "depCmd.searchCommands",
-          "when": "view == depCmdView",
+          "command": "quickCmd.searchCommands",
+          "when": "view == quickCmdView",
           "group": "navigation@2"
         },
         {
-          "command": "depCmd.refreshView",
-          "when": "view == depCmdView",
+          "command": "quickCmd.refreshView",
+          "when": "view == quickCmdView",
           "group": "navigation@3"
         },
         {
-          "command": "depCmd.importData",
-          "when": "view == depCmdView",
+          "command": "quickCmd.importData",
+          "when": "view == quickCmdView",
           "group": "management@1"
         },
         {
-          "command": "depCmd.exportData",
-          "when": "view == depCmdView",
+          "command": "quickCmd.exportData",
+          "when": "view == quickCmdView",
           "group": "management@2"
         },
         {
-          "command": "depCmd.clearAllData",
-          "when": "view == depCmdView",
+          "command": "quickCmd.clearAllData",
+          "when": "view == quickCmdView",
           "group": "management@3"
         }
       ],
       "view/item/context": [
         {
-          "command": "depCmd.sendToTerminal",
-          "when": "view == depCmdView && viewItem == command",
+          "command": "quickCmd.sendToTerminal",
+          "when": "view == quickCmdView && viewItem == command",
           "group": "inline@1"
         },
         {
-          "command": "depCmd.editCommand",
-          "when": "view == depCmdView && viewItem == command",
+          "command": "quickCmd.editCommand",
+          "when": "view == quickCmdView && viewItem == command",
           "group": "inline@2"
         },
         {
-          "command": "depCmd.copyCommand",
-          "when": "view == depCmdView && viewItem == command",
+          "command": "quickCmd.copyCommand",
+          "when": "view == quickCmdView && viewItem == command",
           "group": "inline@3"
         },
         {
-          "command": "depCmd.deleteCommand",
-          "when": "view == depCmdView && viewItem == command",
+          "command": "quickCmd.deleteCommand",
+          "when": "view == quickCmdView && viewItem == command",
           "group": "inline@4"
         },
         {
-          "command": "depCmd.sendToTerminal",
-          "when": "view == depCmdView && viewItem == project-script",
+          "command": "quickCmd.sendToTerminal",
+          "when": "view == quickCmdView && viewItem == project-script",
           "group": "inline@1"
         },
         {
-          "command": "depCmd.copyCommand",
-          "when": "view == depCmdView && viewItem == project-script",
+          "command": "quickCmd.copyCommand",
+          "when": "view == quickCmdView && viewItem == project-script",
           "group": "inline@2"
         },
         {
-          "command": "depCmd.editCategory",
-          "when": "view == depCmdView && viewItem == category",
+          "command": "quickCmd.editCategory",
+          "when": "view == quickCmdView && viewItem == category",
           "group": "inline@1"
         },
         {
-          "command": "depCmd.deleteCategory",
-          "when": "view == depCmdView && viewItem == category",
+          "command": "quickCmd.deleteCategory",
+          "when": "view == quickCmdView && viewItem == category",
           "group": "inline@2"
         }
       ]

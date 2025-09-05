@@ -151,7 +151,7 @@ export class CommandManager {
   public getCategoryDisplayInfo(category: string): { displayName: string, icon: string } | null {
     try {
       // 从 VS Code 配置中获取分类显示信息
-      const config = vscode.workspace.getConfiguration('depCmd')
+      const config = vscode.workspace.getConfiguration('quickCmd')
       const categoryDisplayConfig = config.get<Record<string, { displayName: string, icon: string }>>('categoryDisplay', {})
 
       // 如果配置中有该分类，使用配置的信息

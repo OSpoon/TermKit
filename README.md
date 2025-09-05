@@ -1,18 +1,18 @@
 <div align="center">
 
-# 🚀 DepCmd
+# 🚀 QuickCmd
 
-![DepCmd Logo](https://github.com/OSpoon/DepCmd/blob/main/res/icon.png?raw=true)
+![QuickCmd Logo](https://github.com/OSpoon/QuickCmd/blob/main/res/icon.png?raw=true)
 
 **一个强大的 VS Code 开发命令管理扩展**
 
 让复杂的终端命令变得简单易用
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/ospoon.dep-cmd?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=ospoon.dep-cmd)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/ospoon.dep-cmd?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=ospoon.dep-cmd)
-[![Stars](https://img.shields.io/github/stars/OSpoon/DepCmd?style=flat-square)](https://github.com/OSpoon/DepCmd)
+[![Version](https://img.shields.io/visual-studio-marketplace/v/ospoon.quick-cmd?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=ospoon.quick-cmd)
+[![Downloads](https://img.shields.io/visual-studio-marketplace/d/ospoon.quick-cmd?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=ospoon.quick-cmd)
+[![Stars](https://img.shields.io/github/stars/OSpoon/QuickCmd?style=flat-square)](https://github.com/OSpoon/QuickCmd)
 
-[**立即安装**](https://marketplace.visualstudio.com/items?itemName=ospoon.dep-cmd) | [使用文档](#使用指南) | [问题反馈](https://github.com/OSpoon/DepCmd/issues)
+[**立即安装**](https://marketplace.visualstudio.com/items?itemName=ospoon.quick-cmd) | [使用文档](#使用指南) | [问题反馈](https://github.com/OSpoon/QuickCmd/issues)
 
 </div>
 
@@ -31,13 +31,13 @@
 
 ## 📸 预览
 
-![Preview](https://github.com/OSpoon/DepCmd/blob/main/screenshots/preview.png?raw=true)
+![Preview](https://github.com/OSpoon/QuickCmd/blob/main/screenshots/preview.png?raw=true)
 
 ## 🚀 使用指南
 
 ### 安装
 
-1. 在 VS Code 扩展市场搜索 "DepCmd"
+1. 在 VS Code 扩展市场搜索 "QuickCmd"
 2. 点击安装
 
 或通过命令行：
@@ -47,7 +47,7 @@ code --install-extension ospoon.dep-cmd
 
 ### 快速开始
 
-1. **打开扩展** - 在活动栏中点击 DepCmd 图标
+1. **打开扩展** - 在活动栏中点击 QuickCmd 图标
 2. **添加命令** - 点击 ➕ 按钮，创建您的第一个命令
 3. **使用命令** - 点击命令即可执行，右键可复制或编辑
 
@@ -61,17 +61,17 @@ code --install-extension ospoon.dep-cmd
 
 ## ⚙️ 配置
 
-在 VS Code 设置中搜索 `depCmd` 可找到以下配置项：
+在 VS Code 设置中搜索 `quickCmd` 可找到以下配置项：
 
-- `depCmd.defaultCategory` - 默认显示分类 (默认: "all")
-- `depCmd.categoryDisplay` - 分类显示配置（名称和图标）
-- `depCmd.dependencyDetection` - 工具依赖检测配置
+- `quickCmd.defaultCategory` - 默认显示分类 (默认: "all")
+- `quickCmd.categoryDisplay` - 分类显示配置（名称和图标）
+- `quickCmd.dependencyDetection` - 工具依赖检测配置
 
 ### 依赖检测配置示例
 
 ```json
 {
-  "depCmd.dependencyDetection": {
+  "quickCmd.dependencyDetection": {
     "yarn": {
       "enabled": true,
       "command": "yarn --version",
@@ -94,7 +94,7 @@ code --install-extension ospoon.dep-cmd
 
 ## 🐛 问题反馈
 
-遇到问题？请在 [Issues](https://github.com/OSpoon/DepCmd/issues) 中反馈
+遇到问题？请在 [Issues](https://github.com/OSpoon/QuickCmd/issues) 中反馈
 
 ## 📄 许可证
 

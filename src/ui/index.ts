@@ -1,2 +1,2 @@
 export { useCommands } from './commands'
-export { DepCmdProvider, DepCmdTreeItem } from './provider'
+export { QuickCmdProvider, QuickCmdTreeItem } from './provider'

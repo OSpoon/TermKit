@@ -22,7 +22,7 @@ function getOrCreateControlledTerminal() {
 }
 
 // Export terminal control functions
-export function showDepCmdTerminal() {
+export function showQuickCmdTerminal() {
   const { show } = getOrCreateControlledTerminal()
   show()
 }

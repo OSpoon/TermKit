@@ -32,7 +32,7 @@ export async function configureCategorySettings(categoryKey: string, displayName
     }
 
     // 更新配置
-    const config = workspace.getConfiguration('depCmd')
+    const config = workspace.getConfiguration('quickCmd')
 
     // 更新分类显示配置
     const categoryDisplay = config.get<Record<string, any>>('categoryDisplay', {})
@@ -122,7 +122,7 @@ export async function configureDependencyDetection(categoryKey: string, displayN
 
   // 如果有检测命令，更新配置
   if (detectionCommands.length > 0) {
-    const config = workspace.getConfiguration('depCmd')
+    const config = workspace.getConfiguration('quickCmd')
     const dependencyDetection = config.get<Record<string, any>>('dependencyDetection', {})
 
     // 如果只有一个检测命令，直接设置
@@ -155,7 +155,7 @@ export async function configureDependencyDetection(categoryKey: string, displayN
  * 重命名分类
  */
 export async function renameCategoryOnly(categoryName: string): Promise<void> {
-  const config = workspace.getConfiguration('depCmd')
+  const config = workspace.getConfiguration('quickCmd')
   const categoryDisplay = config.get<Record<string, any>>('categoryDisplay', {})
   const currentDisplayName = categoryDisplay[categoryName]?.displayName || categoryName
 
@@ -198,7 +198,7 @@ export async function renameCategoryOnly(categoryName: string): Promise<void> {
  * 更改分类图标
  */
 export async function changeCategoryIcon(categoryName: string): Promise<void> {
-  const config = workspace.getConfiguration('depCmd')
+  const config = workspace.getConfiguration('quickCmd')
   const categoryDisplay = config.get<Record<string, any>>('categoryDisplay', {})
   const currentIcon = categoryDisplay[categoryName]?.icon || 'gear'
 
@@ -231,7 +231,7 @@ export async function changeCategoryIcon(categoryName: string): Promise<void> {
  * 编辑依赖检测配置
  */
 export async function editDependencyDetection(categoryName: string): Promise<void> {
-  const config = workspace.getConfiguration('depCmd')
+  const config = workspace.getConfiguration('quickCmd')
   const dependencyDetection = config.get<Record<string, any>>('dependencyDetection', {})
   const currentDetection = dependencyDetection[categoryName]
 
@@ -305,7 +305,7 @@ export async function editDependencyDetection(categoryName: string): Promise<voi
  * 编辑所有分类设置
  */
 export async function editAllCategorySettings(categoryName: string): Promise<void> {
-  const config = workspace.getConfiguration('depCmd')
+  const config = workspace.getConfiguration('quickCmd')
   const categoryDisplay = config.get<Record<string, any>>('categoryDisplay', {})
   const dependencyDetection = config.get<Record<string, any>>('dependencyDetection', {})
 

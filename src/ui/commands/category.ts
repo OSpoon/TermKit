@@ -1,5 +1,5 @@
 import type { CommandManager } from '@src/core/manager'
-import type { DepCmdProvider, DepCmdTreeItem } from '../provider'
+import type { QuickCmdProvider, QuickCmdTreeItem } from '../provider'
 
 import * as meta from '@src/generated/meta'
 import { useCommand } from 'reactive-vscode'
@@ -14,11 +14,11 @@ import {
 /**
  * 分类操作相关命令
  */
-export function useCategoryOperations(commandManager: CommandManager, depCmdProvider: DepCmdProvider) {
+export function useCategoryOperations(commandManager: CommandManager, quickCmdProvider: QuickCmdProvider) {
   // 编辑分类
-  useCommand(meta.commands.depCmdEditCategory, async (item: DepCmdTreeItem) => {
+  useCommand(meta.commands.quickCmdEditCategory, async (item: QuickCmdTreeItem) => {
     try {
-      const categoryName = depCmdProvider.getCategoryByTreeItem(item)
+      const categoryName = quickCmdProvider.getCategoryByTreeItem(item)
       if (!categoryName) {
         window.showErrorMessage('Cannot edit category: category name not found')
         return
@@ -56,7 +56,7 @@ export function useCategoryOperations(commandManager: CommandManager, depCmdProv
       }
 
       // Refresh the view
-      depCmdProvider.refresh()
+      quickCmdProvider.refresh()
     }
     catch (error) {
       window.showErrorMessage(`Failed to edit category: ${error}`)
@@ -64,9 +64,9 @@ export function useCategoryOperations(commandManager: CommandManager, depCmdProv
   })
 
   // 删除分类
-  useCommand(meta.commands.depCmdDeleteCategory, async (item: DepCmdTreeItem) => {
+  useCommand(meta.commands.quickCmdDeleteCategory, async (item: QuickCmdTreeItem) => {
     try {
-      const categoryName = depCmdProvider.getCategoryByTreeItem(item)
+      const categoryName = quickCmdProvider.getCategoryByTreeItem(item)
       if (!categoryName) {
         window.showErrorMessage('Cannot delete category: category name not found')
         return
@@ -85,7 +85,7 @@ export function useCategoryOperations(commandManager: CommandManager, depCmdProv
 
       if (result === 'Delete') {
         await commandManager.deleteCategory(categoryName)
-        depCmdProvider.refresh()
+        quickCmdProvider.refresh()
         window.showInformationMessage(`Category "${categoryName}" and ${commandCount} command(s) deleted successfully!`)
       }
     }
