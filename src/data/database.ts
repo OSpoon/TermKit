@@ -29,8 +29,8 @@ export class DatabaseManager extends EventEmitter {
   private _isInitialized: boolean = false
 
   // 存储键名
-  private static readonly COMMANDS_KEY = 'quick-cmd-commands'
-  private static readonly NEXT_ID_KEY = 'quick-cmd-next-id'
+  private static readonly COMMANDS_KEY = 'termkit-commands'
+  private static readonly NEXT_ID_KEY = 'termkit-next-id'
 
   private constructor(context: vscode.ExtensionContext) {
     super()

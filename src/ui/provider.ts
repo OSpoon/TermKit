@@ -16,7 +16,7 @@ function getCategoryConfig(commandManager: CommandManager, category: string): { 
   }
 }
 
-export class QuickCmdTreeItem extends vscode.TreeItem {
+export class TermKitTreeItem extends vscode.TreeItem {
   public readonly commandText?: string
   public readonly commandId?: number
   public readonly categoryName?: string
@@ -55,9 +55,9 @@ export class QuickCmdTreeItem extends vscode.TreeItem {
   }
 }
 
-export class QuickCmdProvider implements vscode.TreeDataProvider<QuickCmdTreeItem> {
-  private _onDidChangeTreeData: vscode.EventEmitter<QuickCmdTreeItem | undefined | null | void> = new vscode.EventEmitter<QuickCmdTreeItem | undefined | null | void>()
-  readonly onDidChangeTreeData: vscode.Event<QuickCmdTreeItem | undefined | null | void> = this._onDidChangeTreeData.event
+export class TermKitProvider implements vscode.TreeDataProvider<TermKitTreeItem> {
+  private _onDidChangeTreeData: vscode.EventEmitter<TermKitTreeItem | undefined | null | void> = new vscode.EventEmitter<TermKitTreeItem | undefined | null | void>()
+  readonly onDidChangeTreeData: vscode.Event<TermKitTreeItem | undefined | null | void> = this._onDidChangeTreeData.event
   private commandManager: CommandManager
 
   constructor(commandManager: CommandManager) {
@@ -81,12 +81,12 @@ export class QuickCmdProvider implements vscode.TreeDataProvider<QuickCmdTreeIte
     }
   }
 
-  getTreeItem(element: QuickCmdTreeItem): vscode.TreeItem {
+  getTreeItem(element: TermKitTreeItem): vscode.TreeItem {
     return element
   }
 
-  async getChildren(element?: QuickCmdTreeItem): Promise<QuickCmdTreeItem[]> {
-    const config = vscode.workspace.getConfiguration('quickCmd')
+  async getChildren(element?: TermKitTreeItem): Promise<TermKitTreeItem[]> {
+    const config = vscode.workspace.getConfiguration('termKit')
     const defaultCategory = config.get<string>('defaultCategory', 'all')
 
     if (!element) {
@@ -94,7 +94,7 @@ export class QuickCmdProvider implements vscode.TreeDataProvider<QuickCmdTreeIte
       if (defaultCategory === 'all') {
         // Show all categories with command counts
         const availableCategories = this.commandManager.getAvailableCategories()
-        const categories: QuickCmdTreeItem[] = []
+        const categories: TermKitTreeItem[] = []
 
         // 批量检查依赖
         const dependencyChecker = DependencyChecker.getInstance()
@@ -106,7 +106,7 @@ export class QuickCmdProvider implements vscode.TreeDataProvider<QuickCmdTreeIte
           // 只显示有命令且依赖检测通过的分类
           if (commands.length > 0 && dependencyResults[category]) {
             const categoryConfig = getCategoryConfig(this.commandManager, category)
-            categories.push(new QuickCmdTreeItem(
+            categories.push(new TermKitTreeItem(
               `${categoryConfig.displayName} (${commands.length})`,
               vscode.TreeItemCollapsibleState.Collapsed,
               undefined,
@@ -134,7 +134,7 @@ export class QuickCmdProvider implements vscode.TreeDataProvider<QuickCmdTreeIte
 
         const commands = this.commandManager.getCommandsByCategory(defaultCategory)
 
-        return commands.map(command => new QuickCmdTreeItem(
+        return commands.map(command => new TermKitTreeItem(
           command.label,
           vscode.TreeItemCollapsibleState.None,
           command.command,
@@ -159,7 +159,7 @@ export class QuickCmdProvider implements vscode.TreeDataProvider<QuickCmdTreeIte
 
         const commands = this.commandManager.getCommandsByCategory(category)
 
-        return commands.map(command => new QuickCmdTreeItem(
+        return commands.map(command => new TermKitTreeItem(
           command.label,
           vscode.TreeItemCollapsibleState.None,
           command.command,
@@ -174,18 +174,18 @@ export class QuickCmdProvider implements vscode.TreeDataProvider<QuickCmdTreeIte
     return []
   }
 
-  getCommandByTreeItem(item: QuickCmdTreeItem): string | undefined {
+  getCommandByTreeItem(item: TermKitTreeItem): string | undefined {
     return item.commandText
   }
 
-  getCommandObjectByTreeItem(item: QuickCmdTreeItem): { id?: number, command?: string } {
+  getCommandObjectByTreeItem(item: TermKitTreeItem): { id?: number, command?: string } {
     return {
       id: item.commandId,
       command: item.commandText,
     }
   }
 
-  getCategoryByTreeItem(item: QuickCmdTreeItem): string | undefined {
+  getCategoryByTreeItem(item: TermKitTreeItem): string | undefined {
     return item.categoryName
   }
 }

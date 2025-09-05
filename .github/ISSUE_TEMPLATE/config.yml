@@ -1,10 +1,10 @@
 blank_issues_enabled: false
 contact_links:
   - name: 📚 文档
-    url: https://github.com/OSpoon/QuickCmd#readme
+    url: https://github.com/OSpoon/TermKit#readme
     about: 查看项目文档和使用指南
   - name: 💬 讨论
-    url: https://github.com/OSpoon/QuickCmd/discussions
+    url: https://github.com/OSpoon/TermKit/discussions
     about: 参与社区讨论或分享使用经验
   - name: 📧 联系作者
     url: mailto:zxin088@gmail.com

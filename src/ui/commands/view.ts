@@ -1,5 +1,5 @@
 import type { CommandManager } from '@src/core/manager'
-import type { QuickCmdProvider, QuickCmdTreeItem } from '../provider'
+import type { TermKitProvider, TermKitTreeItem } from '../provider'
 
 import { DependencyChecker } from '@src/core/checker'
 import * as meta from '@src/generated/meta'
@@ -10,9 +10,9 @@ import { window } from 'vscode'
 /**
  * 视图相关命令
  */
-export function useViewCommands(commandManager: CommandManager, quickCmdProvider: QuickCmdProvider) {
+export function useViewCommands(commandManager: CommandManager, termKitProvider: TermKitProvider) {
   // Refresh view command
-  useCommand(meta.commands.quickCmdRefreshView, async () => {
+  useCommand(meta.commands.termKitRefreshView, async () => {
     try {
       await commandManager.reloadFromDatabase()
 
@@ -20,19 +20,19 @@ export function useViewCommands(commandManager: CommandManager, quickCmdProvider
       const dependencyChecker = DependencyChecker.getInstance()
       dependencyChecker.clearCache()
 
-      quickCmdProvider.refresh()
+      termKitProvider.refresh()
 
       window.showInformationMessage('Command memories reloaded!')
     }
     catch (error) {
       window.showErrorMessage(`Failed to refresh: ${error}`)
       // Still refresh the view in case of partial success
-      quickCmdProvider.refresh()
+      termKitProvider.refresh()
     }
   })
 
   // 搜索命令
-  useCommand(meta.commands.quickCmdSearchCommands, async () => {
+  useCommand(meta.commands.termKitSearchCommands, async () => {
     const allCommands = await commandManager.getAllCommands()
     const items = allCommands.map(cmd => ({
       label: cmd.label,
@@ -53,7 +53,7 @@ export function useViewCommands(commandManager: CommandManager, quickCmdProvider
   })
 
   // 发送命令到终端
-  useCommand(meta.commands.quickCmdSendToTerminal, async (item: QuickCmdTreeItem) => {
+  useCommand(meta.commands.termKitSendToTerminal, async (item: TermKitTreeItem) => {
     if (item?.command?.command) {
       await sendCommandToTerminal(item.command.command)
     }

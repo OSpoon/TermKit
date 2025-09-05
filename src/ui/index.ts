@@ -1,2 +1,2 @@
 export { useCommands } from './commands'
-export { QuickCmdProvider, QuickCmdTreeItem } from './provider'
+export { TermKitProvider, TermKitTreeItem } from './provider'

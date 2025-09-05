@@ -1,18 +1,18 @@
 <div align="center">
 
-# 🚀 QuickCmd
+# 🚀 TermKit
 
-![QuickCmd Logo](https://github.com/OSpoon/QuickCmd/blob/main/res/icon.png?raw=true)
+![TermKit Logo](https://github.com/OSpoon/TermKit/blob/main/res/icon.png?raw=true)
 
 **一个强大的 VS Code 开发命令管理扩展**
 
 让复杂的终端命令变得简单易用
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/ospoon.quick-cmd?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=ospoon.quick-cmd)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/ospoon.quick-cmd?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=ospoon.quick-cmd)
-[![Stars](https://img.shields.io/github/stars/OSpoon/QuickCmd?style=flat-square)](https://github.com/OSpoon/QuickCmd)
+[![Version](https://img.shields.io/visual-studio-marketplace/v/ospoon.termkit?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=ospoon.termkit)
+[![Downloads](https://img.shields.io/visual-studio-marketplace/d/ospoon.termkit?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=ospoon.termkit)
+[![Stars](https://img.shields.io/github/stars/OSpoon/TermKit?style=flat-square)](https://github.com/OSpoon/TermKit)
 
-[**立即安装**](https://marketplace.visualstudio.com/items?itemName=ospoon.quick-cmd) | [使用文档](#使用指南) | [问题反馈](https://github.com/OSpoon/QuickCmd/issues)
+[**立即安装**](https://marketplace.visualstudio.com/items?itemName=ospoon.termkit) | [使用文档](#使用指南) | [问题反馈](https://github.com/OSpoon/TermKit/issues)
 
 </div>
 
@@ -31,23 +31,23 @@
 
 ## 📸 预览
 
-![Preview](https://github.com/OSpoon/QuickCmd/blob/main/screenshots/preview.png?raw=true)
+![Preview](https://github.com/OSpoon/TermKit/blob/main/screenshots/preview.png?raw=true)
 
 ## 🚀 使用指南
 
 ### 安装
 
-1. 在 VS Code 扩展市场搜索 "QuickCmd"
+1. 在 VS Code 扩展市场搜索 "TermKit"
 2. 点击安装
 
 或通过命令行：
 ```bash
-code --install-extension ospoon.quick-cmd
+code --install-extension ospoon.termkit
 ```
 
 ### 快速开始
 
-1. **打开扩展** - 在活动栏中点击 QuickCmd 图标
+1. **打开扩展** - 在活动栏中点击 TermKit 图标
 2. **添加命令** - 点击 ➕ 按钮，创建您的第一个命令
 3. **使用命令** - 点击命令即可执行，右键可复制或编辑
 
@@ -61,17 +61,17 @@ code --install-extension ospoon.quick-cmd
 
 ## ⚙️ 配置
 
-在 VS Code 设置中搜索 `quickCmd` 可找到以下配置项：
+在 VS Code 设置中搜索 `termKit` 可找到以下配置项：
 
-- `quickCmd.defaultCategory` - 默认显示分类 (默认: "all")
-- `quickCmd.categoryDisplay` - 分类显示配置（名称和图标）
-- `quickCmd.dependencyDetection` - 工具依赖检测配置
+- `termKit.defaultCategory` - 默认显示分类 (默认: "all")
+- `termKit.categoryDisplay` - 分类显示配置（名称和图标）
+- `termKit.dependencyDetection` - 工具依赖检测配置
 
 ### 依赖检测配置示例
 
 ```json
 {
-  "quickCmd.dependencyDetection": {
+  "termKit.dependencyDetection": {
     "yarn": {
       "enabled": true,
       "command": "yarn --version",
@@ -94,7 +94,7 @@ code --install-extension ospoon.quick-cmd
 
 ## 🐛 问题反馈
 
-遇到问题？请在 [Issues](https://github.com/OSpoon/QuickCmd/issues) 中反馈
+遇到问题？请在 [Issues](https://github.com/OSpoon/TermKit/issues) 中反馈
 
 ## 📄 许可证
 

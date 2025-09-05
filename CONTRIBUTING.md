@@ -1,11 +1,11 @@
 # 贡献指南
 
-感谢您对 QuickCmd 项目的关注和贡献！我们欢迎所有形式的贡献，包括但不限于代码、文档、问题报告和功能建议。
+感谢您对 TermKit 项目的关注和贡献！我们欢迎所有形式的贡献，包括但不限于代码、文档、问题报告和功能建议。
 
 ## 🤝 贡献方式
 
 ### 报告问题 (Issues)
-- 使用 [GitHub Issues](https://github.com/OSpoon/QuickCmd/issues) 报告 bug
+- 使用 [GitHub Issues](https://github.com/OSpoon/TermKit/issues) 报告 bug
 - 提交功能请求和改进建议
 - 参与现有问题的讨论
 
@@ -33,13 +33,13 @@
 
 1. **Fork 仓库**
    ```bash
-   # 访问 https://github.com/OSpoon/QuickCmd 点击 Fork
+   # 访问 https://github.com/OSpoon/TermKit 点击 Fork
    ```
 
 2. **克隆仓库**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/QuickCmd.git
-   cd QuickCmd
+   git clone https://github.com/YOUR_USERNAME/TermKit.git
+   cd TermKit
    ```
 
 3. **安装依赖**
@@ -164,7 +164,7 @@ describe('YourModule', () => {
 ## 📁 项目结构
 
 ```
-QuickCmd/
+TermKit/
 ├── src/                    # 源代码
 │   ├── core/              # 核心业务逻辑
 │   │   ├── manager.ts     # 命令管理器
@@ -298,14 +298,14 @@ logger.error('Error occurred:', error)
 
 如果您在贡献过程中遇到问题，可以通过以下方式获得帮助：
 
-- 创建 [GitHub Issue](https://github.com/OSpoon/QuickCmd/issues)
-- 参与 [GitHub Discussions](https://github.com/OSpoon/QuickCmd/discussions)
+- 创建 [GitHub Issue](https://github.com/OSpoon/TermKit/issues)
+- 参与 [GitHub Discussions](https://github.com/OSpoon/TermKit/discussions)
 - 发送邮件至 [zxin088@gmail.com](mailto:zxin088@gmail.com)
 
 ## 🙏 感谢
 
-感谢所有为 QuickCmd 项目做出贡献的开发者！
+感谢所有为 TermKit 项目做出贡献的开发者！
 
 ---
 
-再次感谢您的贡献！每一个贡献都让 QuickCmd 变得更好！🎉
+再次感谢您的贡献！每一个贡献都让 TermKit 变得更好！🎉

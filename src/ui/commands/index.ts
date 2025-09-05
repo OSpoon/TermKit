@@ -1,5 +1,5 @@
 import type { CommandManager } from '@src/core/manager'
-import type { QuickCmdProvider } from '../provider'
+import type { TermKitProvider } from '../provider'
 
 import { useCategoryOperations } from './category'
 import { useCommandOperations } from './command'
@@ -9,18 +9,18 @@ import { useViewCommands } from './view'
 /**
  * 主命令注册函数 - 整合所有命令模块
  */
-export function useCommands(commandManager: CommandManager, quickCmdProvider: QuickCmdProvider) {
+export function useCommands(commandManager: CommandManager, termKitProvider: TermKitProvider) {
   // 注册视图相关命令
-  useViewCommands(commandManager, quickCmdProvider)
+  useViewCommands(commandManager, termKitProvider)
 
   // 注册命令操作相关命令
-  useCommandOperations(commandManager, quickCmdProvider)
+  useCommandOperations(commandManager, termKitProvider)
 
   // 注册分类操作相关命令
-  useCategoryOperations(commandManager, quickCmdProvider)
+  useCategoryOperations(commandManager, termKitProvider)
 
   // 注册数据管理相关命令
-  useDataManagement(commandManager, quickCmdProvider)
+  useDataManagement(commandManager, termKitProvider)
 }
 
 // 重新导出所有模块供外部使用

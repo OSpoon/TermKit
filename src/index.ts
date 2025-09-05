@@ -1,23 +1,23 @@
 import type { ExtensionContext } from 'vscode'
 import { CommandManager } from '@src/core'
-import { QuickCmdProvider, useCommands } from '@src/ui'
+import { TermKitProvider, useCommands } from '@src/ui'
 import { logger } from '@src/utils'
 import { defineExtension } from 'reactive-vscode'
 import { commands, window } from 'vscode'
 import { version } from '../package.json'
 
 const { activate, deactivate } = defineExtension(async (context: ExtensionContext) => {
-  logger.info(`QuickCmd Activated, v${version}`)
+  logger.info(`TermKit Activated, v${version}`)
 
   // Initialize command manager
   const commandManager = CommandManager.getInstance(context)
 
   // Create the tree data provider
-  const quickCmdProvider = new QuickCmdProvider(commandManager)
+  const termKitProvider = new TermKitProvider(commandManager)
 
   // Register the tree view
-  const treeView = window.createTreeView('quickCmdView', {
-    treeDataProvider: quickCmdProvider,
+  const treeView = window.createTreeView('termKitView', {
+    treeDataProvider: termKitProvider,
     showCollapseAll: true,
   })
 
@@ -31,17 +31,17 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
       logger.info(`Loaded ${allCommands.length} commands from database`)
 
       // Refresh tree view with loaded data
-      quickCmdProvider.refresh(true)
+      termKitProvider.refresh(true)
       logger.info('Extension initialization completed successfully')
     }
     catch (error) {
       logger.error('Extension initialization failed:', error)
-      window.showErrorMessage(`QuickCmd initialization failed: ${error instanceof Error ? error.message : String(error)}`)
+      window.showErrorMessage(`TermKit initialization failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
   // Register VS Code command handlers first
-  useCommands(commandManager, quickCmdProvider)
+  useCommands(commandManager, termKitProvider)
 
   // Initialize extension data and tree view
   await initializeExtension()
@@ -51,7 +51,7 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
     if (e.selection.length > 0) {
       const item = e.selection[0]
       if (item.contextValue === 'command') {
-        commands.executeCommand('quickCmd.sendToTerminal', item)
+        commands.executeCommand('termKit.sendToTerminal', item)
       }
     }
   })
@@ -64,13 +64,13 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
 
   // Return cleanup function for proper deactivation
   return async () => {
-    logger.info('QuickCmd is being deactivated, cleaning up resources...')
+    logger.info('TermKit is being deactivated, cleaning up resources...')
     try {
       // Cleanup logic here if needed
-      logger.info('QuickCmd deactivated successfully')
+      logger.info('TermKit deactivated successfully')
     }
     catch (error) {
-      logger.error('Error during QuickCmd deactivation:', error)
+      logger.error('Error during TermKit deactivation:', error)
     }
   }
 })

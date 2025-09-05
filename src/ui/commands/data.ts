@@ -1,5 +1,5 @@
 import type { CommandManager } from '@src/core/manager'
-import type { QuickCmdProvider } from '../provider'
+import type { TermKitProvider } from '../provider'
 
 import * as meta from '@src/generated/meta'
 import { useCommand } from 'reactive-vscode'
@@ -8,9 +8,9 @@ import { window, workspace } from 'vscode'
 /**
  * 数据管理相关命令
  */
-export function useDataManagement(commandManager: CommandManager, quickCmdProvider: QuickCmdProvider) {
+export function useDataManagement(commandManager: CommandManager, termKitProvider: TermKitProvider) {
   // 导出数据
-  useCommand(meta.commands.quickCmdExportData, async () => {
+  useCommand(meta.commands.termKitExportData, async () => {
     try {
       const data = await commandManager.exportData()
       const jsonString = JSON.stringify(data, null, 2)
@@ -36,7 +36,7 @@ export function useDataManagement(commandManager: CommandManager, quickCmdProvid
   })
 
   // 导入数据
-  useCommand(meta.commands.quickCmdImportData, async () => {
+  useCommand(meta.commands.termKitImportData, async () => {
     try {
       // 让用户选择文件
       const uris = await window.showOpenDialog({
@@ -64,12 +64,12 @@ export function useDataManagement(commandManager: CommandManager, quickCmdProvid
 
         if (result === 'Merge with existing') {
           await commandManager.importData(data, true)
-          quickCmdProvider.refresh()
+          termKitProvider.refresh()
           window.showInformationMessage('Commands imported and merged successfully')
         }
         else if (result === 'Replace all data') {
           await commandManager.importData(data, false)
-          quickCmdProvider.refresh()
+          termKitProvider.refresh()
           window.showInformationMessage('Commands imported and replaced all existing data')
         }
       }
@@ -80,7 +80,7 @@ export function useDataManagement(commandManager: CommandManager, quickCmdProvid
   })
 
   // 清除所有数据
-  useCommand(meta.commands.quickCmdClearAllData, async () => {
+  useCommand(meta.commands.termKitClearAllData, async () => {
     try {
       const result = await window.showWarningMessage(
         'Are you sure you want to clear all command data? This action cannot be undone.',
@@ -91,7 +91,7 @@ export function useDataManagement(commandManager: CommandManager, quickCmdProvid
 
       if (result === 'Clear All Data') {
         await commandManager.clearAllData()
-        quickCmdProvider.refresh()
+        termKitProvider.refresh()
         window.showInformationMessage('All command data has been cleared')
       }
     }

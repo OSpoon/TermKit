@@ -1,7 +1,7 @@
 {
   "publisher": "OSpoon",
-  "name": "quick-cmd",
-  "displayName": "QuickCmd",
+  "name": "termkit",
+  "displayName": "TermKit",
   "version": "0.0.13",
   "private": true,
   "packageManager": "pnpm@10.4.1",
@@ -9,13 +9,13 @@
   "author": "OSpoon <zxin088@gmail.com>",
   "license": "MIT",
   "funding": "https://github.com/sponsors/OSpoon",
-  "homepage": "https://github.com/OSpoon/QuickCmd#readme",
+  "homepage": "https://github.com/OSpoon/TermKit#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OSpoon/QuickCmd"
+    "url": "https://github.com/OSpoon/TermKit"
   },
   "bugs": {
-    "url": "https://github.com/OSpoon/QuickCmd/issues"
+    "url": "https://github.com/OSpoon/TermKit/issues"
   },
   "sponsor": {
     "url": "https://github.com/sponsors/OSpoon"
@@ -44,30 +44,30 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "quickCmd",
-          "title": "Quick Commands",
+          "id": "termKit",
+          "title": "TermKit Commands",
           "icon": "res/icon.png"
         }
       ]
     },
     "views": {
-      "quickCmd": [
+      "termKit": [
         {
-          "id": "quickCmdView",
+          "id": "termKitView",
           "name": "Commands",
           "icon": "res/icon.png"
         }
       ]
     },
     "configuration": {
-      "title": "QuickCmd",
+      "title": "TermKit",
       "properties": {
-        "quickCmd.defaultCategory": {
+        "termKit.defaultCategory": {
           "type": "string",
           "default": "all",
           "description": "Default category to display (all or specific category name)"
         },
-        "quickCmd.dependencyDetection": {
+        "termKit.dependencyDetection": {
           "type": "object",
           "default": {},
           "description": "依赖检测配置：定义用于检测系统工具是否安装的命令。只有检测成功的工具对应的分组才会显示。",
@@ -89,7 +89,7 @@
             }
           }
         },
-        "quickCmd.categoryDisplay": {
+        "termKit.categoryDisplay": {
           "type": "object",
           "default": {},
           "description": "分类显示配置：自定义每个分类的显示名称和图标。用户可以添加新分类或修改现有分类的显示信息。",
@@ -112,143 +112,143 @@
     },
     "commands": [
       {
-        "command": "quickCmd.sendToTerminal",
+        "command": "termKit.sendToTerminal",
         "title": "Send to Terminal",
         "icon": "$(terminal)"
       },
       {
-        "command": "quickCmd.refreshView",
+        "command": "termKit.refreshView",
         "title": "Refresh",
         "icon": "$(refresh)"
       },
       {
-        "command": "quickCmd.searchCommands",
+        "command": "termKit.searchCommands",
         "title": "Search Commands",
         "icon": "$(search)"
       },
       {
-        "command": "quickCmd.copyCommand",
+        "command": "termKit.copyCommand",
         "title": "Copy Command",
         "icon": "$(copy)"
       },
       {
-        "command": "quickCmd.editCommand",
+        "command": "termKit.editCommand",
         "title": "Edit Command",
         "icon": "$(edit)"
       },
       {
-        "command": "quickCmd.deleteCommand",
+        "command": "termKit.deleteCommand",
         "title": "Delete Command",
         "icon": "$(trash)"
       },
       {
-        "command": "quickCmd.addCommand",
+        "command": "termKit.addCommand",
         "title": "Add New Command",
         "icon": "$(add)"
       },
       {
-        "command": "quickCmd.editCategory",
+        "command": "termKit.editCategory",
         "title": "Rename Category",
         "icon": "$(edit)",
-        "category": "Quick Commands"
+        "category": "TermKit Commands"
       },
       {
-        "command": "quickCmd.deleteCategory",
+        "command": "termKit.deleteCategory",
         "title": "Delete Category",
         "icon": "$(trash)",
-        "category": "Quick Commands"
+        "category": "TermKit Commands"
       },
       {
-        "command": "quickCmd.clearAllData",
+        "command": "termKit.clearAllData",
         "title": "Clear All Command Data",
         "icon": "$(trash)",
-        "category": "Quick Commands"
+        "category": "TermKit Commands"
       },
       {
-        "command": "quickCmd.exportData",
+        "command": "termKit.exportData",
         "title": "Export Command Data",
         "icon": "$(export)",
-        "category": "Quick Commands"
+        "category": "TermKit Commands"
       },
       {
-        "command": "quickCmd.importData",
+        "command": "termKit.importData",
         "title": "Import Command Data",
         "icon": "$(import)",
-        "category": "Quick Commands"
+        "category": "TermKit Commands"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "quickCmd.addCommand",
-          "when": "view == quickCmdView",
+          "command": "termKit.addCommand",
+          "when": "view == termKitView",
           "group": "navigation@1"
         },
         {
-          "command": "quickCmd.searchCommands",
-          "when": "view == quickCmdView",
+          "command": "termKit.searchCommands",
+          "when": "view == termKitView",
           "group": "navigation@2"
         },
         {
-          "command": "quickCmd.refreshView",
-          "when": "view == quickCmdView",
+          "command": "termKit.refreshView",
+          "when": "view == termKitView",
           "group": "navigation@3"
         },
         {
-          "command": "quickCmd.importData",
-          "when": "view == quickCmdView",
+          "command": "termKit.importData",
+          "when": "view == termKitView",
           "group": "management@1"
         },
         {
-          "command": "quickCmd.exportData",
-          "when": "view == quickCmdView",
+          "command": "termKit.exportData",
+          "when": "view == termKitView",
           "group": "management@2"
         },
         {
-          "command": "quickCmd.clearAllData",
-          "when": "view == quickCmdView",
+          "command": "termKit.clearAllData",
+          "when": "view == termKitView",
           "group": "management@3"
         }
       ],
       "view/item/context": [
         {
-          "command": "quickCmd.sendToTerminal",
-          "when": "view == quickCmdView && viewItem == command",
+          "command": "termKit.sendToTerminal",
+          "when": "view == termKitView && viewItem == command",
           "group": "inline@1"
         },
         {
-          "command": "quickCmd.editCommand",
-          "when": "view == quickCmdView && viewItem == command",
+          "command": "termKit.editCommand",
+          "when": "view == termKitView && viewItem == command",
           "group": "inline@2"
         },
         {
-          "command": "quickCmd.copyCommand",
-          "when": "view == quickCmdView && viewItem == command",
+          "command": "termKit.copyCommand",
+          "when": "view == termKitView && viewItem == command",
           "group": "inline@3"
         },
         {
-          "command": "quickCmd.deleteCommand",
-          "when": "view == quickCmdView && viewItem == command",
+          "command": "termKit.deleteCommand",
+          "when": "view == termKitView && viewItem == command",
           "group": "inline@4"
         },
         {
-          "command": "quickCmd.sendToTerminal",
-          "when": "view == quickCmdView && viewItem == project-script",
+          "command": "termKit.sendToTerminal",
+          "when": "view == termKitView && viewItem == project-script",
           "group": "inline@1"
         },
         {
-          "command": "quickCmd.copyCommand",
-          "when": "view == quickCmdView && viewItem == project-script",
+          "command": "termKit.copyCommand",
+          "when": "view == termKitView && viewItem == project-script",
           "group": "inline@2"
         },
         {
-          "command": "quickCmd.editCategory",
-          "when": "view == quickCmdView && viewItem == category",
+          "command": "termKit.editCategory",
+          "when": "view == termKitView && viewItem == category",
           "group": "inline@1"
         },
         {
-          "command": "quickCmd.deleteCategory",
-          "when": "view == quickCmdView && viewItem == category",
+          "command": "termKit.deleteCategory",
+          "when": "view == termKitView && viewItem == category",
           "group": "inline@2"
         }
       ]

@@ -1,5 +1,5 @@
 import type { CommandManager } from '@src/core/manager'
-import type { QuickCmdProvider, QuickCmdTreeItem } from '../provider'
+import type { TermKitProvider, TermKitTreeItem } from '../provider'
 
 import * as meta from '@src/generated/meta'
 import { getCommonCategoryIcons } from '@src/utils'
@@ -10,10 +10,10 @@ import { configureCategorySettings } from './helpers'
 /**
  * 命令操作相关命令
  */
-export function useCommandOperations(commandManager: CommandManager, quickCmdProvider: QuickCmdProvider) {
+export function useCommandOperations(commandManager: CommandManager, termKitProvider: TermKitProvider) {
   // 复制命令到剪贴板
-  useCommand(meta.commands.quickCmdCopyCommand, async (item: QuickCmdTreeItem) => {
-    const command = quickCmdProvider.getCommandByTreeItem(item)
+  useCommand(meta.commands.termKitCopyCommand, async (item: TermKitTreeItem) => {
+    const command = termKitProvider.getCommandByTreeItem(item)
     if (command) {
       env.clipboard.writeText(command)
       const showNotifications = true
@@ -28,7 +28,7 @@ export function useCommandOperations(commandManager: CommandManager, quickCmdPro
   })
 
   // 添加命令
-  useCommand(meta.commands.quickCmdAddCommand, async () => {
+  useCommand(meta.commands.termKitAddCommand, async () => {
     try {
       // Get available categories
       const categories = await commandManager.getAvailableCategories()
@@ -146,7 +146,7 @@ export function useCommandOperations(commandManager: CommandManager, quickCmdPro
       })
 
       // Refresh the view
-      quickCmdProvider.refresh()
+      termKitProvider.refresh()
       window.showInformationMessage('Command added successfully!')
     }
     catch (error) {
@@ -155,9 +155,9 @@ export function useCommandOperations(commandManager: CommandManager, quickCmdPro
   })
 
   // 编辑命令
-  useCommand(meta.commands.quickCmdEditCommand, async (item: QuickCmdTreeItem) => {
+  useCommand(meta.commands.termKitEditCommand, async (item: TermKitTreeItem) => {
     try {
-      const commandObj = quickCmdProvider.getCommandObjectByTreeItem(item)
+      const commandObj = termKitProvider.getCommandObjectByTreeItem(item)
       if (!commandObj.id) {
         window.showErrorMessage('Cannot edit command: missing command ID')
         return
@@ -247,7 +247,7 @@ export function useCommandOperations(commandManager: CommandManager, quickCmdPro
       })
 
       // Refresh the view
-      quickCmdProvider.refresh()
+      termKitProvider.refresh()
       window.showInformationMessage('Command updated successfully!')
     }
     catch (error) {
@@ -256,9 +256,9 @@ export function useCommandOperations(commandManager: CommandManager, quickCmdPro
   })
 
   // 删除命令
-  useCommand(meta.commands.quickCmdDeleteCommand, async (item: QuickCmdTreeItem) => {
+  useCommand(meta.commands.termKitDeleteCommand, async (item: TermKitTreeItem) => {
     try {
-      const commandObj = quickCmdProvider.getCommandObjectByTreeItem(item)
+      const commandObj = termKitProvider.getCommandObjectByTreeItem(item)
       if (!commandObj.id) {
         window.showErrorMessage('Cannot delete command: missing command ID')
         return
@@ -274,7 +274,7 @@ export function useCommandOperations(commandManager: CommandManager, quickCmdPro
 
       if (result === 'Delete') {
         await commandManager.deleteCommand(commandObj.id)
-        quickCmdProvider.refresh()
+        termKitProvider.refresh()
         window.showInformationMessage('Command deleted successfully!')
       }
     }

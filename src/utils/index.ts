@@ -22,7 +22,7 @@ function getOrCreateControlledTerminal() {
 }
 
 // Export terminal control functions
-export function showQuickCmdTerminal() {
+export function showTermKitTerminal() {
   const { show } = getOrCreateControlledTerminal()
   show()
 }

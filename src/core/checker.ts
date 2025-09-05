@@ -27,7 +27,7 @@ export class DependencyChecker {
    */
   public async checkCategoryDependency(category: string): Promise<boolean> {
     try {
-      const config = vscode.workspace.getConfiguration('quickCmd')
+      const config = vscode.workspace.getConfiguration('termKit')
       const dependencyDetection = config.get<Record<string, DependencyDetectionConfig>>('dependencyDetection', {})
 
       const detection = dependencyDetection[category]

@@ -1,5 +1,5 @@
 import type { CommandManager } from '@src/core/manager'
-import type { QuickCmdProvider, QuickCmdTreeItem } from '../provider'
+import type { TermKitProvider, TermKitTreeItem } from '../provider'
 
 import * as meta from '@src/generated/meta'
 import { useCommand } from 'reactive-vscode'
@@ -14,11 +14,11 @@ import {
 /**
  * 分类操作相关命令
  */
-export function useCategoryOperations(commandManager: CommandManager, quickCmdProvider: QuickCmdProvider) {
+export function useCategoryOperations(commandManager: CommandManager, termKitProvider: TermKitProvider) {
   // 编辑分类
-  useCommand(meta.commands.quickCmdEditCategory, async (item: QuickCmdTreeItem) => {
+  useCommand(meta.commands.termKitEditCategory, async (item: TermKitTreeItem) => {
     try {
-      const categoryName = quickCmdProvider.getCategoryByTreeItem(item)
+      const categoryName = termKitProvider.getCategoryByTreeItem(item)
       if (!categoryName) {
         window.showErrorMessage('Cannot edit category: category name not found')
         return
@@ -56,7 +56,7 @@ export function useCategoryOperations(commandManager: CommandManager, quickCmdPr
       }
 
       // Refresh the view
-      quickCmdProvider.refresh()
+      termKitProvider.refresh()
     }
     catch (error) {
       window.showErrorMessage(`Failed to edit category: ${error}`)
@@ -64,9 +64,9 @@ export function useCategoryOperations(commandManager: CommandManager, quickCmdPr
   })
 
   // 删除分类
-  useCommand(meta.commands.quickCmdDeleteCategory, async (item: QuickCmdTreeItem) => {
+  useCommand(meta.commands.termKitDeleteCategory, async (item: TermKitTreeItem) => {
     try {
-      const categoryName = quickCmdProvider.getCategoryByTreeItem(item)
+      const categoryName = termKitProvider.getCategoryByTreeItem(item)
       if (!categoryName) {
         window.showErrorMessage('Cannot delete category: category name not found')
         return
@@ -85,7 +85,7 @@ export function useCategoryOperations(commandManager: CommandManager, quickCmdPr
 
       if (result === 'Delete') {
         await commandManager.deleteCategory(categoryName)
-        quickCmdProvider.refresh()
+        termKitProvider.refresh()
         window.showInformationMessage(`Category "${categoryName}" and ${commandCount} command(s) deleted successfully!`)
       }
     }
