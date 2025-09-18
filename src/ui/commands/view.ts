@@ -3,7 +3,7 @@ import type { TermKitProvider, TermKitTreeItem } from '../provider'
 
 import { DependencyChecker } from '@src/core/checker'
 import * as meta from '@src/generated/meta'
-import { sendCommandToTerminal } from '@src/utils'
+import { logger, sendCommandToTerminal } from '@src/utils'
 import { useCommand } from 'reactive-vscode'
 import { window } from 'vscode'
 
@@ -54,8 +54,31 @@ export function useViewCommands(commandManager: CommandManager, termKitProvider:
 
   // 发送命令到终端
   useCommand(meta.commands.termKitSendToTerminal, async (item: TermKitTreeItem) => {
-    if (item?.command?.command) {
-      await sendCommandToTerminal(item.command.command)
+    logger.info(`🎯 SendToTerminal command called`)
+    logger.info(`🎯 Item details:`, JSON.stringify({
+      label: item?.label,
+      commandText: item?.commandText,
+      contextValue: item?.contextValue,
+      category: item?.category,
+      commandId: item?.commandId,
+      description: item?.description,
+      tooltip: item?.tooltip,
+    }))
+
+    if (item?.commandText) {
+      logger.info(`📝 Command to send: ${item.commandText}`)
+      await sendCommandToTerminal(item.commandText)
+    }
+    else {
+      logger.warn(`⚠️ No command found in item. Item is not a command or commandText is missing.`)
+
+      // 如果是分类项目，提示用户
+      if (item?.contextValue === 'category') {
+        window.showInformationMessage(`Please select a command within the "${item.label}" category to execute.`)
+      }
+      else {
+        window.showWarningMessage('No command found to execute')
+      }
     }
   })
 }

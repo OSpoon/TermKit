@@ -48,10 +48,18 @@ const { activate, deactivate } = defineExtension(async (context: ExtensionContex
 
   // Handle tree item selection for command execution
   const treeSelectionHandler = treeView.onDidChangeSelection((e) => {
+    logger.info(`📋 Tree selection changed, items: ${e.selection.length}`)
+
     if (e.selection.length > 0) {
       const item = e.selection[0]
+      logger.info(`🎯 Selected item: ${item.label}, contextValue: ${item.contextValue}`)
+
       if (item.contextValue === 'command') {
+        logger.info(`💻 Executing command: termKit.sendToTerminal`)
         commands.executeCommand('termKit.sendToTerminal', item)
+      }
+      else {
+        logger.info(`ℹ️ Item is not a command, skipping execution`)
       }
     }
   })

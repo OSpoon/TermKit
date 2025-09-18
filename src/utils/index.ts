@@ -140,36 +140,55 @@ async function executeCommandFallback(terminal: any, command: string) {
 
 // 主要的命令发送函数 - 重构后的简洁版本
 export async function sendCommandToTerminal(command: string) {
+  logger.info(`🚀 Starting to send command to terminal: ${command}`)
+
   try {
     // 获取控制终端实例
+    logger.info('📡 Getting or creating controlled terminal...')
     const { terminal: controlledTerminal, show: showTerminal } = getOrCreateControlledTerminal()
 
+    logger.info(`📱 Terminal instance obtained: ${controlledTerminal.value ? 'available' : 'not available'}`)
+
     // 显示终端
+    logger.info('👁️ Showing terminal...')
     showTerminal()
 
     // 检查终端可用性
-    if (!controlledTerminal.value || controlledTerminal.value.exitStatus !== undefined) {
-      throw new Error('Controlled terminal is not available or has been closed')
+    if (!controlledTerminal.value) {
+      throw new Error('Controlled terminal value is null or undefined')
     }
+
+    if (controlledTerminal.value.exitStatus !== undefined) {
+      throw new Error(`Controlled terminal has exited with status: ${controlledTerminal.value.exitStatus}`)
+    }
+
+    logger.info(`✅ Terminal is available and ready`)
+    logger.info(`🔧 Terminal name: ${controlledTerminal.value.name}`)
+    logger.info(`🔧 Shell integration available: ${controlledTerminal.value.shellIntegration ? 'yes' : 'no'}`)
 
     // 立即检查 Shell Integration 是否可用
     if (controlledTerminal.value.shellIntegration) {
+      logger.info('🎯 Using shell integration immediately')
       await executeCommandWithShellIntegration(controlledTerminal.value, command)
       return
     }
 
     // 如果不可用，等待 Shell Integration
-    logger.info('Shell integration not ready, waiting...')
+    logger.info('⏳ Shell integration not ready, waiting...')
     const shellIntegration = await waitForShellIntegration(controlledTerminal)
 
     if (shellIntegration) {
       // Shell Integration 可用
+      logger.info('🎯 Using shell integration after waiting')
       await executeCommandWithShellIntegration(controlledTerminal.value, command)
     }
     else {
       // 使用降级方案
+      logger.info('🔄 Using fallback method')
       await executeCommandFallback(controlledTerminal.value, command)
     }
+
+    logger.info('🎉 Command sending completed successfully')
   }
   catch (error) {
     logger.error('❌ Failed to send command to terminal:', error)
